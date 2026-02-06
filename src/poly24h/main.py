@@ -1,4 +1,4 @@
-"""Dry-Run main loop — scan → detect → log.
+"""Dry-Run main loop — scan → detect → log → alert.
 
 Usage:
     python -m poly24h
@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import logging
+import os
 import signal
 
 from poly24h.config import MARKET_SOURCES, BotConfig
@@ -18,6 +19,7 @@ from poly24h.discovery.gamma_client import GammaClient
 from poly24h.discovery.market_scanner import MarketScanner
 from poly24h.models.market import Market
 from poly24h.models.opportunity import Opportunity
+from poly24h.monitoring.telegram import TelegramAlerter
 from poly24h.strategy.dutch_book import detect_single_condition
 from poly24h.strategy.opportunity import rank_opportunities
 from poly24h.strategy.orderbook_scanner import (
@@ -176,14 +178,35 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 # ---------------------------------------------------------------------------
 
 
+def _build_alerter() -> TelegramAlerter:
+    """환경변수에서 TelegramAlerter 생성."""
+    return TelegramAlerter(
+        bot_token=os.environ.get("TELEGRAM_BOT_TOKEN"),
+        chat_id=os.environ.get("TELEGRAM_CHAT_ID"),
+    )
+
+
 async def main_loop(config: BotConfig, scanner_config: dict | None = None) -> None:
-    """메인 루프: 주기적 스캔 → 감지 → 로깅."""
+    """메인 루프: 주기적 스캔 → 감지 → 로깅 → 텔레그램 알림."""
+    alerter = _build_alerter()
+
     print(BANNER)
     print(f"Mode: {'DRY RUN' if config.dry_run else 'LIVE'}")
     print(f"Scan interval: {config.scan_interval}s")
+    print(f"Telegram alerts: {'ON' if alerter.enabled else 'OFF'}")
     enabled = config.enabled_sources()
     print(f"Enabled sources: {', '.join(enabled.keys())}")
     print("-" * 60)
+
+    # Notify startup
+    if alerter.enabled:
+        mode = "DRY RUN" if config.dry_run else "LIVE"
+        await alerter.alert_error(
+            f"🟢 poly24h started — {mode} mode\n"
+            f"Sources: {', '.join(enabled.keys())}\n"
+            f"Interval: {config.scan_interval}s",
+            level="info",
+        )
 
     # Graceful shutdown
     stop_event = asyncio.Event()
@@ -206,8 +229,14 @@ async def main_loop(config: BotConfig, scanner_config: dict | None = None) -> No
         try:
             opps = await run_cycle(config, scanner_config or dict(enabled))
             log_results(opps, dry_run=config.dry_run)
+
+            # Send Telegram alerts for each opportunity
+            for opp in opps:
+                await alerter.alert_opportunity(opp)
+
         except Exception:
             logger.exception("Error in cycle %d", cycle)
+            await alerter.alert_error(f"Cycle {cycle} error — check logs")
 
         # Wait for next cycle or shutdown
         try:

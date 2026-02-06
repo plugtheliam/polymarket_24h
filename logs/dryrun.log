@@ -1,0 +1,18 @@
+
+╔══════════════════════════════════════════════╗
+║   poly24h — Polymarket 24H Arbitrage Bot     ║
+║   Dutch Book Scanner · Phase 1 MVP           ║
+╚══════════════════════════════════════════════╝
+
+Mode: DRY RUN
+Scan interval: 60s
+Telegram alerts: ON
+Enabled sources: hourly_crypto, nba, soccer
+------------------------------------------------------------
+2026-02-06 15:11:51,455 [INFO] poly24h.main: === Cycle 1 ===
+2026-02-06 15:11:51,517 [INFO] poly24h.discovery.market_scanner: Hourly crypto: found 92 markets
+2026-02-06 15:11:53,783 [INFO] poly24h.discovery.market_scanner: Unified sports: found 47 markets from 600 events
+2026-02-06 15:11:53,791 [INFO] poly24h.discovery.market_scanner: Discovered 139 markets from 3 sources
+2026-02-06 15:11:53,792 [INFO] poly24h.main: Scanned 139 markets
+
+[DRY RUN] No opportunities found this cycle.
