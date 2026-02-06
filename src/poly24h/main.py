@@ -34,12 +34,22 @@ logger = logging.getLogger(__name__)
 # Banner
 # ---------------------------------------------------------------------------
 
-BANNER = r"""
+BANNER_SCAN = r"""
 ╔══════════════════════════════════════════════╗
 ║   poly24h — Polymarket 24H Arbitrage Bot     ║
-║   Dutch Book Scanner · Phase 1 MVP           ║
+║   Dutch Book Scanner · Polling Mode           ║
 ╚══════════════════════════════════════════════╝
 """
+
+BANNER_SNIPER = r"""
+╔══════════════════════════════════════════════╗
+║   poly24h — Polymarket 24H Arbitrage Bot     ║
+║   Event-Driven Sniper · F-018                 ║
+╚══════════════════════════════════════════════╝
+"""
+
+# Keep backward compat
+BANNER = BANNER_SCAN
 
 # ---------------------------------------------------------------------------
 # Core functions
@@ -155,6 +165,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         description="Polymarket 24H Arbitrage Bot",
     )
     parser.add_argument(
+        "--mode", type=str, default="sniper",
+        choices=["sniper", "scan"],
+        help="Bot mode: sniper (event-driven) or scan (polling)",
+    )
+    parser.add_argument(
         "--interval", type=int, default=60,
         help="Scan interval in seconds (default: 60, min: 10)",
     )
@@ -169,6 +184,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--orderbook", action="store_true", default=False,
         help="Enable CLOB orderbook-based arb scanning (F-014)",
+    )
+    parser.add_argument(
+        "--threshold", type=float, default=0.48,
+        help="Sniper threshold: buy if best ask ≤ this (default: 0.48)",
     )
     return parser.parse_args(argv)
 
@@ -247,6 +266,100 @@ async def main_loop(config: BotConfig, scanner_config: dict | None = None) -> No
     print("Goodbye! 🤙")
 
 
+async def sniper_loop(config: BotConfig, threshold: float = 0.48) -> None:
+    """이벤트 드리븐 스나이퍼 루프 (F-018)."""
+    from poly24h.scheduler.event_scheduler import (
+        EventDrivenLoop,
+        MarketOpenSchedule,
+        PreOpenPreparer,
+        RapidOrderbookPoller,
+    )
+
+    alerter = _build_alerter()
+
+    print(BANNER_SNIPER)
+    mode = "DRY RUN" if config.dry_run else "LIVE"
+    print(f"Mode: {mode}")
+    print(f"Sniper threshold: ${threshold:.2f}")
+    print(f"Telegram alerts: {'ON' if alerter.enabled else 'OFF'}")
+    print("-" * 60)
+
+    if alerter.enabled:
+        await alerter.alert_error(
+            f"🎯 poly24h SNIPER started — {mode}\n"
+            f"Threshold: ${threshold:.2f}\n"
+            f"Strategy: Event-driven market open sniper",
+            level="info",
+        )
+
+    schedule = MarketOpenSchedule()
+    gamma_client = GammaClient()
+    preparer = PreOpenPreparer(gamma_client)
+    clob_fetcher = ClobOrderbookFetcher(timeout=8)
+    poller = RapidOrderbookPoller(clob_fetcher)
+    loop = EventDrivenLoop(schedule, preparer, poller, alerter)
+
+    # Create a simple config-like namespace for the loop
+    class SniperConfig:
+        pre_open_window_secs = 30.0
+        sniper_threshold = threshold
+
+    # Graceful shutdown
+    stop_event = asyncio.Event()
+
+    def _handle_signal():
+        print("\n⚡ Shutting down gracefully...")
+        stop_event.set()
+
+    ev_loop = asyncio.get_running_loop()
+    for sig in (signal.SIGINT, signal.SIGTERM):
+        try:
+            ev_loop.add_signal_handler(sig, _handle_signal)
+        except NotImplementedError:
+            pass
+
+    sniper_cfg = SniperConfig()
+
+    # Run the event-driven loop with shutdown check
+    from datetime import datetime, timezone
+
+    cycle = 0
+    while not stop_event.is_set():
+        cycle += 1
+        now = datetime.now(tz=timezone.utc)
+        phase = schedule.current_phase(now)
+        secs = schedule.seconds_until_open(now)
+
+        logger.info(
+            "=== Cycle %d | Phase: %s | Next open in: %.0fs ===",
+            cycle, phase.value, secs,
+        )
+
+        try:
+            if phase.value == "idle":
+                await loop._handle_idle_phase(now, sniper_cfg)
+            elif phase.value == "pre_open":
+                await loop._handle_pre_open_phase(sniper_cfg)
+            elif phase.value == "snipe":
+                await loop._handle_snipe_phase(sniper_cfg)
+            elif phase.value == "cooldown":
+                await loop._handle_cooldown_phase(sniper_cfg)
+        except Exception:
+            logger.exception("Error in cycle %d (phase: %s)", cycle, phase.value)
+            if alerter.enabled:
+                await alerter.alert_error(
+                    f"Sniper error in {phase.value} phase — check logs"
+                )
+
+        # Brief pause
+        try:
+            await asyncio.wait_for(stop_event.wait(), timeout=1)
+        except asyncio.TimeoutError:
+            pass
+
+    print("Goodbye! 🤙")
+
+
 def cli_main() -> None:
     """CLI entry point."""
     logging.basicConfig(
@@ -262,7 +375,12 @@ def cli_main() -> None:
     if args.orderbook:
         config.enable_orderbook_scan = True
 
-    # Source filtering
+    # Sniper mode (default)
+    if args.mode == "sniper":
+        asyncio.run(sniper_loop(config, threshold=args.threshold))
+        return
+
+    # Scan mode (legacy polling)
     scanner_config = None
     if args.sources:
         source_names = [s.strip() for s in args.sources.split(",")]
@@ -271,7 +389,6 @@ def cli_main() -> None:
             for name, cfg in MARKET_SOURCES.items()
             if name in source_names or any(name.startswith(s) for s in source_names)
         }
-        # Force enable selected sources
         for cfg in scanner_config.values():
             cfg["enabled"] = True
 

@@ -335,7 +335,14 @@ class EventDrivenLoop:
                         opportunity.trigger_price,
                         opportunity.spread
                     )
-                    await self.alerter.alert_opportunity(opportunity)
+                    await self.alerter.alert_error(
+                        f"🎯 <b>Sniper Opportunity</b>\n"
+                        f"{'━' * 24}\n"
+                        f"Side: {opportunity.trigger_side}\n"
+                        f"Price: ${opportunity.trigger_price:.4f}\n"
+                        f"Spread: ${opportunity.spread:.4f}",
+                        level="info",
+                    )
 
             except Exception as exc:
                 logger.error("Error polling %s/%s: %s", yes_token, no_token, exc)
@@ -358,7 +365,12 @@ class EventDrivenLoop:
                 opportunity = self.poller.detect_opportunity(snapshot, config.sniper_threshold)
 
                 if opportunity:
-                    await self.alerter.alert_opportunity(opportunity)
+                    await self.alerter.alert_error(
+                        f"🎯 <b>Sniper (Cooldown)</b>\n"
+                        f"Side: {opportunity.trigger_side} | "
+                        f"Price: ${opportunity.trigger_price:.4f}",
+                        level="info",
+                    )
 
             except Exception as exc:
                 logger.error("Error polling %s/%s: %s", yes_token, no_token, exc)
