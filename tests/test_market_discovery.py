@@ -250,6 +250,208 @@ class TestMarketScannerSports:
                 assert len(markets) == 0
 
 
+# ---------------------------------------------------------------------------
+# F-015: Unified sports discovery (discover_all_sports)
+# ---------------------------------------------------------------------------
+
+
+class TestDiscoverAllSportsUnified:
+    """discover_all_sports: 하나의 date range 쿼리로 모든 스포츠 통합 발견."""
+
+    async def test_unified_finds_nba_and_soccer(self):
+        """ONE query should return both NBA and soccer markets."""
+        tomorrow = (datetime.now(tz=timezone.utc) + timedelta(hours=6)).strftime("%Y-%m-%d")
+        nba_mkt = _make_market(
+            market_id="mkt_nba", question="Will Lakers win?", liquidity=6000.0,
+        )
+        nba_event = _make_event(
+            event_id="evt_nba",
+            title="Lakers vs Celtics",
+            slug=f"nba-lal-bos-{tomorrow}",
+            markets=[nba_mkt],
+        )
+        epl_mkt = _make_market(
+            market_id="mkt_epl", question="Will Arsenal win?", liquidity=6000.0,
+        )
+        soccer_event = _make_event(
+            event_id="evt_epl",
+            title="Arsenal vs Chelsea",
+            slug=f"epl-ars-che-{tomorrow}",
+            markets=[epl_mkt],
+        )
+        configs = {
+            "nba": {"enabled": True, "min_liquidity_usd": 5000},
+            "soccer": {"enabled": True, "min_liquidity_usd": 5000},
+        }
+        with aioresponses() as m:
+            # ONE paginated query returns both events
+            m.get(EVENTS_PATTERN, payload=[nba_event, soccer_event])
+            async with GammaClient() as client:
+                scanner = MarketScanner(client)
+                markets = await scanner.discover_all_sports(configs)
+                assert len(markets) == 2
+                sources = {mk.source for mk in markets}
+                assert MarketSource.NBA in sources
+                assert MarketSource.SOCCER in sources
+
+    async def test_unified_applies_per_sport_liquidity(self):
+        """Each sport applies its own min_liquidity."""
+        tomorrow = (datetime.now(tz=timezone.utc) + timedelta(hours=6)).strftime("%Y-%m-%d")
+        nba_mkt = _make_market(
+            market_id="mkt_nba", question="Lakers win?", liquidity=4000.0,
+        )
+        nba_event = _make_event(
+            event_id="evt_nba",
+            title="Lakers vs Celtics",
+            slug=f"nba-lal-bos-{tomorrow}",
+            markets=[nba_mkt],
+        )
+        epl_mkt = _make_market(
+            market_id="mkt_epl", question="Arsenal win?", liquidity=4000.0,
+        )
+        soccer_event = _make_event(
+            event_id="evt_epl",
+            title="Arsenal vs Chelsea",
+            slug=f"epl-ars-che-{tomorrow}",
+            markets=[epl_mkt],
+        )
+        configs = {
+            "nba": {"enabled": True, "min_liquidity_usd": 5000},    # 4000 < 5000 → excluded
+            "soccer": {"enabled": True, "min_liquidity_usd": 3000},  # 4000 > 3000 → included
+        }
+        with aioresponses() as m:
+            m.get(EVENTS_PATTERN, payload=[nba_event, soccer_event])
+            async with GammaClient() as client:
+                scanner = MarketScanner(client)
+                markets = await scanner.discover_all_sports(configs)
+                assert len(markets) == 1
+                assert markets[0].source == MarketSource.SOCCER
+
+    async def test_unified_skips_neg_risk(self):
+        """NegRisk events should be skipped."""
+        tomorrow = (datetime.now(tz=timezone.utc) + timedelta(hours=6)).strftime("%Y-%m-%d")
+        neg_mkt = _make_market(
+            market_id="mkt_neg", question="Championship?", liquidity=10000.0,
+        )
+        event = _make_event(
+            event_id="evt_neg",
+            title="NBA Championship",
+            slug=f"nba-champ-season-{tomorrow}",
+            enable_neg_risk=True,
+            markets=[neg_mkt],
+        )
+        configs = {"nba": {"enabled": True, "min_liquidity_usd": 5000}}
+        with aioresponses() as m:
+            m.get(EVENTS_PATTERN, payload=[event])
+            async with GammaClient() as client:
+                scanner = MarketScanner(client)
+                markets = await scanner.discover_all_sports(configs)
+                assert len(markets) == 0
+
+    async def test_unified_ignores_unknown_slug(self):
+        """Slugs not matching GAME_SLUG_RE should be ignored."""
+        event = _make_event(
+            event_id="evt_unk",
+            title="Super Bowl Champion",
+            slug="super-bowl-champion-2026",
+            markets=[_make_market(market_id="mkt_unk", liquidity=10000.0)],
+        )
+        configs = {"nba": {"enabled": True, "min_liquidity_usd": 5000}}
+        with aioresponses() as m:
+            m.get(EVENTS_PATTERN, payload=[event])
+            async with GammaClient() as client:
+                scanner = MarketScanner(client)
+                markets = await scanner.discover_all_sports(configs)
+                assert len(markets) == 0
+
+    async def test_unified_soccer_slug_variants(self):
+        """Various soccer slug prefixes should all map to SOCCER."""
+        tomorrow = (datetime.now(tz=timezone.utc) + timedelta(hours=6)).strftime("%Y-%m-%d")
+        prefixes = ["epl", "lal", "bun", "ucl", "spl", "mls"]
+        events = [
+            _make_event(
+                event_id=f"evt_{p}",
+                title=f"Soccer {p}",
+                slug=f"{p}-aaa-bbb-{tomorrow}",
+                markets=[_make_market(market_id=f"mkt_{p}", liquidity=6000.0)],
+            )
+            for p in prefixes
+        ]
+        configs = {"soccer": {"enabled": True, "min_liquidity_usd": 5000}}
+        with aioresponses() as m:
+            m.get(EVENTS_PATTERN, payload=events)
+            async with GammaClient() as client:
+                scanner = MarketScanner(client)
+                markets = await scanner.discover_all_sports(configs)
+                assert len(markets) == len(prefixes)
+                assert all(mk.source == MarketSource.SOCCER for mk in markets)
+
+    async def test_unified_empty_response(self):
+        """Empty API response → empty results."""
+        configs = {"nba": {"enabled": True, "min_liquidity_usd": 5000}}
+        with aioresponses() as m:
+            m.get(EVENTS_PATTERN, payload=[])
+            async with GammaClient() as client:
+                scanner = MarketScanner(client)
+                markets = await scanner.discover_all_sports(configs)
+                assert markets == []
+
+
+class TestDiscoverAllUsesUnified:
+    """discover_all() should use unified sports discovery."""
+
+    async def test_discover_all_calls_unified_for_sports(self):
+        """discover_all should call discover_all_sports ONCE for all sports."""
+        tomorrow = (datetime.now(tz=timezone.utc) + timedelta(hours=6)).strftime("%Y-%m-%d")
+        crypto_mkt = _make_market(
+            market_id="mkt_crypto",
+            question="Will BTC be above $100k in 1 hour?",
+        )
+        crypto_event = _make_event(
+            event_id="evt_crypto",
+            title="BTC 1 hour market",
+            markets=[crypto_mkt],
+        )
+        nba_mkt = _make_market(
+            market_id="mkt_nba", question="Will Lakers win?",
+            liquidity=6000.0,
+        )
+        nba_event = _make_event(
+            event_id="evt_nba",
+            title="Lakers vs Celtics",
+            slug=f"nba-lal-bos-{tomorrow}",
+            markets=[nba_mkt],
+        )
+        soccer_mkt = _make_market(
+            market_id="mkt_soccer", question="Will Arsenal win?",
+            liquidity=6000.0,
+        )
+        soccer_event = _make_event(
+            event_id="evt_soccer",
+            title="Arsenal vs Chelsea",
+            slug=f"epl-ars-che-{tomorrow}",
+            markets=[soccer_mkt],
+        )
+        config = {
+            "hourly_crypto": {"enabled": True, "min_liquidity_usd": 3000, "min_spread": 0.01},
+            "nba": {"enabled": True, "min_liquidity_usd": 5000, "min_spread": 0.015},
+            "soccer": {"enabled": True, "min_liquidity_usd": 5000, "min_spread": 0.015},
+        }
+        with aioresponses() as m:
+            # hourly_crypto → tag_slug=1H
+            m.get(EVENTS_PATTERN, payload=[crypto_event])
+            # unified sports → ONE date range query returns nba + soccer
+            m.get(EVENTS_PATTERN, payload=[nba_event, soccer_event])
+            async with GammaClient() as client:
+                scanner = MarketScanner(client, config=config)
+                markets = await scanner.discover_all()
+                assert len(markets) == 3
+                sources = {mk.source for mk in markets}
+                assert MarketSource.HOURLY_CRYPTO in sources
+                assert MarketSource.NBA in sources
+                assert MarketSource.SOCCER in sources
+
+
 class TestMarketScannerDiscoverAll:
     async def test_discover_all_enabled_sources(self):
         """discover_all should scan only enabled sources."""

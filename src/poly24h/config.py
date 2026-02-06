@@ -115,6 +115,7 @@ class BotConfig:
     scan_interval: int = 60  # seconds
     max_position_usd: float = 1000.0
     max_daily_loss_usd: float = 500.0
+    enable_orderbook_scan: bool = False  # F-014: CLOB 오더북 기반 arb 스캔
     market_sources: dict = field(default_factory=lambda: MARKET_SOURCES)
 
     def __post_init__(self):

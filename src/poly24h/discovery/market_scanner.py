@@ -60,23 +60,38 @@ class MarketScanner:
     # ------------------------------------------------------------------
 
     async def discover_all(self) -> list[Market]:
-        """모든 enabled 소스에서 마켓 수집 + 중복 제거."""
+        """모든 enabled 소스에서 마켓 수집 + 중복 제거.
+
+        스포츠 소스는 discover_all_sports()로 ONE 쿼리 통합 (F-015).
+        """
         markets: list[Market] = []
         seen_ids: set[str] = set()
 
-        for source_name, source_cfg in self.config.items():
-            if not source_cfg.get("enabled"):
-                continue
-
+        # 1) Hourly crypto (별도 tag_slug 쿼리)
+        crypto_cfg = self.config.get("hourly_crypto")
+        if crypto_cfg and crypto_cfg.get("enabled"):
             try:
-                if source_name == "hourly_crypto":
-                    found = await self.discover_hourly_crypto(source_cfg)
-                else:
-                    found = await self.discover_sports(source_name, source_cfg)
+                found = await self.discover_hourly_crypto(crypto_cfg)
             except Exception:
-                logger.exception("Error discovering %s", source_name)
+                logger.exception("Error discovering hourly_crypto")
                 found = []
+            for mkt in found:
+                if mkt.id not in seen_ids:
+                    seen_ids.add(mkt.id)
+                    markets.append(mkt)
 
+        # 2) 스포츠: 하나의 date range 쿼리로 통합
+        sports_configs = {
+            name: cfg
+            for name, cfg in self.config.items()
+            if name != "hourly_crypto" and cfg.get("enabled")
+        }
+        if sports_configs:
+            try:
+                found = await self.discover_all_sports(sports_configs)
+            except Exception:
+                logger.exception("Error discovering sports (unified)")
+                found = []
             for mkt in found:
                 if mkt.id not in seen_ids:
                     seen_ids.add(mkt.id)
@@ -130,7 +145,95 @@ class MarketScanner:
         return markets
 
     # ------------------------------------------------------------------
-    # Sports discovery (date range + slug pattern matching)
+    # Unified sports discovery (F-015: ONE query for ALL sports)
+    # ------------------------------------------------------------------
+
+    async def discover_all_sports(
+        self, configs: dict,
+    ) -> list[Market]:
+        """하나의 date range 쿼리로 모든 스포츠 경기 발견 후 slug prefix로 분류.
+
+        Args:
+            configs: {source_name: {enabled, min_liquidity_usd, ...}} 스포츠별 설정
+
+        Returns:
+            분류된 Market 리스트 (slug prefix → MarketSource 매핑)
+        """
+        # source_name → MarketSource enum 매핑 + min_liquidity
+        source_map: dict[MarketSource, float] = {}
+        for source_name, cfg in configs.items():
+            try:
+                source_enum = MarketSource(source_name)
+            except ValueError:
+                logger.warning("Unknown sport source: %s", source_name)
+                continue
+            source_map[source_enum] = cfg.get("min_liquidity_usd", 5000)
+
+        if not source_map:
+            return []
+
+        # 향후 48시간 이내 정산되는 이벤트 조회 — ONE query
+        now = datetime.now(tz=timezone.utc)
+        end_min = now.isoformat()
+        end_max = (now + timedelta(hours=48)).isoformat()
+
+        all_events: list[dict] = []
+        for offset in range(0, 600, 50):
+            batch = await self.client.fetch_events_by_date_range(
+                end_date_min=end_min,
+                end_date_max=end_max,
+                limit=50,
+                offset=offset,
+            )
+            all_events.extend(batch)
+            if len(batch) < 50:
+                break
+
+        markets: list[Market] = []
+
+        for event in all_events:
+            slug = event.get("slug", "")
+
+            # slug 패턴으로 개별 경기 식별
+            match = GAME_SLUG_RE.match(slug)
+            if not match:
+                continue
+
+            # slug prefix에서 스포츠 종류 확인
+            prefix = match.group(1)
+            slug_source = GAME_SLUG_PREFIXES.get(prefix)
+            if slug_source is None or slug_source not in source_map:
+                continue
+
+            # NegRisk 시즌 마켓 제외
+            if event.get("enableNegRisk") or event.get("negRiskAugmented"):
+                continue
+
+            min_liq = source_map[slug_source]
+
+            for raw_mkt in event.get("markets", []):
+                end_date_str = raw_mkt.get("endDate") or event.get("endDate", "")
+                if not MarketFilter.is_within_24h(end_date_str, max_hours=48):
+                    continue
+
+                if not MarketFilter.meets_min_liquidity(raw_mkt, min_liq):
+                    continue
+
+                if not MarketFilter.is_active(raw_mkt):
+                    continue
+
+                market = Market.from_gamma_response(raw_mkt, event, slug_source)
+                if market:
+                    markets.append(market)
+
+        logger.info(
+            "Unified sports: found %d markets from %d events",
+            len(markets), len(all_events),
+        )
+        return markets
+
+    # ------------------------------------------------------------------
+    # Sports discovery (backwards compat — delegates to unified)
     # ------------------------------------------------------------------
 
     async def discover_sports(

@@ -20,6 +20,11 @@ from poly24h.models.market import Market
 from poly24h.models.opportunity import Opportunity
 from poly24h.strategy.dutch_book import detect_single_condition
 from poly24h.strategy.opportunity import rank_opportunities
+from poly24h.strategy.orderbook_scanner import (
+    ClobOrderbookFetcher,
+    OrderbookArbDetector,
+    OrderbookBatchScanner,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -63,19 +68,44 @@ def format_opportunity_line(opp: Opportunity) -> str:
     )
 
 
-def log_results(opportunities: list[Opportunity], dry_run: bool = True) -> None:
+def format_ob_opportunity_line(opp: Opportunity) -> str:
+    """[OB] 오더북 기반 기회를 한 줄 문자열로 포맷."""
+    return (
+        f"  [OB] [{opp.market.source.value}] {opp.market.question[:50]:<50} "
+        f"| ROI: {opp.roi_pct:6.2f}% "
+        f"| yes_ask: ${opp.yes_price:.4f} "
+        f"| no_ask: ${opp.no_price:.4f} "
+        f"| margin: ${opp.margin:.4f} "
+        f"| liq: ${opp.market.liquidity_usd:,.0f}"
+    )
+
+
+def log_results(
+    opportunities: list[Opportunity],
+    dry_run: bool = True,
+    ob_opportunities: list[Opportunity] | None = None,
+) -> None:
     """결과를 콘솔에 출력."""
     mode = "[DRY RUN]" if dry_run else "[LIVE]"
 
-    if not opportunities:
+    if not opportunities and not ob_opportunities:
         print(f"\n{mode} No opportunities found this cycle.")
         return
 
-    count = len(opportunities)
-    noun = "opportunity" if count == 1 else "opportunities"
-    print(f"\n{mode} Found {count} {noun}:")
-    for opp in opportunities:
-        print(format_opportunity_line(opp))
+    if opportunities:
+        count = len(opportunities)
+        noun = "opportunity" if count == 1 else "opportunities"
+        print(f"\n{mode} Found {count} mid-price {noun}:")
+        for opp in opportunities:
+            print(format_opportunity_line(opp))
+
+    if ob_opportunities:
+        count = len(ob_opportunities)
+        noun = "opportunity" if count == 1 else "opportunities"
+        print(f"\n{mode} Found {count} orderbook {noun}:")
+        for opp in ob_opportunities:
+            print(format_ob_opportunity_line(opp))
+
     print()
 
 
@@ -83,13 +113,31 @@ async def run_cycle(
     config: BotConfig,
     scanner_config: dict | None = None,
 ) -> list[Opportunity]:
-    """단일 스캔 사이클: discover → detect → return."""
+    """단일 스캔 사이클: discover → detect → return.
+
+    enable_orderbook_scan=True일 때 CLOB 오더북 기반 arb도 추가 스캔.
+    """
     async with GammaClient() as client:
         scanner = MarketScanner(client, config=scanner_config)
         markets = await scanner.discover_all()
 
     logger.info("Scanned %d markets", len(markets))
     opportunities = detect_all(markets, min_spread=0.01)
+
+    # F-014: Orderbook-based arb scanning
+    if config.enable_orderbook_scan and markets:
+        try:
+            fetcher = ClobOrderbookFetcher()
+            detector = OrderbookArbDetector()
+            batch_scanner = OrderbookBatchScanner(fetcher, detector, concurrency=5)
+            ob_opps = await batch_scanner.scan(markets, min_spread=0.015)
+            await fetcher.close()
+            if ob_opps:
+                logger.info("[OB] Found %d orderbook opportunities", len(ob_opps))
+                opportunities.extend(ob_opps)
+        except Exception:
+            logger.exception("[OB] Orderbook scan error")
+
     return opportunities
 
 
@@ -115,6 +163,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--live", action="store_true", default=False,
         help="Enable live trading (Phase 2)",
+    )
+    parser.add_argument(
+        "--orderbook", action="store_true", default=False,
+        help="Enable CLOB orderbook-based arb scanning (F-014)",
     )
     return parser.parse_args(argv)
 
@@ -178,6 +230,8 @@ def cli_main() -> None:
     config.scan_interval = max(args.interval, 10)
     if args.live:
         config.dry_run = False
+    if args.orderbook:
+        config.enable_orderbook_scan = True
 
     # Source filtering
     scanner_config = None
