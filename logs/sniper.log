@@ -8,5 +8,5 @@ Mode: DRY RUN
 Sniper threshold: $0.48
 Telegram alerts: ON
 ------------------------------------------------------------
-2026-02-06 15:42:29,981 [INFO] poly24h.main: === Cycle 1 | Phase: idle | Next open in: 1050s ===
-2026-02-06 15:42:29,982 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1020s
+2026-02-06 15:45:15,633 [INFO] poly24h.main: === Cycle 1 | Phase: idle | Next open in: 884s ===
+2026-02-06 15:45:15,633 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 854s

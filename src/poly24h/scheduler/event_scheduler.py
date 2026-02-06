@@ -313,66 +313,96 @@ class EventDrivenLoop:
         if sleep_time > 0:
             await asyncio.sleep(sleep_time)
 
+    # Tiered polling intervals (seconds) — aligned with polymarket_trader
+    SNIPE_ULTRA_EARLY_SECS = 10.0   # first 10s after open
+    SNIPE_ULTRA_EARLY_INTERVAL = 0.2  # 200ms — aggressive
+    SNIPE_EARLY_SECS = 30.0          # 10-30s after open
+    SNIPE_EARLY_INTERVAL = 0.5       # 500ms
+    SNIPE_NORMAL_INTERVAL = 1.0      # 30-60s: 1s
+    COOLDOWN_INTERVAL = 5.0          # cooldown: 5s
+
+    def _snipe_interval(self, seconds_since_open: float) -> float:
+        """Tiered polling interval based on time since market open."""
+        if seconds_since_open <= self.SNIPE_ULTRA_EARLY_SECS:
+            return self.SNIPE_ULTRA_EARLY_INTERVAL
+        if seconds_since_open <= self.SNIPE_EARLY_SECS:
+            return self.SNIPE_EARLY_INTERVAL
+        return self.SNIPE_NORMAL_INTERVAL
+
+    async def _poll_all_pairs(
+        self, threshold: float, phase_label: str = "SNIPE",
+    ) -> list[SniperOpportunity]:
+        """Poll all active token pairs in parallel, return opportunities."""
+        if not self._active_token_pairs:
+            return []
+
+        async def _poll_one(yes_token: str, no_token: str) -> SniperOpportunity | None:
+            try:
+                snapshot = await self.poller.poll_once(yes_token, no_token)
+                return self.poller.detect_opportunity(snapshot, threshold)
+            except Exception as exc:
+                logger.error("[%s] Error polling %s/%s: %s", phase_label, yes_token, no_token, exc)
+                return None
+
+        results = await asyncio.gather(
+            *[_poll_one(yt, nt) for yt, nt in self._active_token_pairs],
+            return_exceptions=True,
+        )
+        return [r for r in results if isinstance(r, SniperOpportunity)]
+
     async def _handle_snipe_phase(self, config) -> None:
-        """Handle SNIPE phase: rapid orderbook polling."""
+        """Handle SNIPE phase: rapid parallel orderbook polling with tiered intervals."""
         if not self._active_token_pairs:
             logger.warning("SNIPE: No active token pairs to monitor")
-            await asyncio.sleep(3)
+            await asyncio.sleep(0.5)
             return
 
-        logger.info("SNIPE: Rapid polling %d token pairs", len(self._active_token_pairs))
+        # Estimate seconds since market open (top of current hour)
+        now = datetime.now(tz=timezone.utc)
+        open_time = now.replace(minute=0, second=0, microsecond=0)
+        seconds_since_open = (now - open_time).total_seconds()
+        interval = self._snipe_interval(seconds_since_open)
 
-        # Poll all active token pairs
-        for yes_token, no_token in self._active_token_pairs:
-            try:
-                snapshot = await self.poller.poll_once(yes_token, no_token)
-                opportunity = self.poller.detect_opportunity(snapshot, config.sniper_threshold)
+        logger.info(
+            "SNIPE: Polling %d pairs | T+%.1fs | interval=%.2fs",
+            len(self._active_token_pairs), seconds_since_open, interval,
+        )
 
-                if opportunity:
-                    logger.info(
-                        "OPPORTUNITY: %s side at %.4f (spread=%.4f)",
-                        opportunity.trigger_side,
-                        opportunity.trigger_price,
-                        opportunity.spread
-                    )
-                    await self.alerter.alert_error(
-                        f"🎯 <b>Sniper Opportunity</b>\n"
-                        f"{'━' * 24}\n"
-                        f"Side: {opportunity.trigger_side}\n"
-                        f"Price: ${opportunity.trigger_price:.4f}\n"
-                        f"Spread: ${opportunity.spread:.4f}",
-                        level="info",
-                    )
+        opportunities = await self._poll_all_pairs(config.sniper_threshold, "SNIPE")
 
-            except Exception as exc:
-                logger.error("Error polling %s/%s: %s", yes_token, no_token, exc)
+        for opp in opportunities:
+            logger.info(
+                "🎯 OPPORTUNITY: %s side at %.4f (spread=%.4f)",
+                opp.trigger_side, opp.trigger_price, opp.spread,
+            )
+            await self.alerter.alert_error(
+                f"🎯 <b>Sniper Opportunity</b>\n"
+                f"{'━' * 24}\n"
+                f"Side: {opp.trigger_side}\n"
+                f"Price: ${opp.trigger_price:.4f}\n"
+                f"Spread: ${opp.spread:.4f}\n"
+                f"T+{seconds_since_open:.1f}s",
+                level="info",
+            )
 
-        # Wait before next poll
-        await asyncio.sleep(3)  # 3 second interval during snipe window
+        await asyncio.sleep(interval)
 
     async def _handle_cooldown_phase(self, config) -> None:
-        """Handle COOLDOWN phase: moderate polling."""
+        """Handle COOLDOWN phase: moderate parallel polling."""
         if not self._active_token_pairs:
-            await asyncio.sleep(15)
+            await asyncio.sleep(self.COOLDOWN_INTERVAL)
             return
 
-        logger.info("COOLDOWN: Moderate polling %d token pairs", len(self._active_token_pairs))
+        logger.info("COOLDOWN: Polling %d pairs", len(self._active_token_pairs))
 
-        # Similar to snipe but with longer interval
-        for yes_token, no_token in self._active_token_pairs:
-            try:
-                snapshot = await self.poller.poll_once(yes_token, no_token)
-                opportunity = self.poller.detect_opportunity(snapshot, config.sniper_threshold)
+        opportunities = await self._poll_all_pairs(config.sniper_threshold, "COOLDOWN")
 
-                if opportunity:
-                    await self.alerter.alert_error(
-                        f"🎯 <b>Sniper (Cooldown)</b>\n"
-                        f"Side: {opportunity.trigger_side} | "
-                        f"Price: ${opportunity.trigger_price:.4f}",
-                        level="info",
-                    )
+        for opp in opportunities:
+            await self.alerter.alert_error(
+                f"🎯 <b>Sniper (Cooldown)</b>\n"
+                f"Side: {opp.trigger_side} | "
+                f"Price: ${opp.trigger_price:.4f}",
+                level="info",
+            )
 
-            except Exception as exc:
-                logger.error("Error polling %s/%s: %s", yes_token, no_token, exc)
-
-        await asyncio.sleep(15)  # 15 second interval during cooldown
+        await asyncio.sleep(self.COOLDOWN_INTERVAL)
