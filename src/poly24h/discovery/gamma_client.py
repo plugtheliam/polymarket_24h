@@ -67,6 +67,44 @@ class GammaClient:
         }
         return await self._get_list(url, params)
 
+    async def fetch_events_by_tag_slug(
+        self, tag_slug: str, limit: int = 100,
+    ) -> list[dict]:
+        """GET /events?tag_slug= — 태그 slug로 이벤트 조회."""
+        url = f"{self.base_url}/events"
+        params = {
+            "active": "true",
+            "closed": "false",
+            "tag_slug": tag_slug,
+            "limit": str(limit),
+        }
+        return await self._get_list(url, params)
+
+    async def fetch_events_by_date_range(
+        self,
+        end_date_min: str,
+        end_date_max: str,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> list[dict]:
+        """GET /events with date range filter."""
+        url = f"{self.base_url}/events"
+        params = {
+            "active": "true",
+            "closed": "false",
+            "end_date_min": end_date_min,
+            "end_date_max": end_date_max,
+            "limit": str(limit),
+            "offset": str(offset),
+        }
+        return await self._get_list(url, params)
+
+    async def fetch_clob_orderbook(self, token_id: str) -> dict | None:
+        """GET orderbook from CLOB API (not Gamma). 실패 시 None."""
+        url = "https://clob.polymarket.com/book"
+        params = {"token_id": token_id}
+        return await self._get_dict(url, params)
+
     async def fetch_orderbook(self, token_id: str) -> Optional[dict]:
         """GET /book — 토큰 오더북 조회. 실패 시 None."""
         url = f"{self.base_url}/book"

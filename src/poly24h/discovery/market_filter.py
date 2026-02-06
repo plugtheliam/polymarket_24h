@@ -23,8 +23,8 @@ class MarketFilter:
         return any(p in lower for p in HOURLY_CRYPTO_PATTERNS)
 
     @staticmethod
-    def is_within_24h(end_date_str: str) -> bool:
-        """정산일이 현재로부터 24시간 이내인지 확인."""
+    def is_within_24h(end_date_str: str, max_hours: int = 24) -> bool:
+        """정산일이 현재로부터 max_hours 이내인지 확인."""
         if not end_date_str:
             return False
         try:
@@ -32,7 +32,7 @@ class MarketFilter:
         except (ValueError, AttributeError):
             return False
         now = datetime.now(tz=timezone.utc)
-        return now < end_date <= now + timedelta(hours=24)
+        return now < end_date <= now + timedelta(hours=max_hours)
 
     @staticmethod
     def is_active(raw_mkt: dict) -> bool:

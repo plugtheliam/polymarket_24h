@@ -22,6 +22,7 @@ def _make_event(
     markets: list | None = None,
     enable_neg_risk: bool = False,
     end_date: str | None = None,
+    slug: str = "",
 ) -> dict:
     """Helper: build a Gamma API event dict."""
     if end_date is None:
@@ -31,6 +32,7 @@ def _make_event(
     return {
         "id": event_id,
         "title": title,
+        "slug": slug,
         "endDate": end_date,
         "markets": markets,
         "enableNegRisk": enable_neg_risk,
@@ -210,9 +212,11 @@ class TestMarketScannerHourlyCrypto:
 
 class TestMarketScannerSports:
     async def test_discover_nba(self):
-        """Should find NBA game markets."""
+        """Should find NBA game markets via slug pattern + date range."""
+        tomorrow = (datetime.now(tz=timezone.utc) + timedelta(hours=6)).strftime("%Y-%m-%d")
         event = _make_event(
             title="Lakers vs Celtics",
+            slug=f"nba-lal-bos-{tomorrow}",
             markets=[_make_market(
                 question="Will Lakers win?",
                 liquidity=6000.0,
@@ -228,8 +232,10 @@ class TestMarketScannerSports:
 
     async def test_exclude_neg_risk_season_market(self):
         """NegRisk season markets should be excluded."""
+        tomorrow = (datetime.now(tz=timezone.utc) + timedelta(hours=6)).strftime("%Y-%m-%d")
         event = _make_event(
             title="NBA Championship 2025",
+            slug=f"nba-champ-season-{tomorrow}",
             enable_neg_risk=True,
             markets=[_make_market(
                 question="Will Lakers win NBA championship?",
@@ -255,9 +261,11 @@ class TestMarketScannerDiscoverAll:
                 question="Will BTC be above $100k in 1 hour?",
             )],
         )
+        tomorrow = (datetime.now(tz=timezone.utc) + timedelta(hours=6)).strftime("%Y-%m-%d")
         nba_event = _make_event(
             event_id="evt_nba",
             title="Lakers vs Celtics",
+            slug=f"nba-lal-bos-{tomorrow}",
             markets=[_make_market(
                 market_id="mkt_nba",
                 question="Will Lakers win?",
@@ -270,8 +278,10 @@ class TestMarketScannerDiscoverAll:
             "nhl": {"enabled": False, "min_liquidity_usd": 5000, "min_spread": 0.015},
         }
         with aioresponses() as m:
-            m.get(EVENTS_PATTERN, payload=[crypto_event])  # crypto tag
-            m.get(EVENTS_PATTERN, payload=[nba_event])      # nba tag
+            # hourly_crypto → tag_slug=1H
+            m.get(EVENTS_PATTERN, payload=[crypto_event])
+            # nba → date_range (multiple pages possible)
+            m.get(EVENTS_PATTERN, payload=[nba_event])
             async with GammaClient() as client:
                 scanner = MarketScanner(client, config=config)
                 markets = await scanner.discover_all()

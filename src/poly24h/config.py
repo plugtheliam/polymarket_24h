@@ -56,8 +56,8 @@ MARKET_SOURCES: dict = {
         "min_spread": 0.01,
     },
     "soccer": {
-        "enabled": False,
-        "description": "유럽축구 개별 경기",
+        "enabled": True,
+        "description": "축구 개별 경기 (EPL, La Liga, Bundesliga, EFL, etc.)",
         "resolution_window": "game_end",
         "fee": 0,
         "daily_markets": "2-8",
