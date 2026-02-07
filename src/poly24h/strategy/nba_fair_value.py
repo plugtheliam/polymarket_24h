@@ -11,7 +11,8 @@ Example:
 from __future__ import annotations
 
 import logging
-from typing import Dict
+import re
+from typing import Dict, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -116,6 +117,139 @@ NBA_TEAM_WIN_RATES: Dict[str, float] = {
     "portland": 0.32,
     "portland trail blazers": 0.32,
 }
+
+# Team name aliases for parsing Polymarket questions
+# Maps variations to canonical team name (used in NBA_TEAM_WIN_RATES)
+NBA_TEAM_ALIASES: Dict[str, str] = {
+    # Special cases
+    "76ers": "sixers",
+    "trail blazers": "blazers",
+    # All team names (lowercase)
+    "lakers": "lakers",
+    "celtics": "celtics",
+    "warriors": "warriors",
+    "bucks": "bucks",
+    "heat": "heat",
+    "suns": "suns",
+    "nuggets": "nuggets",
+    "sixers": "sixers",
+    "nets": "nets",
+    "bulls": "bulls",
+    "knicks": "knicks",
+    "clippers": "clippers",
+    "mavericks": "mavericks",
+    "hawks": "hawks",
+    "grizzlies": "grizzlies",
+    "timberwolves": "timberwolves",
+    "thunder": "thunder",
+    "cavaliers": "cavaliers",
+    "pelicans": "pelicans",
+    "rockets": "rockets",
+    "kings": "kings",
+    "raptors": "raptors",
+    "pacers": "pacers",
+    "magic": "magic",
+    "pistons": "pistons",
+    "hornets": "hornets",
+    "wizards": "wizards",
+    "spurs": "spurs",
+    "jazz": "jazz",
+    "blazers": "blazers",
+}
+
+# Regex pattern for "Team1 vs. Team2" format
+VS_PATTERN = re.compile(r"(.+?)\s+vs\.?\s+(.+?)(?:\s*[:\(\[]|$)", re.IGNORECASE)
+
+
+class NBATeamParser:
+    """Parses NBA team names from Polymarket question text.
+    
+    Handles formats like:
+    - "Mavericks vs. Spurs"
+    - "Warriors vs. Lakers: O/U 233.5"
+    - "Spread: Magic (-8.5)"
+    - "76ers vs. Suns"
+    """
+    
+    def __init__(self, aliases: Dict[str, str] | None = None):
+        self._aliases = aliases if aliases is not None else NBA_TEAM_ALIASES
+        # Build list of team names for searching
+        self._team_names = list(self._aliases.keys())
+        # Sort by length (longest first) for proper matching
+        self._team_names.sort(key=len, reverse=True)
+    
+    def normalize_team(self, name: str) -> Optional[str]:
+        """Normalize a team name to canonical form.
+        
+        Args:
+            name: Raw team name (e.g., "76ers", "Trail Blazers")
+        
+        Returns:
+            Canonical team name or None if not recognized.
+        """
+        normalized = name.lower().strip()
+        return self._aliases.get(normalized)
+    
+    def parse_teams(self, question: str) -> Tuple[Optional[str], Optional[str]]:
+        """Extract team names from a Polymarket NBA question.
+        
+        Args:
+            question: Market question text (e.g., "Mavericks vs. Spurs")
+        
+        Returns:
+            Tuple of (team_a, team_b) as canonical names.
+            Either may be None if not found.
+        """
+        if not question:
+            return (None, None)
+        
+        question_lower = question.lower()
+        
+        # Try "Team1 vs. Team2" pattern first
+        match = VS_PATTERN.search(question)
+        if match:
+            raw_a = match.group(1).strip()
+            raw_b = match.group(2).strip()
+            
+            team_a = self._extract_team_from_text(raw_a)
+            team_b = self._extract_team_from_text(raw_b)
+            
+            if team_a and team_b:
+                return (team_a, team_b)
+        
+        # Fallback: find all team mentions in text
+        found_teams = self._find_all_teams(question_lower)
+        
+        if len(found_teams) >= 2:
+            return (found_teams[0], found_teams[1])
+        elif len(found_teams) == 1:
+            return (found_teams[0], None)
+        
+        return (None, None)
+    
+    def _extract_team_from_text(self, text: str) -> Optional[str]:
+        """Extract a single team name from text fragment."""
+        text_lower = text.lower()
+        
+        # Try direct match first
+        for team_name in self._team_names:
+            if team_name in text_lower:
+                return self._aliases[team_name]
+        
+        return None
+    
+    def _find_all_teams(self, text: str) -> list[str]:
+        """Find all team names mentioned in text."""
+        found = []
+        text_lower = text.lower()
+        
+        for team_name in self._team_names:
+            if team_name in text_lower:
+                canonical = self._aliases[team_name]
+                if canonical not in found:
+                    found.append(canonical)
+        
+        return found
 
 
 class NBAFairValueCalculator:

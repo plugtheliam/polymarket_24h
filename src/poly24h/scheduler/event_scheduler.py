@@ -37,7 +37,7 @@ from poly24h.monitoring.settlement import PaperSettlementTracker, PaperTrade
 from poly24h.monitoring.telegram import TelegramAlerter
 from poly24h.strategy.crypto_fair_value import CryptoFairValueCalculator
 from poly24h.strategy.dynamic_threshold import DynamicThreshold
-from poly24h.strategy.nba_fair_value import NBAFairValueCalculator
+from poly24h.strategy.nba_fair_value import NBAFairValueCalculator, NBATeamParser
 from poly24h.strategy.orderbook_scanner import ClobOrderbookFetcher
 from poly24h.strategy.paired_entry import (
     PairedEntryDetector,
@@ -350,6 +350,7 @@ class EventDrivenLoop:
         self._http_fallback_count: int = 0
         # Phase 5: Fair Value calculators (F-021)
         self._nba_fair_value: NBAFairValueCalculator = NBAFairValueCalculator()
+        self._nba_team_parser: NBATeamParser = NBATeamParser()
         self._crypto_fair_value: CryptoFairValueCalculator = CryptoFairValueCalculator()
         self._market_fair_values: dict[str, float] = {}  # market_id → fair_prob
 
@@ -560,38 +561,14 @@ class EventDrivenLoop:
     async def _calculate_nba_fair_value(self, market: Market) -> float:
         """Calculate fair probability for NBA market.
 
-        Extracts team names from market question and uses win rate comparison.
+        Uses NBATeamParser to extract team names from question text,
+        then calculates fair probability based on season win rates.
         """
-        question = market.question.lower()
-
-        # Try to extract team names (pattern: "Team A vs Team B" or "Team A to beat Team B")
-        # This is a simplified extraction; production would need more robust parsing
-        team_a = None
-        team_b = None
-
-        # Common NBA team keywords
-        nba_teams = [
-            "lakers", "celtics", "warriors", "bucks", "heat", "suns",
-            "nuggets", "76ers", "sixers", "nets", "bulls", "knicks",
-            "clippers", "mavericks", "hawks", "grizzlies", "timberwolves",
-            "thunder", "cavaliers", "pelicans", "rockets", "kings",
-            "raptors", "pacers", "magic", "pistons", "hornets", "wizards",
-            "spurs", "jazz", "blazers", "trail blazers",
-        ]
-
-        found_teams = []
-        for team in nba_teams:
-            if team in question:
-                found_teams.append(team)
-
-        if len(found_teams) >= 2:
-            team_a = found_teams[0]
-            team_b = found_teams[1]
-        elif len(found_teams) == 1:
-            team_a = found_teams[0]
-            team_b = "opponent"  # Generic opponent
+        # Parse team names using the new parser
+        team_a, team_b = self._nba_team_parser.parse_teams(market.question)
 
         if not team_a:
+            logger.debug("NBA: No teams found in '%s'", market.question[:50])
             return 0.50  # Can't extract teams, neutral
 
         # Get win rates
@@ -603,7 +580,7 @@ class EventDrivenLoop:
 
         logger.debug(
             "NBA fair value: %s (%.2f) vs %s (%.2f) → prob=%.2f",
-            team_a, rate_a, team_b, rate_b, fair_prob
+            team_a, rate_a, team_b if team_b else "N/A", rate_b, fair_prob
         )
 
         return fair_prob
