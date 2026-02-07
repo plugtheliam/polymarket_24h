@@ -24,6 +24,7 @@ import asyncio
 import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
+from decimal import Decimal
 from enum import Enum
 
 import aiohttp
@@ -37,12 +38,19 @@ from poly24h.monitoring.settlement import PaperSettlementTracker, PaperTrade
 from poly24h.monitoring.telegram import TelegramAlerter
 from poly24h.strategy.crypto_fair_value import CryptoFairValueCalculator
 from poly24h.strategy.dynamic_threshold import DynamicThreshold
+from poly24h.strategy.fee_calculator import is_profitable_after_fees
 from poly24h.strategy.nba_fair_value import NBAFairValueCalculator, NBATeamParser
 from poly24h.strategy.orderbook_scanner import ClobOrderbookFetcher
 from poly24h.strategy.paired_entry import (
     PairedEntryDetector,
     PairedEntrySimulator,
 )
+from poly24h.scheduler.hybrid_strategy import (
+    HybridConfig,
+    HybridStrategy,
+    StrategyType,
+)
+from poly24h.portfolio.hybrid_portfolio import HybridPortfolio
 from poly24h.websocket.price_cache import PriceCache
 
 logger = logging.getLogger(__name__)
@@ -353,6 +361,25 @@ class EventDrivenLoop:
         self._nba_team_parser: NBATeamParser = NBATeamParser()
         self._crypto_fair_value: CryptoFairValueCalculator = CryptoFairValueCalculator()
         self._market_fair_values: dict[str, float] = {}  # market_id → fair_prob
+        
+        # Phase 6: Hybrid Mode (Crypto Paired + NBA Sniper)
+        self._hybrid_config: HybridConfig = HybridConfig(
+            paired_max_cpp=Decimal("0.94"),   # 6% margin for fees
+            sniper_threshold=Decimal("0.48"),
+            crypto_allocation=Decimal("0.60"),
+            nba_allocation=Decimal("0.40"),
+            max_per_market=Decimal("100"),
+            min_profit_margin=Decimal("0.005"),
+        )
+        self._hybrid_strategy: HybridStrategy = HybridStrategy(self._hybrid_config)
+        self._hybrid_portfolio: HybridPortfolio = HybridPortfolio(
+            initial_capital=Decimal("1000"),
+            crypto_allocation=Decimal("0.60"),
+            nba_allocation=Decimal("0.40"),
+            max_per_market=Decimal("100"),
+            daily_loss_limit=Decimal("200"),
+        )
+        self._hybrid_mode_enabled: bool = True  # Toggle for hybrid mode
 
     async def run(self, config) -> None:
         """Async main loop that orchestrates the full cycle."""
@@ -691,12 +718,41 @@ class EventDrivenLoop:
             timestamp=datetime.now(tz=timezone.utc),
         )
 
+    def _should_use_paired_entry(self, market: Market, yes_ask: float, no_ask: float) -> bool:
+        """Phase 6: Check if market should use Paired Entry strategy.
+        
+        Uses hybrid strategy routing:
+        - Crypto markets → Paired Entry (if eligible)
+        - NBA markets → Sniper (skip paired)
+        """
+        if not self._hybrid_mode_enabled:
+            return False
+        
+        # Only Crypto markets use Paired Entry
+        strategy_type = self._hybrid_strategy.get_strategy_for_market(market)
+        if strategy_type != StrategyType.PAIRED_ENTRY:
+            return False
+        
+        # Check fee-adjusted profitability
+        yes_dec = Decimal(str(yes_ask))
+        no_dec = Decimal(str(no_ask))
+        
+        return is_profitable_after_fees(
+            yes_price=yes_dec,
+            no_price=no_dec,
+            min_margin=self._hybrid_config.min_profit_margin,
+            use_taker=True,
+        )
+
     async def _check_paired_entries(
         self, threshold: float, phase_label: str = "SNIPE",
     ) -> list[tuple[SniperOpportunity, Market | None, dict]]:
-        """Phase 3: Check all active markets for paired entry opportunities.
+        """Phase 3+6: Check all active markets for paired entry opportunities.
 
-        Looks for YES_ask + NO_ask < 1.0 (both sides cheap → guaranteed profit).
+        Phase 6 enhancement: Uses fee-adjusted threshold ($0.94) and only
+        applies to Crypto markets (hybrid routing).
+
+        Looks for YES_ask + NO_ask < max_cpp (fee-adjusted) → guaranteed profit.
         Uses WS cache first, then HTTP fallback for orderbook data.
 
         Returns list of (opportunity, market, paper_trade) tuples.
@@ -708,11 +764,19 @@ class EventDrivenLoop:
             if market is None:
                 continue
 
+            # Phase 6: Skip non-Crypto markets for paired entry
+            if self._hybrid_mode_enabled and market.source != MarketSource.HOURLY_CRYPTO:
+                continue
+
             # Get best asks (try WS cache first, then use last poll data)
             yes_ask = self._price_cache.get_best_ask(yes_token)
             no_ask = self._price_cache.get_best_ask(no_token)
 
             if yes_ask is None or no_ask is None:
+                continue
+
+            # Phase 6: Use fee-adjusted threshold instead of simple $1.00
+            if not self._should_use_paired_entry(market, yes_ask, no_ask):
                 continue
 
             # Determine detection source
@@ -726,7 +790,7 @@ class EventDrivenLoop:
             yes_size = yes_entry.ask_size if yes_entry else 0.0
             no_size = no_entry.ask_size if no_entry else 0.0
 
-            # Check for paired opportunity
+            # Check for paired opportunity (legacy detector for paper trade)
             paired_opp = self._paired_detector.detect(
                 market=market,
                 yes_ask=yes_ask,
@@ -843,6 +907,15 @@ class EventDrivenLoop:
         for opp in opportunities:
             # F-019: Find market info for enriched alert
             market = self._find_market_for_opp(opp)
+
+            # Phase 6: In hybrid mode, Crypto uses Paired Entry, not Sniper
+            if self._hybrid_mode_enabled and market and market.source == MarketSource.HOURLY_CRYPTO:
+                # Crypto markets are handled by _check_paired_entries
+                logger.debug(
+                    "SNIPE: Skipped %s (Crypto uses Paired Entry in hybrid mode)",
+                    market.question[:40],
+                )
+                continue
 
             # Phase 2: Apply dynamic threshold based on liquidity
             if market:
