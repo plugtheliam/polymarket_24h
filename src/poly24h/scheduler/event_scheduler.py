@@ -35,7 +35,9 @@ from poly24h.monitoring.cycle_report import CycleStats, format_cycle_report
 from poly24h.monitoring.market_logger import MarketOpportunityLogger
 from poly24h.monitoring.settlement import PaperSettlementTracker, PaperTrade
 from poly24h.monitoring.telegram import TelegramAlerter
+from poly24h.strategy.crypto_fair_value import CryptoFairValueCalculator
 from poly24h.strategy.dynamic_threshold import DynamicThreshold
+from poly24h.strategy.nba_fair_value import NBAFairValueCalculator
 from poly24h.strategy.orderbook_scanner import ClobOrderbookFetcher
 from poly24h.strategy.paired_entry import (
     PairedEntryDetector,
@@ -346,6 +348,10 @@ class EventDrivenLoop:
         self._market_logger: MarketOpportunityLogger = MarketOpportunityLogger()
         self._ws_cache_hits: int = 0
         self._http_fallback_count: int = 0
+        # Phase 5: Fair Value calculators (F-021)
+        self._nba_fair_value: NBAFairValueCalculator = NBAFairValueCalculator()
+        self._crypto_fair_value: CryptoFairValueCalculator = CryptoFairValueCalculator()
+        self._market_fair_values: dict[str, float] = {}  # market_id → fair_prob
 
     async def run(self, config) -> None:
         """Async main loop that orchestrates the full cycle."""
@@ -431,6 +437,9 @@ class EventDrivenLoop:
         if warm_tasks:
             await asyncio.gather(*warm_tasks, return_exceptions=True)
 
+        # Phase 5 (F-021): Calculate fair values for all markets
+        await self._calculate_fair_values(markets)
+
         # Wait for market open
         now = datetime.now(tz=timezone.utc)
         sleep_time = self.schedule.seconds_until_open(now)
@@ -452,6 +461,175 @@ class EventDrivenLoop:
         if seconds_since_open <= self.SNIPE_EARLY_SECS:
             return self.SNIPE_EARLY_INTERVAL
         return self.SNIPE_NORMAL_INTERVAL
+
+    async def _calculate_fair_values(self, markets: list[Market]) -> None:
+        """Phase 5 (F-021): Calculate fair values for discovered markets.
+
+        Uses different models based on market source:
+        - HOURLY_CRYPTO: RSI + Bollinger Bands from Binance
+        - NBA: Team win rate comparison
+        - Others: Default 0.50 (neutral)
+
+        Stores results in self._market_fair_values[market_id] = fair_prob.
+        """
+        self._market_fair_values.clear()
+
+        for market in markets:
+            fair_prob = 0.50  # Default neutral
+
+            try:
+                if market.source == MarketSource.HOURLY_CRYPTO:
+                    fair_prob = await self._calculate_crypto_fair_value(market)
+                elif market.source == MarketSource.NBA:
+                    fair_prob = await self._calculate_nba_fair_value(market)
+                # Other sources: keep default 0.50
+            except Exception as e:
+                logger.warning(
+                    "Fair value calculation failed for %s: %s",
+                    market.question[:40], e
+                )
+
+            self._market_fair_values[market.id] = fair_prob
+
+        logger.info(
+            "PRE_OPEN: Calculated fair values for %d markets",
+            len(self._market_fair_values),
+        )
+
+    async def _calculate_crypto_fair_value(self, market: Market) -> float:
+        """Calculate fair UP probability for crypto 1H market.
+
+        Uses RSI and Bollinger Bands from Binance OHLCV data.
+        """
+        # Extract asset from question (e.g., "Will BTC go up..." → "BTC")
+        question_lower = market.question.lower()
+        asset = None
+        for coin in ["btc", "eth", "sol", "xrp", "doge", "bnb"]:
+            if coin in question_lower:
+                asset = coin.upper()
+                break
+
+        if not asset:
+            return 0.50  # Unknown crypto, neutral
+
+        symbol = f"{asset}USDT"
+
+        # Fetch OHLCV data from Binance
+        ohlcv = await self._crypto_fair_value.fetch_binance_ohlcv(
+            symbol, interval="1h", limit=24
+        )
+
+        if not ohlcv or len(ohlcv) < 15:
+            logger.debug("Insufficient OHLCV data for %s", symbol)
+            return 0.50
+
+        closes = [c["close"] for c in ohlcv]
+
+        # Calculate indicators
+        rsi = self._crypto_fair_value.calculate_rsi(closes, period=14)
+        bb_lower, bb_mid, bb_upper = self._crypto_fair_value.calculate_bollinger_bands(
+            closes, period=20, std_dev=2
+        )
+
+        current_price = closes[-1]
+
+        # Calculate fair UP probability
+        fair_prob = self._crypto_fair_value.calculate_fair_probability(
+            rsi, current_price, bb_lower, bb_upper
+        )
+
+        logger.debug(
+            "Crypto fair value: %s RSI=%.1f, BB=(%.2f,%.2f,%.2f), price=%.2f → prob=%.2f",
+            symbol, rsi, bb_lower, bb_mid, bb_upper, current_price, fair_prob
+        )
+
+        return fair_prob
+
+    async def _calculate_nba_fair_value(self, market: Market) -> float:
+        """Calculate fair probability for NBA market.
+
+        Extracts team names from market question and uses win rate comparison.
+        """
+        question = market.question.lower()
+
+        # Try to extract team names (pattern: "Team A vs Team B" or "Team A to beat Team B")
+        # This is a simplified extraction; production would need more robust parsing
+        team_a = None
+        team_b = None
+
+        # Common NBA team keywords
+        nba_teams = [
+            "lakers", "celtics", "warriors", "bucks", "heat", "suns",
+            "nuggets", "76ers", "sixers", "nets", "bulls", "knicks",
+            "clippers", "mavericks", "hawks", "grizzlies", "timberwolves",
+            "thunder", "cavaliers", "pelicans", "rockets", "kings",
+            "raptors", "pacers", "magic", "pistons", "hornets", "wizards",
+            "spurs", "jazz", "blazers", "trail blazers",
+        ]
+
+        found_teams = []
+        for team in nba_teams:
+            if team in question:
+                found_teams.append(team)
+
+        if len(found_teams) >= 2:
+            team_a = found_teams[0]
+            team_b = found_teams[1]
+        elif len(found_teams) == 1:
+            team_a = found_teams[0]
+            team_b = "opponent"  # Generic opponent
+
+        if not team_a:
+            return 0.50  # Can't extract teams, neutral
+
+        # Get win rates
+        rate_a = await self._nba_fair_value.get_team_win_rate(team_a)
+        rate_b = await self._nba_fair_value.get_team_win_rate(team_b) if team_b else 0.50
+
+        # Calculate fair probability
+        fair_prob = self._nba_fair_value.calculate_fair_probability(rate_a, rate_b)
+
+        logger.debug(
+            "NBA fair value: %s (%.2f) vs %s (%.2f) → prob=%.2f",
+            team_a, rate_a, team_b, rate_b, fair_prob
+        )
+
+        return fair_prob
+
+    def _is_market_undervalued(
+        self, market: Market, side: str, price: float, margin: float = 0.05
+    ) -> bool:
+        """Phase 5 (F-021): Check if market is undervalued using fair value model.
+
+        Args:
+            market: The market to check
+            side: "YES" or "NO"
+            price: Current market price for this side
+            margin: Safety margin (default 0.05)
+
+        Returns:
+            True if undervalued based on fair value model.
+        """
+        fair_prob = self._market_fair_values.get(market.id, 0.50)
+
+        if market.source == MarketSource.HOURLY_CRYPTO:
+            return self._crypto_fair_value.is_undervalued(
+                side=side, market_price=price, fair_prob=fair_prob, margin=margin
+            )
+        elif market.source == MarketSource.NBA:
+            # For NBA, YES usually means team A wins
+            if side == "YES":
+                return self._nba_fair_value.is_undervalued(
+                    market_price=price, fair_prob=fair_prob, margin=margin
+                )
+            else:
+                # NO side: fair prob = 1 - fair_prob
+                return self._nba_fair_value.is_undervalued(
+                    market_price=price, fair_prob=(1 - fair_prob), margin=margin
+                )
+        else:
+            # Fallback to simple threshold check
+            return price < (0.50 - margin)
 
     # Max concurrent HTTP requests to CLOB API to avoid 429 rate limits
     MAX_CONCURRENT_POLLS = 10
@@ -691,6 +869,20 @@ class EventDrivenLoop:
                     )
                     continue
 
+                # Phase 5 (F-021): Additional fair value check
+                # Use dynamic_thresh as margin (higher liquidity = tighter margin)
+                fair_margin = 0.50 - dynamic_thresh  # 0.01 to 0.05 range
+                if not self._is_market_undervalued(
+                    market, opp.trigger_side, opp.trigger_price, margin=fair_margin
+                ):
+                    fair_prob = self._market_fair_values.get(market.id, 0.50)
+                    logger.debug(
+                        "SNIPE: Skipped %s (not undervalued: price=$%.4f, fair=%.2f, margin=%.2f)",
+                        market.question[:40],
+                        opp.trigger_price, fair_prob, fair_margin,
+                    )
+                    continue
+
             # F-019: Record paper trade
             paper = self._record_paper_trade(opp, market)
 
@@ -719,9 +911,11 @@ class EventDrivenLoop:
                     )
                 )
 
+            # Phase 5: Include fair value in log
+            fair_prob = self._market_fair_values.get(market.id, 0.50) if market else 0.50
             logger.info(
-                "🎯 OPPORTUNITY: %s side at $%.4f | spread=%.4f | %s",
-                opp.trigger_side, opp.trigger_price, opp.spread,
+                "🎯 OPPORTUNITY: %s side at $%.4f | fair=%.2f | spread=%.4f | %s",
+                opp.trigger_side, opp.trigger_price, fair_prob, opp.spread,
                 market.question[:60] if market else "unknown",
             )
 
@@ -794,6 +988,13 @@ class EventDrivenLoop:
                     market.liquidity_usd
                 )
                 if opp.trigger_price > dynamic_thresh:
+                    continue
+
+                # Phase 5 (F-021): Fair value check
+                fair_margin = 0.50 - dynamic_thresh
+                if not self._is_market_undervalued(
+                    market, opp.trigger_side, opp.trigger_price, margin=fair_margin
+                ):
                     continue
 
             paper = self._record_paper_trade(opp, market)
