@@ -284,17 +284,27 @@ async def sniper_loop(config: BotConfig, threshold: float = 0.48) -> None:
     print(f"Telegram alerts: {'ON' if alerter.enabled else 'OFF'}")
     print("-" * 60)
 
+    enabled = config.enabled_sources()
+    source_names = ", ".join(enabled.keys())
+    print(f"Enabled sources: {source_names}")
+    print(f"Signal filter: min price=${RapidOrderbookPoller.MIN_MEANINGFUL_PRICE}")
+    print("-" * 60)
+
     if alerter.enabled:
         await alerter.alert_error(
-            f"🎯 poly24h SNIPER started — {mode}\n"
+            f"🎯 poly24h SNIPER v2 started — {mode}\n"
             f"Threshold: ${threshold:.2f}\n"
+            f"Sources: {source_names}\n"
+            f"Signal filter: min_price≥${RapidOrderbookPoller.MIN_MEANINGFUL_PRICE}\n"
+            f"Paper trading: ON\n"
             f"Strategy: Event-driven market open sniper",
             level="info",
         )
 
     schedule = MarketOpenSchedule()
     gamma_client = GammaClient()
-    preparer = PreOpenPreparer(gamma_client)
+    scanner = MarketScanner(gamma_client)
+    preparer = PreOpenPreparer(gamma_client, scanner=scanner)
     clob_fetcher = ClobOrderbookFetcher(timeout=8)
     poller = RapidOrderbookPoller(clob_fetcher)
     loop = EventDrivenLoop(schedule, preparer, poller, alerter)

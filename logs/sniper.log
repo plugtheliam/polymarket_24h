@@ -10,3 +10,1215 @@ Telegram alerts: ON
 ------------------------------------------------------------
 2026-02-06 15:45:15,633 [INFO] poly24h.main: === Cycle 1 | Phase: idle | Next open in: 884s ===
 2026-02-06 15:45:15,633 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 854s
+
+╔══════════════════════════════════════════════╗
+║   poly24h — Polymarket 24H Arbitrage Bot     ║
+║   Event-Driven Sniper · F-018                 ║
+╚══════════════════════════════════════════════╝
+
+Mode: DRY RUN
+Sniper threshold: $0.48
+Telegram alerts: ON
+------------------------------------------------------------
+2026-02-06 20:52:50,802 [INFO] poly24h.main: === Cycle 1 | Phase: idle | Next open in: 429s ===
+2026-02-06 20:52:50,802 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 399s
+
+╔══════════════════════════════════════════════╗
+║   poly24h — Polymarket 24H Arbitrage Bot     ║
+║   Event-Driven Sniper · F-018                 ║
+╚══════════════════════════════════════════════╝
+
+Mode: DRY RUN
+Sniper threshold: $0.48
+Telegram alerts: ON
+------------------------------------------------------------
+2026-02-06 20:53:28,355 [INFO] poly24h.main: === Cycle 1 | Phase: idle | Next open in: 392s ===
+2026-02-06 20:53:28,356 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 361s
+2026-02-06 20:58:29,410 [INFO] poly24h.main: === Cycle 2 | Phase: idle | Next open in: 91s ===
+2026-02-06 20:58:29,410 [INFO] poly24h.scheduler.event_scheduler: IDLE: Sleeping 60s until pre-open
+2026-02-06 20:59:31,048 [INFO] poly24h.main: === Cycle 3 | Phase: pre_open | Next open in: 29s ===
+2026-02-06 20:59:31,048 [INFO] poly24h.scheduler.event_scheduler: PRE_OPEN: Discovering markets and warming connections
+2026-02-06 20:59:31,048 [WARNING] poly24h.discovery.gamma_client: Gamma API https://gamma-api.polymarket.com/events error (attempt 1/3): 'NoneType' object has no attribute 'get'
+2026-02-06 20:59:31,148 [WARNING] poly24h.discovery.gamma_client: Gamma API https://gamma-api.polymarket.com/events error (attempt 2/3): 'NoneType' object has no attribute 'get'
+2026-02-06 20:59:31,348 [WARNING] poly24h.discovery.gamma_client: Gamma API https://gamma-api.polymarket.com/events error (attempt 3/3): 'NoneType' object has no attribute 'get'
+2026-02-06 21:00:01,032 [INFO] poly24h.main: === Cycle 4 | Phase: snipe | Next open in: 3599s ===
+2026-02-06 21:00:01,032 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:02,534 [INFO] poly24h.main: === Cycle 5 | Phase: snipe | Next open in: 3597s ===
+2026-02-06 21:00:02,534 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:04,036 [INFO] poly24h.main: === Cycle 6 | Phase: snipe | Next open in: 3596s ===
+2026-02-06 21:00:04,036 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:05,538 [INFO] poly24h.main: === Cycle 7 | Phase: snipe | Next open in: 3594s ===
+2026-02-06 21:00:05,538 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:07,040 [INFO] poly24h.main: === Cycle 8 | Phase: snipe | Next open in: 3593s ===
+2026-02-06 21:00:07,040 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:08,541 [INFO] poly24h.main: === Cycle 9 | Phase: snipe | Next open in: 3591s ===
+2026-02-06 21:00:08,541 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:10,043 [INFO] poly24h.main: === Cycle 10 | Phase: snipe | Next open in: 3590s ===
+2026-02-06 21:00:10,043 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:11,545 [INFO] poly24h.main: === Cycle 11 | Phase: snipe | Next open in: 3588s ===
+2026-02-06 21:00:11,545 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:13,047 [INFO] poly24h.main: === Cycle 12 | Phase: snipe | Next open in: 3587s ===
+2026-02-06 21:00:13,047 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:14,549 [INFO] poly24h.main: === Cycle 13 | Phase: snipe | Next open in: 3585s ===
+2026-02-06 21:00:14,549 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:16,051 [INFO] poly24h.main: === Cycle 14 | Phase: snipe | Next open in: 3584s ===
+2026-02-06 21:00:16,051 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:17,553 [INFO] poly24h.main: === Cycle 15 | Phase: snipe | Next open in: 3582s ===
+2026-02-06 21:00:17,553 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:19,055 [INFO] poly24h.main: === Cycle 16 | Phase: snipe | Next open in: 3581s ===
+2026-02-06 21:00:19,055 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:20,557 [INFO] poly24h.main: === Cycle 17 | Phase: snipe | Next open in: 3579s ===
+2026-02-06 21:00:20,557 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:22,059 [INFO] poly24h.main: === Cycle 18 | Phase: snipe | Next open in: 3578s ===
+2026-02-06 21:00:22,059 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:23,561 [INFO] poly24h.main: === Cycle 19 | Phase: snipe | Next open in: 3576s ===
+2026-02-06 21:00:23,561 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:25,063 [INFO] poly24h.main: === Cycle 20 | Phase: snipe | Next open in: 3575s ===
+2026-02-06 21:00:25,063 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:26,565 [INFO] poly24h.main: === Cycle 21 | Phase: snipe | Next open in: 3573s ===
+2026-02-06 21:00:26,565 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:28,067 [INFO] poly24h.main: === Cycle 22 | Phase: snipe | Next open in: 3572s ===
+2026-02-06 21:00:28,067 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:29,569 [INFO] poly24h.main: === Cycle 23 | Phase: snipe | Next open in: 3570s ===
+2026-02-06 21:00:29,569 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:31,070 [INFO] poly24h.main: === Cycle 24 | Phase: snipe | Next open in: 3569s ===
+2026-02-06 21:00:31,070 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:32,572 [INFO] poly24h.main: === Cycle 25 | Phase: snipe | Next open in: 3567s ===
+2026-02-06 21:00:32,572 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:34,073 [INFO] poly24h.main: === Cycle 26 | Phase: snipe | Next open in: 3566s ===
+2026-02-06 21:00:34,073 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:35,575 [INFO] poly24h.main: === Cycle 27 | Phase: snipe | Next open in: 3564s ===
+2026-02-06 21:00:35,575 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:37,077 [INFO] poly24h.main: === Cycle 28 | Phase: snipe | Next open in: 3563s ===
+2026-02-06 21:00:37,077 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:38,579 [INFO] poly24h.main: === Cycle 29 | Phase: snipe | Next open in: 3561s ===
+2026-02-06 21:00:38,579 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+
+╔══════════════════════════════════════════════╗
+║   poly24h — Polymarket 24H Arbitrage Bot     ║
+║   Event-Driven Sniper · F-018                 ║
+╚══════════════════════════════════════════════╝
+
+Mode: DRY RUN
+Sniper threshold: $0.48
+Telegram alerts: ON
+------------------------------------------------------------
+2026-02-06 21:00:41,222 [INFO] poly24h.main: === Cycle 1 | Phase: snipe | Next open in: 3559s ===
+2026-02-06 21:00:41,222 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:42,724 [INFO] poly24h.main: === Cycle 2 | Phase: snipe | Next open in: 3557s ===
+2026-02-06 21:00:42,724 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:44,226 [INFO] poly24h.main: === Cycle 3 | Phase: snipe | Next open in: 3556s ===
+2026-02-06 21:00:44,227 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:45,728 [INFO] poly24h.main: === Cycle 4 | Phase: snipe | Next open in: 3554s ===
+2026-02-06 21:00:45,729 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:47,230 [INFO] poly24h.main: === Cycle 5 | Phase: snipe | Next open in: 3553s ===
+2026-02-06 21:00:47,230 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:48,732 [INFO] poly24h.main: === Cycle 6 | Phase: snipe | Next open in: 3551s ===
+2026-02-06 21:00:48,732 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:50,234 [INFO] poly24h.main: === Cycle 7 | Phase: snipe | Next open in: 3550s ===
+2026-02-06 21:00:50,234 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:51,736 [INFO] poly24h.main: === Cycle 8 | Phase: snipe | Next open in: 3548s ===
+2026-02-06 21:00:51,736 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:53,238 [INFO] poly24h.main: === Cycle 9 | Phase: snipe | Next open in: 3547s ===
+2026-02-06 21:00:53,238 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:54,740 [INFO] poly24h.main: === Cycle 10 | Phase: snipe | Next open in: 3545s ===
+2026-02-06 21:00:54,740 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:56,242 [INFO] poly24h.main: === Cycle 11 | Phase: snipe | Next open in: 3544s ===
+2026-02-06 21:00:56,242 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:57,744 [INFO] poly24h.main: === Cycle 12 | Phase: snipe | Next open in: 3542s ===
+2026-02-06 21:00:57,744 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:00:59,245 [INFO] poly24h.main: === Cycle 13 | Phase: snipe | Next open in: 3541s ===
+2026-02-06 21:00:59,245 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:01:00,748 [INFO] poly24h.main: === Cycle 14 | Phase: snipe | Next open in: 3539s ===
+2026-02-06 21:01:00,748 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 21:01:02,250 [INFO] poly24h.main: === Cycle 15 | Phase: cooldown | Next open in: 3538s ===
+2026-02-06 21:01:08,257 [INFO] poly24h.main: === Cycle 16 | Phase: cooldown | Next open in: 3532s ===
+2026-02-06 21:01:14,263 [INFO] poly24h.main: === Cycle 17 | Phase: cooldown | Next open in: 3526s ===
+2026-02-06 21:01:20,269 [INFO] poly24h.main: === Cycle 18 | Phase: cooldown | Next open in: 3520s ===
+2026-02-06 21:01:26,274 [INFO] poly24h.main: === Cycle 19 | Phase: cooldown | Next open in: 3514s ===
+2026-02-06 21:01:32,281 [INFO] poly24h.main: === Cycle 20 | Phase: cooldown | Next open in: 3508s ===
+2026-02-06 21:01:38,282 [INFO] poly24h.main: === Cycle 21 | Phase: cooldown | Next open in: 3502s ===
+2026-02-06 21:01:44,288 [INFO] poly24h.main: === Cycle 22 | Phase: cooldown | Next open in: 3496s ===
+2026-02-06 21:01:50,294 [INFO] poly24h.main: === Cycle 23 | Phase: cooldown | Next open in: 3490s ===
+2026-02-06 21:01:56,298 [INFO] poly24h.main: === Cycle 24 | Phase: cooldown | Next open in: 3484s ===
+2026-02-06 21:02:02,305 [INFO] poly24h.main: === Cycle 25 | Phase: idle | Next open in: 3478s ===
+2026-02-06 21:02:02,305 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 3447s
+2026-02-06 21:07:03,380 [INFO] poly24h.main: === Cycle 26 | Phase: idle | Next open in: 3177s ===
+2026-02-06 21:07:03,381 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 3146s
+2026-02-06 21:12:04,482 [INFO] poly24h.main: === Cycle 27 | Phase: idle | Next open in: 2876s ===
+2026-02-06 21:12:04,482 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 2845s
+2026-02-06 21:17:05,538 [INFO] poly24h.main: === Cycle 28 | Phase: idle | Next open in: 2574s ===
+2026-02-06 21:17:05,538 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 2544s
+2026-02-06 21:22:06,617 [INFO] poly24h.main: === Cycle 29 | Phase: idle | Next open in: 2273s ===
+2026-02-06 21:22:06,617 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 2243s
+2026-02-06 21:27:07,651 [INFO] poly24h.main: === Cycle 30 | Phase: idle | Next open in: 1972s ===
+2026-02-06 21:27:07,651 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1942s
+2026-02-06 21:32:08,690 [INFO] poly24h.main: === Cycle 31 | Phase: idle | Next open in: 1671s ===
+2026-02-06 21:32:08,691 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1641s
+2026-02-06 21:37:09,757 [INFO] poly24h.main: === Cycle 32 | Phase: idle | Next open in: 1370s ===
+2026-02-06 21:37:09,757 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1340s
+2026-02-06 21:42:10,859 [INFO] poly24h.main: === Cycle 33 | Phase: idle | Next open in: 1069s ===
+2026-02-06 21:42:10,859 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1039s
+2026-02-06 21:47:11,950 [INFO] poly24h.main: === Cycle 34 | Phase: idle | Next open in: 768s ===
+2026-02-06 21:47:11,950 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 738s
+2026-02-06 21:52:12,994 [INFO] poly24h.main: === Cycle 35 | Phase: idle | Next open in: 467s ===
+2026-02-06 21:52:12,995 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 437s
+2026-02-06 21:57:14,091 [INFO] poly24h.main: === Cycle 36 | Phase: idle | Next open in: 166s ===
+2026-02-06 21:57:14,091 [INFO] poly24h.scheduler.event_scheduler: IDLE: Sleeping 135s until pre-open
+2026-02-06 21:59:31,074 [INFO] poly24h.main: === Cycle 37 | Phase: pre_open | Next open in: 29s ===
+2026-02-06 21:59:31,075 [INFO] poly24h.scheduler.event_scheduler: PRE_OPEN: Discovering markets and warming connections
+2026-02-06 22:00:01,014 [INFO] poly24h.main: === Cycle 38 | Phase: snipe | Next open in: 3599s ===
+2026-02-06 22:00:01,015 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:02,518 [INFO] poly24h.main: === Cycle 39 | Phase: snipe | Next open in: 3597s ===
+2026-02-06 22:00:02,518 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:04,020 [INFO] poly24h.main: === Cycle 40 | Phase: snipe | Next open in: 3596s ===
+2026-02-06 22:00:04,021 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:05,523 [INFO] poly24h.main: === Cycle 41 | Phase: snipe | Next open in: 3594s ===
+2026-02-06 22:00:05,523 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:07,025 [INFO] poly24h.main: === Cycle 42 | Phase: snipe | Next open in: 3593s ===
+2026-02-06 22:00:07,025 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:08,527 [INFO] poly24h.main: === Cycle 43 | Phase: snipe | Next open in: 3591s ===
+2026-02-06 22:00:08,527 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:10,028 [INFO] poly24h.main: === Cycle 44 | Phase: snipe | Next open in: 3590s ===
+2026-02-06 22:00:10,028 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:11,530 [INFO] poly24h.main: === Cycle 45 | Phase: snipe | Next open in: 3588s ===
+2026-02-06 22:00:11,530 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:13,032 [INFO] poly24h.main: === Cycle 46 | Phase: snipe | Next open in: 3587s ===
+2026-02-06 22:00:13,032 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:14,534 [INFO] poly24h.main: === Cycle 47 | Phase: snipe | Next open in: 3585s ===
+2026-02-06 22:00:14,535 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:16,037 [INFO] poly24h.main: === Cycle 48 | Phase: snipe | Next open in: 3584s ===
+2026-02-06 22:00:16,037 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:17,539 [INFO] poly24h.main: === Cycle 49 | Phase: snipe | Next open in: 3582s ===
+2026-02-06 22:00:17,539 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:19,041 [INFO] poly24h.main: === Cycle 50 | Phase: snipe | Next open in: 3581s ===
+2026-02-06 22:00:19,041 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:20,543 [INFO] poly24h.main: === Cycle 51 | Phase: snipe | Next open in: 3579s ===
+2026-02-06 22:00:20,543 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:22,045 [INFO] poly24h.main: === Cycle 52 | Phase: snipe | Next open in: 3578s ===
+2026-02-06 22:00:22,045 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:23,547 [INFO] poly24h.main: === Cycle 53 | Phase: snipe | Next open in: 3576s ===
+2026-02-06 22:00:23,547 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:25,049 [INFO] poly24h.main: === Cycle 54 | Phase: snipe | Next open in: 3575s ===
+2026-02-06 22:00:25,049 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:26,550 [INFO] poly24h.main: === Cycle 55 | Phase: snipe | Next open in: 3573s ===
+2026-02-06 22:00:26,550 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:28,052 [INFO] poly24h.main: === Cycle 56 | Phase: snipe | Next open in: 3572s ===
+2026-02-06 22:00:28,052 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:29,554 [INFO] poly24h.main: === Cycle 57 | Phase: snipe | Next open in: 3570s ===
+2026-02-06 22:00:29,554 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:31,056 [INFO] poly24h.main: === Cycle 58 | Phase: snipe | Next open in: 3569s ===
+2026-02-06 22:00:31,056 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:32,558 [INFO] poly24h.main: === Cycle 59 | Phase: snipe | Next open in: 3567s ===
+2026-02-06 22:00:32,558 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:34,060 [INFO] poly24h.main: === Cycle 60 | Phase: snipe | Next open in: 3566s ===
+2026-02-06 22:00:34,061 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:35,562 [INFO] poly24h.main: === Cycle 61 | Phase: snipe | Next open in: 3564s ===
+2026-02-06 22:00:35,563 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:37,064 [INFO] poly24h.main: === Cycle 62 | Phase: snipe | Next open in: 3563s ===
+2026-02-06 22:00:37,064 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:38,568 [INFO] poly24h.main: === Cycle 63 | Phase: snipe | Next open in: 3561s ===
+2026-02-06 22:00:38,568 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:40,070 [INFO] poly24h.main: === Cycle 64 | Phase: snipe | Next open in: 3560s ===
+2026-02-06 22:00:40,070 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:41,572 [INFO] poly24h.main: === Cycle 65 | Phase: snipe | Next open in: 3558s ===
+2026-02-06 22:00:41,573 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:43,075 [INFO] poly24h.main: === Cycle 66 | Phase: snipe | Next open in: 3557s ===
+2026-02-06 22:00:43,075 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:44,577 [INFO] poly24h.main: === Cycle 67 | Phase: snipe | Next open in: 3555s ===
+2026-02-06 22:00:44,577 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:46,082 [INFO] poly24h.main: === Cycle 68 | Phase: snipe | Next open in: 3554s ===
+2026-02-06 22:00:46,082 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:47,584 [INFO] poly24h.main: === Cycle 69 | Phase: snipe | Next open in: 3552s ===
+2026-02-06 22:00:47,584 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:49,086 [INFO] poly24h.main: === Cycle 70 | Phase: snipe | Next open in: 3551s ===
+2026-02-06 22:00:49,086 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:50,588 [INFO] poly24h.main: === Cycle 71 | Phase: snipe | Next open in: 3549s ===
+2026-02-06 22:00:50,588 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:52,090 [INFO] poly24h.main: === Cycle 72 | Phase: snipe | Next open in: 3548s ===
+2026-02-06 22:00:52,090 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:53,592 [INFO] poly24h.main: === Cycle 73 | Phase: snipe | Next open in: 3546s ===
+2026-02-06 22:00:53,592 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:55,094 [INFO] poly24h.main: === Cycle 74 | Phase: snipe | Next open in: 3545s ===
+2026-02-06 22:00:55,094 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:56,596 [INFO] poly24h.main: === Cycle 75 | Phase: snipe | Next open in: 3543s ===
+2026-02-06 22:00:56,596 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:58,098 [INFO] poly24h.main: === Cycle 76 | Phase: snipe | Next open in: 3542s ===
+2026-02-06 22:00:58,098 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:00:59,600 [INFO] poly24h.main: === Cycle 77 | Phase: snipe | Next open in: 3540s ===
+2026-02-06 22:00:59,600 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 22:01:01,102 [INFO] poly24h.main: === Cycle 78 | Phase: cooldown | Next open in: 3539s ===
+2026-02-06 22:01:07,109 [INFO] poly24h.main: === Cycle 79 | Phase: cooldown | Next open in: 3533s ===
+2026-02-06 22:01:13,115 [INFO] poly24h.main: === Cycle 80 | Phase: cooldown | Next open in: 3527s ===
+2026-02-06 22:01:19,121 [INFO] poly24h.main: === Cycle 81 | Phase: cooldown | Next open in: 3521s ===
+2026-02-06 22:01:25,128 [INFO] poly24h.main: === Cycle 82 | Phase: cooldown | Next open in: 3515s ===
+2026-02-06 22:01:31,134 [INFO] poly24h.main: === Cycle 83 | Phase: cooldown | Next open in: 3509s ===
+2026-02-06 22:01:37,140 [INFO] poly24h.main: === Cycle 84 | Phase: cooldown | Next open in: 3503s ===
+2026-02-06 22:01:43,146 [INFO] poly24h.main: === Cycle 85 | Phase: cooldown | Next open in: 3497s ===
+2026-02-06 22:01:49,153 [INFO] poly24h.main: === Cycle 86 | Phase: cooldown | Next open in: 3491s ===
+2026-02-06 22:01:55,159 [INFO] poly24h.main: === Cycle 87 | Phase: cooldown | Next open in: 3485s ===
+2026-02-06 22:02:01,166 [INFO] poly24h.main: === Cycle 88 | Phase: idle | Next open in: 3479s ===
+2026-02-06 22:02:01,166 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 3448s
+2026-02-06 22:07:02,194 [INFO] poly24h.main: === Cycle 89 | Phase: idle | Next open in: 3178s ===
+2026-02-06 22:07:02,194 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 3147s
+2026-02-06 22:12:03,266 [INFO] poly24h.main: === Cycle 90 | Phase: idle | Next open in: 2877s ===
+2026-02-06 22:12:03,267 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 2846s
+2026-02-06 22:17:04,323 [INFO] poly24h.main: === Cycle 91 | Phase: idle | Next open in: 2576s ===
+2026-02-06 22:17:04,324 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 2545s
+2026-02-06 22:22:05,422 [INFO] poly24h.main: === Cycle 92 | Phase: idle | Next open in: 2275s ===
+2026-02-06 22:22:05,422 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 2244s
+2026-02-06 22:27:06,493 [INFO] poly24h.main: === Cycle 93 | Phase: idle | Next open in: 1974s ===
+2026-02-06 22:27:06,493 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1943s
+2026-02-06 22:32:07,554 [INFO] poly24h.main: === Cycle 94 | Phase: idle | Next open in: 1672s ===
+2026-02-06 22:32:07,554 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1642s
+2026-02-06 22:37:08,638 [INFO] poly24h.main: === Cycle 95 | Phase: idle | Next open in: 1371s ===
+2026-02-06 22:37:08,638 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1341s
+2026-02-06 22:42:09,727 [INFO] poly24h.main: === Cycle 96 | Phase: idle | Next open in: 1070s ===
+2026-02-06 22:42:09,727 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1040s
+2026-02-06 22:47:10,831 [INFO] poly24h.main: === Cycle 97 | Phase: idle | Next open in: 769s ===
+2026-02-06 22:47:10,831 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 739s
+2026-02-06 22:52:11,911 [INFO] poly24h.main: === Cycle 98 | Phase: idle | Next open in: 468s ===
+2026-02-06 22:52:11,912 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 438s
+2026-02-06 22:57:12,998 [INFO] poly24h.main: === Cycle 99 | Phase: idle | Next open in: 167s ===
+2026-02-06 22:57:12,998 [INFO] poly24h.scheduler.event_scheduler: IDLE: Sleeping 137s until pre-open
+2026-02-06 22:59:31,074 [INFO] poly24h.main: === Cycle 100 | Phase: pre_open | Next open in: 29s ===
+2026-02-06 22:59:31,075 [INFO] poly24h.scheduler.event_scheduler: PRE_OPEN: Discovering markets and warming connections
+2026-02-06 23:00:01,014 [INFO] poly24h.main: === Cycle 101 | Phase: snipe | Next open in: 3599s ===
+2026-02-06 23:00:01,015 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:02,517 [INFO] poly24h.main: === Cycle 102 | Phase: snipe | Next open in: 3597s ===
+2026-02-06 23:00:02,517 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:04,018 [INFO] poly24h.main: === Cycle 103 | Phase: snipe | Next open in: 3596s ===
+2026-02-06 23:00:04,019 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:05,521 [INFO] poly24h.main: === Cycle 104 | Phase: snipe | Next open in: 3594s ===
+2026-02-06 23:00:05,521 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:07,022 [INFO] poly24h.main: === Cycle 105 | Phase: snipe | Next open in: 3593s ===
+2026-02-06 23:00:07,022 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:08,524 [INFO] poly24h.main: === Cycle 106 | Phase: snipe | Next open in: 3591s ===
+2026-02-06 23:00:08,524 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:10,025 [INFO] poly24h.main: === Cycle 107 | Phase: snipe | Next open in: 3590s ===
+2026-02-06 23:00:10,025 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:11,527 [INFO] poly24h.main: === Cycle 108 | Phase: snipe | Next open in: 3588s ===
+2026-02-06 23:00:11,527 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:13,029 [INFO] poly24h.main: === Cycle 109 | Phase: snipe | Next open in: 3587s ===
+2026-02-06 23:00:13,029 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:14,531 [INFO] poly24h.main: === Cycle 110 | Phase: snipe | Next open in: 3585s ===
+2026-02-06 23:00:14,532 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:16,033 [INFO] poly24h.main: === Cycle 111 | Phase: snipe | Next open in: 3584s ===
+2026-02-06 23:00:16,034 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:17,535 [INFO] poly24h.main: === Cycle 112 | Phase: snipe | Next open in: 3582s ===
+2026-02-06 23:00:17,536 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:19,037 [INFO] poly24h.main: === Cycle 113 | Phase: snipe | Next open in: 3581s ===
+2026-02-06 23:00:19,037 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:20,541 [INFO] poly24h.main: === Cycle 114 | Phase: snipe | Next open in: 3579s ===
+2026-02-06 23:00:20,541 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:22,043 [INFO] poly24h.main: === Cycle 115 | Phase: snipe | Next open in: 3578s ===
+2026-02-06 23:00:22,043 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:23,545 [INFO] poly24h.main: === Cycle 116 | Phase: snipe | Next open in: 3576s ===
+2026-02-06 23:00:23,545 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:25,047 [INFO] poly24h.main: === Cycle 117 | Phase: snipe | Next open in: 3575s ===
+2026-02-06 23:00:25,047 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:26,549 [INFO] poly24h.main: === Cycle 118 | Phase: snipe | Next open in: 3573s ===
+2026-02-06 23:00:26,549 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:28,051 [INFO] poly24h.main: === Cycle 119 | Phase: snipe | Next open in: 3572s ===
+2026-02-06 23:00:28,051 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:29,553 [INFO] poly24h.main: === Cycle 120 | Phase: snipe | Next open in: 3570s ===
+2026-02-06 23:00:29,553 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:31,055 [INFO] poly24h.main: === Cycle 121 | Phase: snipe | Next open in: 3569s ===
+2026-02-06 23:00:31,055 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:32,557 [INFO] poly24h.main: === Cycle 122 | Phase: snipe | Next open in: 3567s ===
+2026-02-06 23:00:32,557 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:34,059 [INFO] poly24h.main: === Cycle 123 | Phase: snipe | Next open in: 3566s ===
+2026-02-06 23:00:34,059 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:35,561 [INFO] poly24h.main: === Cycle 124 | Phase: snipe | Next open in: 3564s ===
+2026-02-06 23:00:35,561 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:37,063 [INFO] poly24h.main: === Cycle 125 | Phase: snipe | Next open in: 3563s ===
+2026-02-06 23:00:37,063 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:38,565 [INFO] poly24h.main: === Cycle 126 | Phase: snipe | Next open in: 3561s ===
+2026-02-06 23:00:38,565 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:40,067 [INFO] poly24h.main: === Cycle 127 | Phase: snipe | Next open in: 3560s ===
+2026-02-06 23:00:40,067 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:41,569 [INFO] poly24h.main: === Cycle 128 | Phase: snipe | Next open in: 3558s ===
+2026-02-06 23:00:41,569 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:43,071 [INFO] poly24h.main: === Cycle 129 | Phase: snipe | Next open in: 3557s ===
+2026-02-06 23:00:43,071 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:44,573 [INFO] poly24h.main: === Cycle 130 | Phase: snipe | Next open in: 3555s ===
+2026-02-06 23:00:44,573 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:46,075 [INFO] poly24h.main: === Cycle 131 | Phase: snipe | Next open in: 3554s ===
+2026-02-06 23:00:46,075 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:47,577 [INFO] poly24h.main: === Cycle 132 | Phase: snipe | Next open in: 3552s ===
+2026-02-06 23:00:47,577 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:49,079 [INFO] poly24h.main: === Cycle 133 | Phase: snipe | Next open in: 3551s ===
+2026-02-06 23:00:49,079 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:50,581 [INFO] poly24h.main: === Cycle 134 | Phase: snipe | Next open in: 3549s ===
+2026-02-06 23:00:50,581 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:52,083 [INFO] poly24h.main: === Cycle 135 | Phase: snipe | Next open in: 3548s ===
+2026-02-06 23:00:52,083 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:53,585 [INFO] poly24h.main: === Cycle 136 | Phase: snipe | Next open in: 3546s ===
+2026-02-06 23:00:53,585 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:55,087 [INFO] poly24h.main: === Cycle 137 | Phase: snipe | Next open in: 3545s ===
+2026-02-06 23:00:55,087 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:56,589 [INFO] poly24h.main: === Cycle 138 | Phase: snipe | Next open in: 3543s ===
+2026-02-06 23:00:56,589 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:58,091 [INFO] poly24h.main: === Cycle 139 | Phase: snipe | Next open in: 3542s ===
+2026-02-06 23:00:58,091 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:00:59,593 [INFO] poly24h.main: === Cycle 140 | Phase: snipe | Next open in: 3540s ===
+2026-02-06 23:00:59,593 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-06 23:01:01,095 [INFO] poly24h.main: === Cycle 141 | Phase: cooldown | Next open in: 3539s ===
+2026-02-06 23:01:07,102 [INFO] poly24h.main: === Cycle 142 | Phase: cooldown | Next open in: 3533s ===
+2026-02-06 23:01:13,108 [INFO] poly24h.main: === Cycle 143 | Phase: cooldown | Next open in: 3527s ===
+2026-02-06 23:01:19,115 [INFO] poly24h.main: === Cycle 144 | Phase: cooldown | Next open in: 3521s ===
+2026-02-06 23:01:25,121 [INFO] poly24h.main: === Cycle 145 | Phase: cooldown | Next open in: 3515s ===
+2026-02-06 23:01:31,128 [INFO] poly24h.main: === Cycle 146 | Phase: cooldown | Next open in: 3509s ===
+2026-02-06 23:01:37,134 [INFO] poly24h.main: === Cycle 147 | Phase: cooldown | Next open in: 3503s ===
+2026-02-06 23:01:43,138 [INFO] poly24h.main: === Cycle 148 | Phase: cooldown | Next open in: 3497s ===
+2026-02-06 23:01:49,145 [INFO] poly24h.main: === Cycle 149 | Phase: cooldown | Next open in: 3491s ===
+2026-02-06 23:01:55,146 [INFO] poly24h.main: === Cycle 150 | Phase: cooldown | Next open in: 3485s ===
+2026-02-06 23:02:01,153 [INFO] poly24h.main: === Cycle 151 | Phase: idle | Next open in: 3479s ===
+2026-02-06 23:02:01,153 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 3448s
+2026-02-06 23:07:02,218 [INFO] poly24h.main: === Cycle 152 | Phase: idle | Next open in: 3178s ===
+2026-02-06 23:07:02,218 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 3147s
+2026-02-06 23:12:03,304 [INFO] poly24h.main: === Cycle 153 | Phase: idle | Next open in: 2877s ===
+2026-02-06 23:12:03,304 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 2846s
+2026-02-06 23:17:04,405 [INFO] poly24h.main: === Cycle 154 | Phase: idle | Next open in: 2576s ===
+2026-02-06 23:17:04,405 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 2545s
+2026-02-06 23:22:05,442 [INFO] poly24h.main: === Cycle 155 | Phase: idle | Next open in: 2275s ===
+2026-02-06 23:22:05,443 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 2244s
+2026-02-06 23:27:06,517 [INFO] poly24h.main: === Cycle 156 | Phase: idle | Next open in: 1973s ===
+2026-02-06 23:27:06,517 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1943s
+2026-02-06 23:32:07,618 [INFO] poly24h.main: === Cycle 157 | Phase: idle | Next open in: 1672s ===
+2026-02-06 23:32:07,619 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1642s
+2026-02-06 23:37:08,706 [INFO] poly24h.main: === Cycle 158 | Phase: idle | Next open in: 1371s ===
+2026-02-06 23:37:08,706 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1341s
+2026-02-06 23:42:09,809 [INFO] poly24h.main: === Cycle 159 | Phase: idle | Next open in: 1070s ===
+2026-02-06 23:42:09,809 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1040s
+2026-02-06 23:47:10,886 [INFO] poly24h.main: === Cycle 160 | Phase: idle | Next open in: 769s ===
+2026-02-06 23:47:10,887 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 739s
+2026-02-06 23:52:11,906 [INFO] poly24h.main: === Cycle 161 | Phase: idle | Next open in: 468s ===
+2026-02-06 23:52:11,906 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 438s
+2026-02-06 23:57:13,008 [INFO] poly24h.main: === Cycle 162 | Phase: idle | Next open in: 167s ===
+2026-02-06 23:57:13,008 [INFO] poly24h.scheduler.event_scheduler: IDLE: Sleeping 136s until pre-open
+2026-02-06 23:59:31,101 [INFO] poly24h.main: === Cycle 163 | Phase: pre_open | Next open in: 29s ===
+2026-02-06 23:59:31,101 [INFO] poly24h.scheduler.event_scheduler: PRE_OPEN: Discovering markets and warming connections
+2026-02-07 00:00:01,001 [INFO] poly24h.main: === Cycle 164 | Phase: snipe | Next open in: 3599s ===
+2026-02-07 00:00:01,001 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:02,504 [INFO] poly24h.main: === Cycle 165 | Phase: snipe | Next open in: 3597s ===
+2026-02-07 00:00:02,504 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:04,006 [INFO] poly24h.main: === Cycle 166 | Phase: snipe | Next open in: 3596s ===
+2026-02-07 00:00:04,006 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:05,510 [INFO] poly24h.main: === Cycle 167 | Phase: snipe | Next open in: 3594s ===
+2026-02-07 00:00:05,510 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:07,012 [INFO] poly24h.main: === Cycle 168 | Phase: snipe | Next open in: 3593s ===
+2026-02-07 00:00:07,013 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:08,515 [INFO] poly24h.main: === Cycle 169 | Phase: snipe | Next open in: 3591s ===
+2026-02-07 00:00:08,515 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:10,017 [INFO] poly24h.main: === Cycle 170 | Phase: snipe | Next open in: 3590s ===
+2026-02-07 00:00:10,017 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:11,519 [INFO] poly24h.main: === Cycle 171 | Phase: snipe | Next open in: 3588s ===
+2026-02-07 00:00:11,519 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:13,020 [INFO] poly24h.main: === Cycle 172 | Phase: snipe | Next open in: 3587s ===
+2026-02-07 00:00:13,020 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:14,522 [INFO] poly24h.main: === Cycle 173 | Phase: snipe | Next open in: 3585s ===
+2026-02-07 00:00:14,522 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:16,024 [INFO] poly24h.main: === Cycle 174 | Phase: snipe | Next open in: 3584s ===
+2026-02-07 00:00:16,024 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:17,526 [INFO] poly24h.main: === Cycle 175 | Phase: snipe | Next open in: 3582s ===
+2026-02-07 00:00:17,527 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:19,028 [INFO] poly24h.main: === Cycle 176 | Phase: snipe | Next open in: 3581s ===
+2026-02-07 00:00:19,028 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:20,530 [INFO] poly24h.main: === Cycle 177 | Phase: snipe | Next open in: 3579s ===
+2026-02-07 00:00:20,530 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:22,032 [INFO] poly24h.main: === Cycle 178 | Phase: snipe | Next open in: 3578s ===
+2026-02-07 00:00:22,033 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:23,534 [INFO] poly24h.main: === Cycle 179 | Phase: snipe | Next open in: 3576s ===
+2026-02-07 00:00:23,535 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:25,036 [INFO] poly24h.main: === Cycle 180 | Phase: snipe | Next open in: 3575s ===
+2026-02-07 00:00:25,037 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:26,539 [INFO] poly24h.main: === Cycle 181 | Phase: snipe | Next open in: 3573s ===
+2026-02-07 00:00:26,539 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:28,041 [INFO] poly24h.main: === Cycle 182 | Phase: snipe | Next open in: 3572s ===
+2026-02-07 00:00:28,041 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:29,543 [INFO] poly24h.main: === Cycle 183 | Phase: snipe | Next open in: 3570s ===
+2026-02-07 00:00:29,543 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:31,045 [INFO] poly24h.main: === Cycle 184 | Phase: snipe | Next open in: 3569s ===
+2026-02-07 00:00:31,045 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:32,547 [INFO] poly24h.main: === Cycle 185 | Phase: snipe | Next open in: 3567s ===
+2026-02-07 00:00:32,547 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:34,049 [INFO] poly24h.main: === Cycle 186 | Phase: snipe | Next open in: 3566s ===
+2026-02-07 00:00:34,049 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:35,551 [INFO] poly24h.main: === Cycle 187 | Phase: snipe | Next open in: 3564s ===
+2026-02-07 00:00:35,551 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:37,053 [INFO] poly24h.main: === Cycle 188 | Phase: snipe | Next open in: 3563s ===
+2026-02-07 00:00:37,053 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:38,555 [INFO] poly24h.main: === Cycle 189 | Phase: snipe | Next open in: 3561s ===
+2026-02-07 00:00:38,555 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:40,057 [INFO] poly24h.main: === Cycle 190 | Phase: snipe | Next open in: 3560s ===
+2026-02-07 00:00:40,057 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:41,559 [INFO] poly24h.main: === Cycle 191 | Phase: snipe | Next open in: 3558s ===
+2026-02-07 00:00:41,559 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:43,061 [INFO] poly24h.main: === Cycle 192 | Phase: snipe | Next open in: 3557s ===
+2026-02-07 00:00:43,061 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:44,563 [INFO] poly24h.main: === Cycle 193 | Phase: snipe | Next open in: 3555s ===
+2026-02-07 00:00:44,563 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:46,064 [INFO] poly24h.main: === Cycle 194 | Phase: snipe | Next open in: 3554s ===
+2026-02-07 00:00:46,065 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:47,566 [INFO] poly24h.main: === Cycle 195 | Phase: snipe | Next open in: 3552s ===
+2026-02-07 00:00:47,567 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:49,068 [INFO] poly24h.main: === Cycle 196 | Phase: snipe | Next open in: 3551s ===
+2026-02-07 00:00:49,068 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:50,570 [INFO] poly24h.main: === Cycle 197 | Phase: snipe | Next open in: 3549s ===
+2026-02-07 00:00:50,570 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:52,072 [INFO] poly24h.main: === Cycle 198 | Phase: snipe | Next open in: 3548s ===
+2026-02-07 00:00:52,072 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:53,574 [INFO] poly24h.main: === Cycle 199 | Phase: snipe | Next open in: 3546s ===
+2026-02-07 00:00:53,574 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:55,076 [INFO] poly24h.main: === Cycle 200 | Phase: snipe | Next open in: 3545s ===
+2026-02-07 00:00:55,076 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:56,578 [INFO] poly24h.main: === Cycle 201 | Phase: snipe | Next open in: 3543s ===
+2026-02-07 00:00:56,578 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:58,080 [INFO] poly24h.main: === Cycle 202 | Phase: snipe | Next open in: 3542s ===
+2026-02-07 00:00:58,080 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:00:59,582 [INFO] poly24h.main: === Cycle 203 | Phase: snipe | Next open in: 3540s ===
+2026-02-07 00:00:59,583 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 00:01:01,084 [INFO] poly24h.main: === Cycle 204 | Phase: cooldown | Next open in: 3539s ===
+2026-02-07 00:01:07,091 [INFO] poly24h.main: === Cycle 205 | Phase: cooldown | Next open in: 3533s ===
+2026-02-07 00:01:13,097 [INFO] poly24h.main: === Cycle 206 | Phase: cooldown | Next open in: 3527s ===
+2026-02-07 00:01:19,104 [INFO] poly24h.main: === Cycle 207 | Phase: cooldown | Next open in: 3521s ===
+2026-02-07 00:01:25,106 [INFO] poly24h.main: === Cycle 208 | Phase: cooldown | Next open in: 3515s ===
+2026-02-07 00:01:31,113 [INFO] poly24h.main: === Cycle 209 | Phase: cooldown | Next open in: 3509s ===
+2026-02-07 00:01:37,119 [INFO] poly24h.main: === Cycle 210 | Phase: cooldown | Next open in: 3503s ===
+2026-02-07 00:01:43,126 [INFO] poly24h.main: === Cycle 211 | Phase: cooldown | Next open in: 3497s ===
+2026-02-07 00:01:49,131 [INFO] poly24h.main: === Cycle 212 | Phase: cooldown | Next open in: 3491s ===
+2026-02-07 00:01:55,138 [INFO] poly24h.main: === Cycle 213 | Phase: cooldown | Next open in: 3485s ===
+2026-02-07 00:02:01,144 [INFO] poly24h.main: === Cycle 214 | Phase: idle | Next open in: 3479s ===
+2026-02-07 00:02:01,144 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 3448s
+2026-02-07 00:07:02,211 [INFO] poly24h.main: === Cycle 215 | Phase: idle | Next open in: 3178s ===
+2026-02-07 00:07:02,211 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 3147s
+2026-02-07 00:12:03,312 [INFO] poly24h.main: === Cycle 216 | Phase: idle | Next open in: 2877s ===
+2026-02-07 00:12:03,313 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 2846s
+2026-02-07 00:17:04,411 [INFO] poly24h.main: === Cycle 217 | Phase: idle | Next open in: 2576s ===
+2026-02-07 00:17:04,411 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 2545s
+2026-02-07 00:22:05,434 [INFO] poly24h.main: === Cycle 218 | Phase: idle | Next open in: 2275s ===
+2026-02-07 00:22:05,435 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 2244s
+2026-02-07 00:27:06,514 [INFO] poly24h.main: === Cycle 219 | Phase: idle | Next open in: 1973s ===
+2026-02-07 00:27:06,514 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1943s
+2026-02-07 00:32:07,615 [INFO] poly24h.main: === Cycle 220 | Phase: idle | Next open in: 1672s ===
+2026-02-07 00:32:07,615 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1642s
+2026-02-07 00:37:08,658 [INFO] poly24h.main: === Cycle 221 | Phase: idle | Next open in: 1371s ===
+2026-02-07 00:37:08,658 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1341s
+2026-02-07 00:42:09,757 [INFO] poly24h.main: === Cycle 222 | Phase: idle | Next open in: 1070s ===
+2026-02-07 00:42:09,758 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1040s
+2026-02-07 00:47:10,858 [INFO] poly24h.main: === Cycle 223 | Phase: idle | Next open in: 769s ===
+2026-02-07 00:47:10,858 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 739s
+2026-02-07 00:52:11,906 [INFO] poly24h.main: === Cycle 224 | Phase: idle | Next open in: 468s ===
+2026-02-07 00:52:11,906 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 438s
+2026-02-07 00:57:13,002 [INFO] poly24h.main: === Cycle 225 | Phase: idle | Next open in: 167s ===
+2026-02-07 00:57:13,003 [INFO] poly24h.scheduler.event_scheduler: IDLE: Sleeping 136s until pre-open
+2026-02-07 00:59:31,084 [INFO] poly24h.main: === Cycle 226 | Phase: pre_open | Next open in: 29s ===
+2026-02-07 00:59:31,084 [INFO] poly24h.scheduler.event_scheduler: PRE_OPEN: Discovering markets and warming connections
+2026-02-07 01:00:01,001 [INFO] poly24h.main: === Cycle 227 | Phase: snipe | Next open in: 3599s ===
+2026-02-07 01:00:01,001 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:02,503 [INFO] poly24h.main: === Cycle 228 | Phase: snipe | Next open in: 3597s ===
+2026-02-07 01:00:02,503 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:04,005 [INFO] poly24h.main: === Cycle 229 | Phase: snipe | Next open in: 3596s ===
+2026-02-07 01:00:04,005 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:05,511 [INFO] poly24h.main: === Cycle 230 | Phase: snipe | Next open in: 3594s ===
+2026-02-07 01:00:05,511 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:07,013 [INFO] poly24h.main: === Cycle 231 | Phase: snipe | Next open in: 3593s ===
+2026-02-07 01:00:07,013 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:08,515 [INFO] poly24h.main: === Cycle 232 | Phase: snipe | Next open in: 3591s ===
+2026-02-07 01:00:08,515 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:10,017 [INFO] poly24h.main: === Cycle 233 | Phase: snipe | Next open in: 3590s ===
+2026-02-07 01:00:10,017 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:11,519 [INFO] poly24h.main: === Cycle 234 | Phase: snipe | Next open in: 3588s ===
+2026-02-07 01:00:11,519 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:13,021 [INFO] poly24h.main: === Cycle 235 | Phase: snipe | Next open in: 3587s ===
+2026-02-07 01:00:13,021 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:14,523 [INFO] poly24h.main: === Cycle 236 | Phase: snipe | Next open in: 3585s ===
+2026-02-07 01:00:14,523 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:16,025 [INFO] poly24h.main: === Cycle 237 | Phase: snipe | Next open in: 3584s ===
+2026-02-07 01:00:16,026 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:17,527 [INFO] poly24h.main: === Cycle 238 | Phase: snipe | Next open in: 3582s ===
+2026-02-07 01:00:17,528 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:19,030 [INFO] poly24h.main: === Cycle 239 | Phase: snipe | Next open in: 3581s ===
+2026-02-07 01:00:19,030 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:20,532 [INFO] poly24h.main: === Cycle 240 | Phase: snipe | Next open in: 3579s ===
+2026-02-07 01:00:20,532 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:22,034 [INFO] poly24h.main: === Cycle 241 | Phase: snipe | Next open in: 3578s ===
+2026-02-07 01:00:22,034 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:23,536 [INFO] poly24h.main: === Cycle 242 | Phase: snipe | Next open in: 3576s ===
+2026-02-07 01:00:23,536 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:25,038 [INFO] poly24h.main: === Cycle 243 | Phase: snipe | Next open in: 3575s ===
+2026-02-07 01:00:25,038 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:26,540 [INFO] poly24h.main: === Cycle 244 | Phase: snipe | Next open in: 3573s ===
+2026-02-07 01:00:26,540 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:28,042 [INFO] poly24h.main: === Cycle 245 | Phase: snipe | Next open in: 3572s ===
+2026-02-07 01:00:28,042 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:29,544 [INFO] poly24h.main: === Cycle 246 | Phase: snipe | Next open in: 3570s ===
+2026-02-07 01:00:29,544 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:31,046 [INFO] poly24h.main: === Cycle 247 | Phase: snipe | Next open in: 3569s ===
+2026-02-07 01:00:31,046 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:32,548 [INFO] poly24h.main: === Cycle 248 | Phase: snipe | Next open in: 3567s ===
+2026-02-07 01:00:32,548 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:34,050 [INFO] poly24h.main: === Cycle 249 | Phase: snipe | Next open in: 3566s ===
+2026-02-07 01:00:34,050 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:35,552 [INFO] poly24h.main: === Cycle 250 | Phase: snipe | Next open in: 3564s ===
+2026-02-07 01:00:35,552 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:37,054 [INFO] poly24h.main: === Cycle 251 | Phase: snipe | Next open in: 3563s ===
+2026-02-07 01:00:37,054 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:38,556 [INFO] poly24h.main: === Cycle 252 | Phase: snipe | Next open in: 3561s ===
+2026-02-07 01:00:38,556 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:40,058 [INFO] poly24h.main: === Cycle 253 | Phase: snipe | Next open in: 3560s ===
+2026-02-07 01:00:40,058 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:41,560 [INFO] poly24h.main: === Cycle 254 | Phase: snipe | Next open in: 3558s ===
+2026-02-07 01:00:41,560 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:43,062 [INFO] poly24h.main: === Cycle 255 | Phase: snipe | Next open in: 3557s ===
+2026-02-07 01:00:43,062 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:44,564 [INFO] poly24h.main: === Cycle 256 | Phase: snipe | Next open in: 3555s ===
+2026-02-07 01:00:44,564 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:46,066 [INFO] poly24h.main: === Cycle 257 | Phase: snipe | Next open in: 3554s ===
+2026-02-07 01:00:46,066 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:47,568 [INFO] poly24h.main: === Cycle 258 | Phase: snipe | Next open in: 3552s ===
+2026-02-07 01:00:47,568 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:49,070 [INFO] poly24h.main: === Cycle 259 | Phase: snipe | Next open in: 3551s ===
+2026-02-07 01:00:49,070 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:50,572 [INFO] poly24h.main: === Cycle 260 | Phase: snipe | Next open in: 3549s ===
+2026-02-07 01:00:50,572 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:52,073 [INFO] poly24h.main: === Cycle 261 | Phase: snipe | Next open in: 3548s ===
+2026-02-07 01:00:52,073 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:53,575 [INFO] poly24h.main: === Cycle 262 | Phase: snipe | Next open in: 3546s ===
+2026-02-07 01:00:53,575 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:55,077 [INFO] poly24h.main: === Cycle 263 | Phase: snipe | Next open in: 3545s ===
+2026-02-07 01:00:55,077 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:56,579 [INFO] poly24h.main: === Cycle 264 | Phase: snipe | Next open in: 3543s ===
+2026-02-07 01:00:56,579 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:58,081 [INFO] poly24h.main: === Cycle 265 | Phase: snipe | Next open in: 3542s ===
+2026-02-07 01:00:58,081 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:00:59,583 [INFO] poly24h.main: === Cycle 266 | Phase: snipe | Next open in: 3540s ===
+2026-02-07 01:00:59,583 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 01:01:01,085 [INFO] poly24h.main: === Cycle 267 | Phase: cooldown | Next open in: 3539s ===
+2026-02-07 01:01:07,092 [INFO] poly24h.main: === Cycle 268 | Phase: cooldown | Next open in: 3533s ===
+2026-02-07 01:01:13,098 [INFO] poly24h.main: === Cycle 269 | Phase: cooldown | Next open in: 3527s ===
+2026-02-07 01:01:19,104 [INFO] poly24h.main: === Cycle 270 | Phase: cooldown | Next open in: 3521s ===
+2026-02-07 01:01:25,110 [INFO] poly24h.main: === Cycle 271 | Phase: cooldown | Next open in: 3515s ===
+2026-02-07 01:01:31,117 [INFO] poly24h.main: === Cycle 272 | Phase: cooldown | Next open in: 3509s ===
+2026-02-07 01:01:37,123 [INFO] poly24h.main: === Cycle 273 | Phase: cooldown | Next open in: 3503s ===
+2026-02-07 01:01:43,129 [INFO] poly24h.main: === Cycle 274 | Phase: cooldown | Next open in: 3497s ===
+2026-02-07 01:01:49,136 [INFO] poly24h.main: === Cycle 275 | Phase: cooldown | Next open in: 3491s ===
+2026-02-07 01:01:55,138 [INFO] poly24h.main: === Cycle 276 | Phase: cooldown | Next open in: 3485s ===
+2026-02-07 01:02:01,145 [INFO] poly24h.main: === Cycle 277 | Phase: idle | Next open in: 3479s ===
+2026-02-07 01:02:01,145 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 3448s
+2026-02-07 01:07:02,244 [INFO] poly24h.main: === Cycle 278 | Phase: idle | Next open in: 3178s ===
+2026-02-07 01:07:02,244 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 3147s
+
+╔══════════════════════════════════════════════╗
+║   poly24h — Polymarket 24H Arbitrage Bot     ║
+║   Event-Driven Sniper · F-018                 ║
+╚══════════════════════════════════════════════╝
+
+Mode: DRY RUN
+Sniper threshold: $0.48
+Telegram alerts: ON
+------------------------------------------------------------
+2026-02-07 01:08:15,184 [INFO] poly24h.main: === Cycle 1 | Phase: idle | Next open in: 3105s ===
+2026-02-07 01:08:15,184 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 3074s
+2026-02-07 01:13:16,285 [INFO] poly24h.main: === Cycle 2 | Phase: idle | Next open in: 2804s ===
+2026-02-07 01:13:16,285 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 2773s
+2026-02-07 01:18:17,346 [INFO] poly24h.main: === Cycle 3 | Phase: idle | Next open in: 2503s ===
+2026-02-07 01:18:17,347 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 2472s
+2026-02-07 01:23:18,433 [INFO] poly24h.main: === Cycle 4 | Phase: idle | Next open in: 2202s ===
+2026-02-07 01:23:18,433 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 2171s
+2026-02-07 01:28:19,522 [INFO] poly24h.main: === Cycle 5 | Phase: idle | Next open in: 1900s ===
+2026-02-07 01:28:19,523 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1870s
+2026-02-07 01:33:20,579 [INFO] poly24h.main: === Cycle 6 | Phase: idle | Next open in: 1599s ===
+2026-02-07 01:33:20,579 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1569s
+2026-02-07 01:38:21,678 [INFO] poly24h.main: === Cycle 7 | Phase: idle | Next open in: 1298s ===
+2026-02-07 01:38:21,679 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1268s
+2026-02-07 01:43:22,738 [INFO] poly24h.main: === Cycle 8 | Phase: idle | Next open in: 997s ===
+2026-02-07 01:43:22,739 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 967s
+2026-02-07 01:48:23,812 [INFO] poly24h.main: === Cycle 9 | Phase: idle | Next open in: 696s ===
+2026-02-07 01:48:23,812 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 666s
+2026-02-07 01:53:24,909 [INFO] poly24h.main: === Cycle 10 | Phase: idle | Next open in: 395s ===
+2026-02-07 01:53:24,909 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 365s
+2026-02-07 01:58:25,986 [INFO] poly24h.main: === Cycle 11 | Phase: idle | Next open in: 94s ===
+2026-02-07 01:58:25,986 [INFO] poly24h.scheduler.event_scheduler: IDLE: Sleeping 64s until pre-open
+2026-02-07 01:59:31,032 [INFO] poly24h.main: === Cycle 12 | Phase: pre_open | Next open in: 29s ===
+2026-02-07 01:59:31,033 [INFO] poly24h.scheduler.event_scheduler: PRE_OPEN: Discovering markets and warming connections
+2026-02-07 01:59:31,083 [INFO] poly24h.discovery.market_scanner: Hourly crypto: found 94 markets
+2026-02-07 01:59:31,083 [INFO] poly24h.scheduler.event_scheduler: PreOpenPreparer: discovered 94 hourly crypto markets
+2026-02-07 02:00:01,015 [INFO] poly24h.main: === Cycle 13 | Phase: snipe | Next open in: 3599s ===
+2026-02-07 02:00:01,015 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 94 pairs | T+1.0s | interval=0.20s
+2026-02-07 02:00:01,801 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:02,052 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:02,271 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4700 (spread=1.0100)
+2026-02-07 02:00:02,561 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4800 (spread=1.0200)
+2026-02-07 02:00:04,054 [INFO] poly24h.main: === Cycle 14 | Phase: snipe | Next open in: 3596s ===
+2026-02-07 02:00:04,054 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 94 pairs | T+4.1s | interval=0.20s
+2026-02-07 02:00:04,265 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:04,472 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:04,671 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4700 (spread=1.0100)
+2026-02-07 02:00:06,079 [INFO] poly24h.main: === Cycle 15 | Phase: snipe | Next open in: 3594s ===
+2026-02-07 02:00:06,079 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 94 pairs | T+6.1s | interval=0.20s
+2026-02-07 02:00:06,235 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:06,447 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:06,657 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4700 (spread=1.0100)
+2026-02-07 02:00:06,863 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4800 (spread=1.0100)
+2026-02-07 02:00:08,283 [INFO] poly24h.main: === Cycle 16 | Phase: snipe | Next open in: 3592s ===
+2026-02-07 02:00:08,283 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 94 pairs | T+8.3s | interval=0.20s
+2026-02-07 02:00:08,389 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:08,598 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:08,799 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4700 (spread=1.0100)
+2026-02-07 02:00:09,013 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4600 (spread=1.0100)
+2026-02-07 02:00:10,417 [INFO] poly24h.main: === Cycle 17 | Phase: snipe | Next open in: 3590s ===
+2026-02-07 02:00:10,417 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 94 pairs | T+10.4s | interval=0.50s
+2026-02-07 02:00:10,550 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:10,759 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:10,960 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4600 (spread=1.0100)
+2026-02-07 02:00:11,177 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4600 (spread=1.0100)
+2026-02-07 02:00:11,383 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4600 (spread=1.0100)
+2026-02-07 02:00:11,584 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4800 (spread=1.0100)
+2026-02-07 02:00:13,289 [INFO] poly24h.main: === Cycle 18 | Phase: snipe | Next open in: 3587s ===
+2026-02-07 02:00:13,289 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 94 pairs | T+13.3s | interval=0.50s
+2026-02-07 02:00:13,472 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:13,676 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:13,880 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4400 (spread=1.0100)
+2026-02-07 02:00:14,088 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4400 (spread=1.0100)
+2026-02-07 02:00:14,295 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4500 (spread=1.0100)
+2026-02-07 02:00:16,000 [INFO] poly24h.main: === Cycle 19 | Phase: snipe | Next open in: 3584s ===
+2026-02-07 02:00:16,000 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 94 pairs | T+16.0s | interval=0.50s
+2026-02-07 02:00:16,176 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:16,379 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:16,582 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4500 (spread=1.0100)
+2026-02-07 02:00:16,792 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4500 (spread=1.0100)
+2026-02-07 02:00:17,009 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4800 (spread=1.0200)
+2026-02-07 02:00:18,713 [INFO] poly24h.main: === Cycle 20 | Phase: snipe | Next open in: 3581s ===
+2026-02-07 02:00:18,713 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 94 pairs | T+18.7s | interval=0.50s
+2026-02-07 02:00:18,839 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:19,042 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:19,246 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4500 (spread=1.0300)
+2026-02-07 02:00:19,451 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4300 (spread=1.0100)
+2026-02-07 02:00:19,657 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4500 (spread=1.0100)
+2026-02-07 02:00:21,361 [INFO] poly24h.main: === Cycle 21 | Phase: snipe | Next open in: 3579s ===
+2026-02-07 02:00:21,361 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 94 pairs | T+21.4s | interval=0.50s
+2026-02-07 02:00:21,458 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:21,751 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:22,018 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4500 (spread=1.0100)
+2026-02-07 02:00:22,224 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4200 (spread=1.0100)
+2026-02-07 02:00:22,441 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4600 (spread=1.0100)
+2026-02-07 02:00:24,148 [INFO] poly24h.main: === Cycle 22 | Phase: snipe | Next open in: 3576s ===
+2026-02-07 02:00:24,148 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 94 pairs | T+24.1s | interval=0.50s
+2026-02-07 02:00:24,231 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:24,433 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:24,630 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4600 (spread=1.0100)
+2026-02-07 02:00:24,835 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4200 (spread=1.0100)
+2026-02-07 02:00:25,039 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4400 (spread=1.0200)
+2026-02-07 02:00:26,748 [INFO] poly24h.main: === Cycle 23 | Phase: snipe | Next open in: 3573s ===
+2026-02-07 02:00:26,748 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 94 pairs | T+26.7s | interval=0.50s
+2026-02-07 02:00:26,873 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:27,079 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:27,293 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4400 (spread=1.0100)
+2026-02-07 02:00:27,494 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4100 (spread=1.0100)
+2026-02-07 02:00:27,697 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4400 (spread=1.0100)
+2026-02-07 02:00:29,449 [INFO] poly24h.main: === Cycle 24 | Phase: snipe | Next open in: 3571s ===
+2026-02-07 02:00:29,449 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 94 pairs | T+29.4s | interval=0.50s
+2026-02-07 02:00:29,551 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:29,760 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:29,965 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4200 (spread=1.0100)
+2026-02-07 02:00:30,167 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.3800 (spread=1.0100)
+2026-02-07 02:00:30,382 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4200 (spread=1.0200)
+2026-02-07 02:00:30,588 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4700 (spread=1.0100)
+2026-02-07 02:00:32,299 [INFO] poly24h.main: === Cycle 25 | Phase: snipe | Next open in: 3568s ===
+2026-02-07 02:00:32,299 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 94 pairs | T+32.3s | interval=1.00s
+2026-02-07 02:00:32,415 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:32,624 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:32,832 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4100 (spread=1.0100)
+2026-02-07 02:00:33,037 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.3500 (spread=1.0100)
+2026-02-07 02:00:33,303 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4100 (spread=1.0200)
+2026-02-07 02:00:33,507 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4700 (spread=1.0200)
+2026-02-07 02:00:35,715 [INFO] poly24h.main: === Cycle 26 | Phase: snipe | Next open in: 3564s ===
+2026-02-07 02:00:35,715 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 94 pairs | T+35.7s | interval=1.00s
+2026-02-07 02:00:35,811 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:36,038 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:36,240 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4200 (spread=1.0100)
+2026-02-07 02:00:36,445 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.3600 (spread=1.0100)
+2026-02-07 02:00:36,667 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4200 (spread=1.0200)
+2026-02-07 02:00:36,870 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4700 (spread=1.0100)
+2026-02-07 02:00:39,199 [INFO] poly24h.main: === Cycle 27 | Phase: snipe | Next open in: 3561s ===
+2026-02-07 02:00:39,199 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 94 pairs | T+39.2s | interval=1.00s
+2026-02-07 02:00:39,299 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:39,512 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:39,726 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4300 (spread=1.0100)
+2026-02-07 02:00:39,931 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.3800 (spread=1.0100)
+2026-02-07 02:00:40,147 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4200 (spread=1.0100)
+2026-02-07 02:00:42,354 [INFO] poly24h.main: === Cycle 28 | Phase: snipe | Next open in: 3558s ===
+2026-02-07 02:00:42,354 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 94 pairs | T+42.4s | interval=1.00s
+2026-02-07 02:00:42,510 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:42,719 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:42,929 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4100 (spread=1.0100)
+2026-02-07 02:00:43,136 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.3500 (spread=1.0100)
+2026-02-07 02:00:43,340 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.3800 (spread=1.0200)
+2026-02-07 02:00:43,571 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4600 (spread=1.0100)
+2026-02-07 02:00:45,845 [INFO] poly24h.main: === Cycle 29 | Phase: snipe | Next open in: 3554s ===
+2026-02-07 02:00:45,845 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 94 pairs | T+45.8s | interval=1.00s
+2026-02-07 02:00:45,964 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:46,178 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:46,386 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4100 (spread=1.0100)
+2026-02-07 02:00:46,591 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.3500 (spread=1.0100)
+2026-02-07 02:00:46,814 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.3700 (spread=1.0100)
+2026-02-07 02:00:47,022 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4800 (spread=1.0200)
+2026-02-07 02:00:49,230 [INFO] poly24h.main: === Cycle 30 | Phase: snipe | Next open in: 3551s ===
+2026-02-07 02:00:49,230 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 94 pairs | T+49.2s | interval=1.00s
+2026-02-07 02:00:49,349 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:49,554 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:49,778 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4000 (spread=1.0100)
+2026-02-07 02:00:50,057 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.3300 (spread=1.0100)
+2026-02-07 02:00:50,261 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.3700 (spread=1.0100)
+2026-02-07 02:00:50,476 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4700 (spread=1.0100)
+2026-02-07 02:00:52,681 [INFO] poly24h.main: === Cycle 31 | Phase: snipe | Next open in: 3547s ===
+2026-02-07 02:00:52,681 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 94 pairs | T+52.7s | interval=1.00s
+2026-02-07 02:00:52,845 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:53,082 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:53,285 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4000 (spread=1.0100)
+2026-02-07 02:00:53,494 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.3200 (spread=1.0100)
+2026-02-07 02:00:53,695 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.3700 (spread=1.0200)
+2026-02-07 02:00:53,903 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4600 (spread=1.0100)
+2026-02-07 02:00:56,163 [INFO] poly24h.main: === Cycle 32 | Phase: snipe | Next open in: 3544s ===
+2026-02-07 02:00:56,163 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 94 pairs | T+56.2s | interval=1.00s
+2026-02-07 02:00:56,296 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:56,501 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:56,705 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4000 (spread=1.0100)
+2026-02-07 02:00:56,915 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.3200 (spread=1.0100)
+2026-02-07 02:00:57,120 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.3700 (spread=1.0200)
+2026-02-07 02:00:57,324 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4600 (spread=1.0100)
+2026-02-07 02:00:59,529 [INFO] poly24h.main: === Cycle 33 | Phase: snipe | Next open in: 3540s ===
+2026-02-07 02:00:59,529 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 94 pairs | T+59.5s | interval=1.00s
+2026-02-07 02:00:59,665 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:00:59,864 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 02:01:00,073 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4000 (spread=1.0100)
+2026-02-07 02:01:00,277 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.3500 (spread=1.0200)
+2026-02-07 02:01:00,485 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.3700 (spread=1.0100)
+2026-02-07 02:01:00,705 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4300 (spread=1.0100)
+2026-02-07 02:01:02,917 [INFO] poly24h.main: === Cycle 34 | Phase: cooldown | Next open in: 3537s ===
+2026-02-07 02:01:02,917 [INFO] poly24h.scheduler.event_scheduler: COOLDOWN: Polling 94 pairs
+2026-02-07 02:01:10,395 [INFO] poly24h.main: === Cycle 35 | Phase: cooldown | Next open in: 3530s ===
+2026-02-07 02:01:10,396 [INFO] poly24h.scheduler.event_scheduler: COOLDOWN: Polling 94 pairs
+2026-02-07 02:01:17,737 [INFO] poly24h.main: === Cycle 36 | Phase: cooldown | Next open in: 3522s ===
+2026-02-07 02:01:17,737 [INFO] poly24h.scheduler.event_scheduler: COOLDOWN: Polling 94 pairs
+2026-02-07 02:01:25,192 [INFO] poly24h.main: === Cycle 37 | Phase: cooldown | Next open in: 3515s ===
+2026-02-07 02:01:25,192 [INFO] poly24h.scheduler.event_scheduler: COOLDOWN: Polling 94 pairs
+2026-02-07 02:01:32,780 [INFO] poly24h.main: === Cycle 38 | Phase: cooldown | Next open in: 3507s ===
+2026-02-07 02:01:32,780 [INFO] poly24h.scheduler.event_scheduler: COOLDOWN: Polling 94 pairs
+2026-02-07 02:01:40,194 [INFO] poly24h.main: === Cycle 39 | Phase: cooldown | Next open in: 3500s ===
+2026-02-07 02:01:40,195 [INFO] poly24h.scheduler.event_scheduler: COOLDOWN: Polling 94 pairs
+2026-02-07 02:01:47,579 [INFO] poly24h.main: === Cycle 40 | Phase: cooldown | Next open in: 3492s ===
+2026-02-07 02:01:47,579 [INFO] poly24h.scheduler.event_scheduler: COOLDOWN: Polling 94 pairs
+2026-02-07 02:01:54,995 [INFO] poly24h.main: === Cycle 41 | Phase: cooldown | Next open in: 3485s ===
+2026-02-07 02:01:54,995 [INFO] poly24h.scheduler.event_scheduler: COOLDOWN: Polling 94 pairs
+2026-02-07 02:02:02,498 [INFO] poly24h.main: === Cycle 42 | Phase: idle | Next open in: 3478s ===
+2026-02-07 02:02:02,499 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 3447s
+2026-02-07 02:07:03,595 [INFO] poly24h.main: === Cycle 43 | Phase: idle | Next open in: 3176s ===
+2026-02-07 02:07:03,595 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 3146s
+2026-02-07 02:12:04,682 [INFO] poly24h.main: === Cycle 44 | Phase: idle | Next open in: 2875s ===
+2026-02-07 02:12:04,682 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 2845s
+2026-02-07 02:17:05,762 [INFO] poly24h.main: === Cycle 45 | Phase: idle | Next open in: 2574s ===
+2026-02-07 02:17:05,762 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 2544s
+2026-02-07 02:22:06,850 [INFO] poly24h.main: === Cycle 46 | Phase: idle | Next open in: 2273s ===
+2026-02-07 02:22:06,850 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 2243s
+2026-02-07 02:27:07,946 [INFO] poly24h.main: === Cycle 47 | Phase: idle | Next open in: 1972s ===
+2026-02-07 02:27:07,947 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1942s
+2026-02-07 02:32:08,991 [INFO] poly24h.main: === Cycle 48 | Phase: idle | Next open in: 1671s ===
+2026-02-07 02:32:08,991 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1641s
+2026-02-07 02:37:10,088 [INFO] poly24h.main: === Cycle 49 | Phase: idle | Next open in: 1370s ===
+2026-02-07 02:37:10,088 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1339s
+2026-02-07 02:42:11,159 [INFO] poly24h.main: === Cycle 50 | Phase: idle | Next open in: 1069s ===
+2026-02-07 02:42:11,159 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1038s
+2026-02-07 02:47:12,186 [INFO] poly24h.main: === Cycle 51 | Phase: idle | Next open in: 768s ===
+2026-02-07 02:47:12,186 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 737s
+2026-02-07 02:52:13,296 [INFO] poly24h.main: === Cycle 52 | Phase: idle | Next open in: 467s ===
+2026-02-07 02:52:13,296 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 436s
+2026-02-07 02:57:14,398 [INFO] poly24h.main: === Cycle 53 | Phase: idle | Next open in: 166s ===
+2026-02-07 02:57:14,398 [INFO] poly24h.scheduler.event_scheduler: IDLE: Sleeping 135s until pre-open
+2026-02-07 02:59:31,098 [INFO] poly24h.main: === Cycle 54 | Phase: pre_open | Next open in: 29s ===
+2026-02-07 02:59:31,098 [INFO] poly24h.scheduler.event_scheduler: PRE_OPEN: Discovering markets and warming connections
+2026-02-07 02:59:31,147 [INFO] poly24h.discovery.market_scanner: Hourly crypto: found 95 markets
+2026-02-07 02:59:31,148 [INFO] poly24h.scheduler.event_scheduler: PreOpenPreparer: discovered 95 hourly crypto markets
+2026-02-07 03:00:01,014 [INFO] poly24h.main: === Cycle 55 | Phase: snipe | Next open in: 3599s ===
+2026-02-07 03:00:01,014 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+1.0s | interval=0.20s
+2026-02-07 03:00:01,866 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:02,121 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:02,341 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0100 (spread=0.0000)
+2026-02-07 03:00:02,569 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.4700 (spread=1.0800)
+2026-02-07 03:00:03,988 [INFO] poly24h.main: === Cycle 56 | Phase: snipe | Next open in: 3596s ===
+2026-02-07 03:00:03,988 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+4.0s | interval=0.20s
+2026-02-07 03:00:04,255 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:04,468 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:04,687 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0100 (spread=0.0000)
+2026-02-07 03:00:04,890 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.4700 (spread=1.0100)
+2026-02-07 03:00:06,312 [INFO] poly24h.main: === Cycle 57 | Phase: snipe | Next open in: 3594s ===
+2026-02-07 03:00:06,312 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+6.3s | interval=0.20s
+2026-02-07 03:00:06,452 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:06,658 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:06,869 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0100 (spread=0.0000)
+2026-02-07 03:00:08,293 [INFO] poly24h.main: === Cycle 58 | Phase: snipe | Next open in: 3592s ===
+2026-02-07 03:00:08,293 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+8.3s | interval=0.20s
+2026-02-07 03:00:08,388 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:08,608 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:08,832 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0100 (spread=0.0000)
+2026-02-07 03:00:10,734 [INFO] poly24h.main: === Cycle 59 | Phase: snipe | Next open in: 3589s ===
+2026-02-07 03:00:10,734 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+10.7s | interval=0.50s
+2026-02-07 03:00:11,111 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:11,321 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:11,529 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0100 (spread=0.0000)
+2026-02-07 03:00:13,244 [INFO] poly24h.main: === Cycle 60 | Phase: snipe | Next open in: 3587s ===
+2026-02-07 03:00:13,244 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+13.2s | interval=0.50s
+2026-02-07 03:00:13,386 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:13,594 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:13,800 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0100 (spread=0.0000)
+2026-02-07 03:00:14,006 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.4800 (spread=1.0100)
+2026-02-07 03:00:15,729 [INFO] poly24h.main: === Cycle 61 | Phase: snipe | Next open in: 3584s ===
+2026-02-07 03:00:15,729 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+15.7s | interval=0.50s
+2026-02-07 03:00:15,834 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:16,041 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:16,244 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0100 (spread=0.0000)
+2026-02-07 03:00:16,447 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.4800 (spread=1.0100)
+2026-02-07 03:00:16,652 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.4800 (spread=1.0100)
+2026-02-07 03:00:18,359 [INFO] poly24h.main: === Cycle 62 | Phase: snipe | Next open in: 3582s ===
+2026-02-07 03:00:18,359 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+18.4s | interval=0.50s
+2026-02-07 03:00:18,498 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:18,702 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:18,908 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0100 (spread=0.0000)
+2026-02-07 03:00:19,120 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.4700 (spread=1.0100)
+2026-02-07 03:00:19,323 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.4800 (spread=1.0300)
+2026-02-07 03:00:21,030 [INFO] poly24h.main: === Cycle 63 | Phase: snipe | Next open in: 3579s ===
+2026-02-07 03:00:21,030 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+21.0s | interval=0.50s
+2026-02-07 03:00:21,199 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:21,414 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:21,617 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0100 (spread=0.0000)
+2026-02-07 03:00:21,830 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.4600 (spread=1.0100)
+2026-02-07 03:00:22,041 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.4700 (spread=1.0100)
+2026-02-07 03:00:22,249 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.4600 (spread=1.0100)
+2026-02-07 03:00:22,453 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.4800 (spread=1.0100)
+2026-02-07 03:00:24,161 [INFO] poly24h.main: === Cycle 64 | Phase: snipe | Next open in: 3576s ===
+2026-02-07 03:00:24,161 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+24.2s | interval=0.50s
+2026-02-07 03:00:24,264 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:24,721 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:24,927 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0100 (spread=0.0000)
+2026-02-07 03:00:25,134 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.4700 (spread=1.0100)
+2026-02-07 03:00:25,347 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.4800 (spread=1.0200)
+2026-02-07 03:00:27,051 [INFO] poly24h.main: === Cycle 65 | Phase: snipe | Next open in: 3573s ===
+2026-02-07 03:00:27,051 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+27.1s | interval=0.50s
+2026-02-07 03:00:27,198 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:27,405 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:27,623 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0100 (spread=0.0000)
+2026-02-07 03:00:29,332 [INFO] poly24h.main: === Cycle 66 | Phase: snipe | Next open in: 3571s ===
+2026-02-07 03:00:29,332 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+29.3s | interval=0.50s
+2026-02-07 03:00:29,431 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:29,639 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:29,851 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0100 (spread=0.0000)
+2026-02-07 03:00:30,058 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4800 (spread=1.0200)
+2026-02-07 03:00:31,766 [INFO] poly24h.main: === Cycle 67 | Phase: snipe | Next open in: 3568s ===
+2026-02-07 03:00:31,766 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+31.8s | interval=1.00s
+2026-02-07 03:00:31,864 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:32,079 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:32,281 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0100 (spread=0.0000)
+2026-02-07 03:00:32,484 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4800 (spread=1.0100)
+2026-02-07 03:00:32,689 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4800 (spread=1.0100)
+2026-02-07 03:00:32,907 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4700 (spread=1.0200)
+2026-02-07 03:00:35,116 [INFO] poly24h.main: === Cycle 68 | Phase: snipe | Next open in: 3565s ===
+2026-02-07 03:00:35,116 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+35.1s | interval=1.00s
+2026-02-07 03:00:35,262 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:35,471 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:35,697 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0100 (spread=0.0000)
+2026-02-07 03:00:35,907 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4700 (spread=1.0100)
+2026-02-07 03:00:36,114 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4700 (spread=1.0200)
+2026-02-07 03:00:38,326 [INFO] poly24h.main: === Cycle 69 | Phase: snipe | Next open in: 3562s ===
+2026-02-07 03:00:38,326 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+38.3s | interval=1.00s
+2026-02-07 03:00:38,425 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:38,646 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:38,853 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0100 (spread=0.0000)
+2026-02-07 03:00:39,060 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4600 (spread=1.0100)
+2026-02-07 03:00:39,268 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4700 (spread=1.0100)
+2026-02-07 03:00:41,474 [INFO] poly24h.main: === Cycle 70 | Phase: snipe | Next open in: 3559s ===
+2026-02-07 03:00:41,474 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+41.5s | interval=1.00s
+2026-02-07 03:00:41,590 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:41,791 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:41,994 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0100 (spread=0.0000)
+2026-02-07 03:00:42,208 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4600 (spread=1.0100)
+2026-02-07 03:00:42,410 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4700 (spread=1.0100)
+2026-02-07 03:00:44,618 [INFO] poly24h.main: === Cycle 71 | Phase: snipe | Next open in: 3555s ===
+2026-02-07 03:00:44,618 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+44.6s | interval=1.00s
+2026-02-07 03:00:44,715 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:44,919 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:45,131 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0100 (spread=0.0000)
+2026-02-07 03:00:45,338 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4300 (spread=1.0100)
+2026-02-07 03:00:45,540 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4700 (spread=1.0100)
+2026-02-07 03:00:45,744 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4700 (spread=1.0100)
+2026-02-07 03:00:45,969 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4600 (spread=1.0200)
+2026-02-07 03:00:48,180 [INFO] poly24h.main: === Cycle 72 | Phase: snipe | Next open in: 3552s ===
+2026-02-07 03:00:48,180 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+48.2s | interval=1.00s
+2026-02-07 03:00:48,296 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:48,499 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:48,700 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0100 (spread=0.0000)
+2026-02-07 03:00:48,902 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4400 (spread=1.0100)
+2026-02-07 03:00:49,117 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4800 (spread=1.0100)
+2026-02-07 03:00:49,324 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4600 (spread=1.0100)
+2026-02-07 03:00:49,530 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4600 (spread=1.0100)
+2026-02-07 03:00:51,735 [INFO] poly24h.main: === Cycle 73 | Phase: snipe | Next open in: 3548s ===
+2026-02-07 03:00:51,736 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+51.7s | interval=1.00s
+2026-02-07 03:00:51,827 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:52,032 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:52,244 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0100 (spread=0.0000)
+2026-02-07 03:00:52,454 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4700 (spread=1.0100)
+2026-02-07 03:00:52,657 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4800 (spread=1.0200)
+2026-02-07 03:00:52,862 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4800 (spread=1.0200)
+2026-02-07 03:00:55,069 [INFO] poly24h.main: === Cycle 74 | Phase: snipe | Next open in: 3545s ===
+2026-02-07 03:00:55,069 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+55.1s | interval=1.00s
+2026-02-07 03:00:55,194 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:55,416 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:55,624 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0100 (spread=0.0000)
+2026-02-07 03:00:55,830 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4600 (spread=1.0100)
+2026-02-07 03:00:56,036 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4800 (spread=1.0100)
+2026-02-07 03:00:56,243 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4700 (spread=1.0000)
+2026-02-07 03:00:58,448 [INFO] poly24h.main: === Cycle 75 | Phase: snipe | Next open in: 3542s ===
+2026-02-07 03:00:58,449 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+58.4s | interval=1.00s
+2026-02-07 03:00:58,552 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:58,754 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.0010 (spread=0.0000)
+2026-02-07 03:00:58,958 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0100 (spread=0.0000)
+2026-02-07 03:00:59,177 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4600 (spread=1.0100)
+2026-02-07 03:00:59,378 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4800 (spread=1.0100)
+2026-02-07 03:00:59,584 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4700 (spread=1.0200)
+2026-02-07 03:01:01,790 [INFO] poly24h.main: === Cycle 76 | Phase: cooldown | Next open in: 3538s ===
+2026-02-07 03:01:01,791 [INFO] poly24h.scheduler.event_scheduler: COOLDOWN: Polling 95 pairs
+2026-02-07 03:01:08,969 [INFO] poly24h.main: === Cycle 77 | Phase: cooldown | Next open in: 3531s ===
+2026-02-07 03:01:08,969 [INFO] poly24h.scheduler.event_scheduler: COOLDOWN: Polling 95 pairs
+2026-02-07 03:01:16,537 [INFO] poly24h.main: === Cycle 78 | Phase: cooldown | Next open in: 3523s ===
+2026-02-07 03:01:16,538 [INFO] poly24h.scheduler.event_scheduler: COOLDOWN: Polling 95 pairs
+2026-02-07 03:01:24,125 [INFO] poly24h.main: === Cycle 79 | Phase: cooldown | Next open in: 3516s ===
+2026-02-07 03:01:24,125 [INFO] poly24h.scheduler.event_scheduler: COOLDOWN: Polling 95 pairs
+2026-02-07 03:01:31,785 [INFO] poly24h.main: === Cycle 80 | Phase: cooldown | Next open in: 3508s ===
+2026-02-07 03:01:31,785 [INFO] poly24h.scheduler.event_scheduler: COOLDOWN: Polling 95 pairs
+2026-02-07 03:01:39,326 [INFO] poly24h.main: === Cycle 81 | Phase: cooldown | Next open in: 3501s ===
+2026-02-07 03:01:39,326 [INFO] poly24h.scheduler.event_scheduler: COOLDOWN: Polling 95 pairs
+2026-02-07 03:01:46,871 [INFO] poly24h.main: === Cycle 82 | Phase: cooldown | Next open in: 3493s ===
+2026-02-07 03:01:46,871 [INFO] poly24h.scheduler.event_scheduler: COOLDOWN: Polling 95 pairs
+2026-02-07 03:01:54,444 [INFO] poly24h.main: === Cycle 83 | Phase: cooldown | Next open in: 3486s ===
+2026-02-07 03:01:54,444 [INFO] poly24h.scheduler.event_scheduler: COOLDOWN: Polling 95 pairs
+2026-02-07 03:02:02,260 [INFO] poly24h.main: === Cycle 84 | Phase: idle | Next open in: 3478s ===
+2026-02-07 03:02:02,260 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 3447s
+2026-02-07 03:07:03,298 [INFO] poly24h.main: === Cycle 85 | Phase: idle | Next open in: 3177s ===
+2026-02-07 03:07:03,299 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 3146s
+2026-02-07 03:12:04,376 [INFO] poly24h.main: === Cycle 86 | Phase: idle | Next open in: 2876s ===
+2026-02-07 03:12:04,376 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 2845s
+2026-02-07 03:17:05,458 [INFO] poly24h.main: === Cycle 87 | Phase: idle | Next open in: 2575s ===
+2026-02-07 03:17:05,458 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 2544s
+2026-02-07 03:22:06,547 [INFO] poly24h.main: === Cycle 88 | Phase: idle | Next open in: 2273s ===
+2026-02-07 03:22:06,547 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 2243s
+2026-02-07 03:27:07,647 [INFO] poly24h.main: === Cycle 89 | Phase: idle | Next open in: 1972s ===
+2026-02-07 03:27:07,647 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1942s
+2026-02-07 03:32:08,737 [INFO] poly24h.main: === Cycle 90 | Phase: idle | Next open in: 1671s ===
+2026-02-07 03:32:08,738 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1641s
+2026-02-07 03:37:09,786 [INFO] poly24h.main: === Cycle 91 | Phase: idle | Next open in: 1370s ===
+2026-02-07 03:37:09,786 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1340s
+2026-02-07 03:42:10,888 [INFO] poly24h.main: === Cycle 92 | Phase: idle | Next open in: 1069s ===
+2026-02-07 03:42:10,888 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1039s
+2026-02-07 03:47:11,962 [INFO] poly24h.main: === Cycle 93 | Phase: idle | Next open in: 768s ===
+2026-02-07 03:47:11,963 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 738s
+2026-02-07 03:52:12,994 [INFO] poly24h.main: === Cycle 94 | Phase: idle | Next open in: 467s ===
+2026-02-07 03:52:12,995 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 437s
+2026-02-07 03:57:14,090 [INFO] poly24h.main: === Cycle 95 | Phase: idle | Next open in: 166s ===
+2026-02-07 03:57:14,090 [INFO] poly24h.scheduler.event_scheduler: IDLE: Sleeping 135s until pre-open
+2026-02-07 03:59:31,102 [INFO] poly24h.main: === Cycle 96 | Phase: pre_open | Next open in: 29s ===
+2026-02-07 03:59:31,102 [INFO] poly24h.scheduler.event_scheduler: PRE_OPEN: Discovering markets and warming connections
+2026-02-07 03:59:31,157 [INFO] poly24h.discovery.market_scanner: Hourly crypto: found 95 markets
+2026-02-07 03:59:31,157 [INFO] poly24h.scheduler.event_scheduler: PreOpenPreparer: discovered 95 hourly crypto markets
+2026-02-07 04:00:01,014 [INFO] poly24h.main: === Cycle 97 | Phase: snipe | Next open in: 3599s ===
+2026-02-07 04:00:01,015 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+1.0s | interval=0.20s
+2026-02-07 04:00:01,523 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:01,744 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:01,977 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:02,351 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4600 (spread=1.0100)
+2026-02-07 04:00:02,557 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4600 (spread=1.0500)
+2026-02-07 04:00:03,979 [INFO] poly24h.main: === Cycle 98 | Phase: snipe | Next open in: 3596s ===
+2026-02-07 04:00:03,979 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+4.0s | interval=0.20s
+2026-02-07 04:00:04,219 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:04,439 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:04,648 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:04,857 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4600 (spread=1.0400)
+2026-02-07 04:00:05,068 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4600 (spread=1.0100)
+2026-02-07 04:00:05,284 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4500 (spread=1.0200)
+2026-02-07 04:00:05,489 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4400 (spread=1.0200)
+2026-02-07 04:00:06,904 [INFO] poly24h.main: === Cycle 99 | Phase: snipe | Next open in: 3593s ===
+2026-02-07 04:00:06,904 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+6.9s | interval=0.20s
+2026-02-07 04:00:07,124 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:07,350 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:07,557 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:07,766 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4200 (spread=1.0100)
+2026-02-07 04:00:07,973 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4500 (spread=1.0100)
+2026-02-07 04:00:08,187 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4200 (spread=1.0100)
+2026-02-07 04:00:08,396 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4000 (spread=1.0100)
+2026-02-07 04:00:09,808 [INFO] poly24h.main: === Cycle 100 | Phase: snipe | Next open in: 3590s ===
+2026-02-07 04:00:09,808 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+9.8s | interval=0.20s
+2026-02-07 04:00:10,003 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:10,337 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:10,551 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:10,762 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4300 (spread=1.0100)
+2026-02-07 04:00:10,970 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4700 (spread=1.0100)
+2026-02-07 04:00:11,196 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4300 (spread=1.0100)
+2026-02-07 04:00:11,421 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4100 (spread=1.0100)
+2026-02-07 04:00:12,830 [INFO] poly24h.main: === Cycle 101 | Phase: snipe | Next open in: 3587s ===
+2026-02-07 04:00:12,830 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+12.8s | interval=0.50s
+2026-02-07 04:00:12,947 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:13,159 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:13,469 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:13,690 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4500 (spread=1.0100)
+2026-02-07 04:00:13,895 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4800 (spread=1.0100)
+2026-02-07 04:00:14,184 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4300 (spread=1.0100)
+2026-02-07 04:00:14,406 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4400 (spread=1.0200)
+2026-02-07 04:00:16,127 [INFO] poly24h.main: === Cycle 102 | Phase: snipe | Next open in: 3584s ===
+2026-02-07 04:00:16,127 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+16.1s | interval=0.50s
+2026-02-07 04:00:16,280 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:16,488 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:16,693 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:16,907 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4400 (spread=1.0100)
+2026-02-07 04:00:17,123 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4700 (spread=1.0100)
+2026-02-07 04:00:17,331 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4500 (spread=1.0100)
+2026-02-07 04:00:17,538 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4400 (spread=1.0200)
+2026-02-07 04:00:19,247 [INFO] poly24h.main: === Cycle 103 | Phase: snipe | Next open in: 3581s ===
+2026-02-07 04:00:19,247 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+19.2s | interval=0.50s
+2026-02-07 04:00:19,353 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:19,577 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:19,787 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:19,996 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4300 (spread=1.0100)
+2026-02-07 04:00:20,206 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4700 (spread=1.0100)
+2026-02-07 04:00:20,422 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4200 (spread=1.0200)
+2026-02-07 04:00:20,627 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4100 (spread=1.0100)
+2026-02-07 04:00:22,337 [INFO] poly24h.main: === Cycle 104 | Phase: snipe | Next open in: 3578s ===
+2026-02-07 04:00:22,337 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+22.3s | interval=0.50s
+2026-02-07 04:00:22,464 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:22,691 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:22,893 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:23,108 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4200 (spread=1.0100)
+2026-02-07 04:00:23,312 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4600 (spread=1.0100)
+2026-02-07 04:00:23,520 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4100 (spread=1.0100)
+2026-02-07 04:00:23,730 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4100 (spread=1.0100)
+2026-02-07 04:00:25,438 [INFO] poly24h.main: === Cycle 105 | Phase: snipe | Next open in: 3575s ===
+2026-02-07 04:00:25,438 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+25.4s | interval=0.50s
+2026-02-07 04:00:25,555 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:25,772 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:25,984 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:26,197 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4700 (spread=1.0100)
+2026-02-07 04:00:26,399 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4600 (spread=1.0200)
+2026-02-07 04:00:26,596 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4300 (spread=1.0100)
+2026-02-07 04:00:28,306 [INFO] poly24h.main: === Cycle 106 | Phase: snipe | Next open in: 3572s ===
+2026-02-07 04:00:28,306 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+28.3s | interval=0.50s
+2026-02-07 04:00:28,445 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:28,648 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:28,857 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:29,066 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4800 (spread=1.0100)
+2026-02-07 04:00:29,281 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4600 (spread=1.0100)
+2026-02-07 04:00:29,509 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4500 (spread=1.0200)
+2026-02-07 04:00:31,216 [INFO] poly24h.main: === Cycle 107 | Phase: snipe | Next open in: 3569s ===
+2026-02-07 04:00:31,216 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+31.2s | interval=1.00s
+2026-02-07 04:00:31,352 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:31,560 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:31,772 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:31,979 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4600 (spread=1.0100)
+2026-02-07 04:00:32,208 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4600 (spread=1.0100)
+2026-02-07 04:00:32,405 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4400 (spread=1.0100)
+2026-02-07 04:00:34,617 [INFO] poly24h.main: === Cycle 108 | Phase: snipe | Next open in: 3565s ===
+2026-02-07 04:00:34,617 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+34.6s | interval=1.00s
+2026-02-07 04:00:34,740 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:34,947 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:35,159 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:35,371 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4800 (spread=1.0200)
+2026-02-07 04:00:35,576 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4500 (spread=1.0100)
+2026-02-07 04:00:37,781 [INFO] poly24h.main: === Cycle 109 | Phase: snipe | Next open in: 3562s ===
+2026-02-07 04:00:37,781 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+37.8s | interval=1.00s
+2026-02-07 04:00:37,888 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:38,113 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:38,316 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:38,524 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4700 (spread=1.0100)
+2026-02-07 04:00:38,732 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4500 (spread=1.0100)
+2026-02-07 04:00:40,973 [INFO] poly24h.main: === Cycle 110 | Phase: snipe | Next open in: 3559s ===
+2026-02-07 04:00:40,973 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+41.0s | interval=1.00s
+2026-02-07 04:00:41,161 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:41,381 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:41,590 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:41,793 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.4700 (spread=1.0100)
+2026-02-07 04:00:42,021 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.4700 (spread=1.0100)
+2026-02-07 04:00:42,225 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.4700 (spread=1.0100)
+2026-02-07 04:00:42,428 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4700 (spread=1.0200)
+2026-02-07 04:00:44,639 [INFO] poly24h.main: === Cycle 111 | Phase: snipe | Next open in: 3555s ===
+2026-02-07 04:00:44,639 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+44.6s | interval=1.00s
+2026-02-07 04:00:44,751 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:44,999 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:45,213 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:45,420 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.4000 (spread=1.0100)
+2026-02-07 04:00:45,632 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.4800 (spread=1.0200)
+2026-02-07 04:00:45,838 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.4500 (spread=1.0100)
+2026-02-07 04:00:48,050 [INFO] poly24h.main: === Cycle 112 | Phase: snipe | Next open in: 3552s ===
+2026-02-07 04:00:48,050 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+48.1s | interval=1.00s
+2026-02-07 04:00:48,194 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:48,397 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:48,789 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:48,999 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.3900 (spread=1.0100)
+2026-02-07 04:00:49,204 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.4800 (spread=1.0200)
+2026-02-07 04:00:49,429 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.4600 (spread=1.0100)
+2026-02-07 04:00:51,650 [INFO] poly24h.main: === Cycle 113 | Phase: snipe | Next open in: 3548s ===
+2026-02-07 04:00:51,651 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+51.7s | interval=1.00s
+2026-02-07 04:00:51,765 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:51,976 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:52,185 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:52,390 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.4000 (spread=1.0100)
+2026-02-07 04:00:52,600 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.4800 (spread=1.0100)
+2026-02-07 04:00:52,804 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4800 (spread=1.0200)
+2026-02-07 04:00:55,010 [INFO] poly24h.main: === Cycle 114 | Phase: snipe | Next open in: 3545s ===
+2026-02-07 04:00:55,010 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 95 pairs | T+55.0s | interval=1.00s
+2026-02-07 04:00:55,184 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:55,389 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:55,600 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.0010 (spread=0.0000)
+2026-02-07 04:00:55,814 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at 0.4500 (spread=1.0100)
+2026-02-07 04:00:56,018 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at 0.4800 (spread=1.0200)
+
+╔══════════════════════════════════════════════╗
+║   poly24h — Polymarket 24H Arbitrage Bot     ║
+║   Event-Driven Sniper · F-018                 ║
+╚══════════════════════════════════════════════╝
+
+Mode: DRY RUN
+Sniper threshold: $0.48
+Telegram alerts: ON
+------------------------------------------------------------
+Enabled sources: hourly_crypto, nba, soccer
+Signal filter: min price=$0.02
+------------------------------------------------------------
+2026-02-07 04:00:58,942 [INFO] poly24h.main: === Cycle 1 | Phase: snipe | Next open in: 3541s ===
+2026-02-07 04:00:58,942 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 04:01:00,444 [INFO] poly24h.main: === Cycle 2 | Phase: snipe | Next open in: 3540s ===
+2026-02-07 04:01:00,444 [WARNING] poly24h.scheduler.event_scheduler: SNIPE: No active token pairs to monitor
+2026-02-07 04:01:01,946 [INFO] poly24h.main: === Cycle 3 | Phase: cooldown | Next open in: 3538s ===
+2026-02-07 04:01:07,953 [INFO] poly24h.main: === Cycle 4 | Phase: cooldown | Next open in: 3532s ===
+2026-02-07 04:01:13,959 [INFO] poly24h.main: === Cycle 5 | Phase: cooldown | Next open in: 3526s ===
+2026-02-07 04:01:19,965 [INFO] poly24h.main: === Cycle 6 | Phase: cooldown | Next open in: 3520s ===
+2026-02-07 04:01:25,972 [INFO] poly24h.main: === Cycle 7 | Phase: cooldown | Next open in: 3514s ===
+2026-02-07 04:01:31,978 [INFO] poly24h.main: === Cycle 8 | Phase: cooldown | Next open in: 3508s ===
+2026-02-07 04:01:37,985 [INFO] poly24h.main: === Cycle 9 | Phase: cooldown | Next open in: 3502s ===
+2026-02-07 04:01:43,991 [INFO] poly24h.main: === Cycle 10 | Phase: cooldown | Next open in: 3496s ===
+2026-02-07 04:01:49,998 [INFO] poly24h.main: === Cycle 11 | Phase: cooldown | Next open in: 3490s ===
+2026-02-07 04:01:56,004 [INFO] poly24h.main: === Cycle 12 | Phase: cooldown | Next open in: 3484s ===
+2026-02-07 04:02:02,011 [INFO] poly24h.main: === Cycle 13 | Phase: idle | Next open in: 3478s ===
+2026-02-07 04:02:02,011 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 3447s
+
+╔══════════════════════════════════════════════╗
+║   poly24h — Polymarket 24H Arbitrage Bot     ║
+║   Event-Driven Sniper · F-018                 ║
+╚══════════════════════════════════════════════╝
+
+Mode: DRY RUN
+Sniper threshold: $0.48
+Telegram alerts: ON
+------------------------------------------------------------
+Enabled sources: hourly_crypto, nba, soccer
+Signal filter: min price=$0.02
+------------------------------------------------------------
+2026-02-07 04:03:13,621 [INFO] poly24h.main: === Cycle 1 | Phase: idle | Next open in: 3406s ===
+2026-02-07 04:03:13,621 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 3376s

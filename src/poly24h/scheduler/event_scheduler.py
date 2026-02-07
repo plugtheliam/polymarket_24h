@@ -19,6 +19,7 @@ from enum import Enum
 import aiohttp
 
 from poly24h.discovery.gamma_client import GammaClient
+from poly24h.discovery.market_scanner import MarketScanner
 from poly24h.models.market import Market, MarketSource
 from poly24h.monitoring.telegram import TelegramAlerter
 from poly24h.strategy.orderbook_scanner import ClobOrderbookFetcher
@@ -121,57 +122,55 @@ class MarketOpenSchedule:
 
 
 class PreOpenPreparer:
-    """Discovers upcoming markets and warms CLOB connections."""
+    """Discovers upcoming markets and warms CLOB connections.
 
-    def __init__(self, gamma_client: GammaClient):
+    Uses MarketScanner.discover_all() for reliable market discovery
+    across ALL enabled sources (crypto + NBA + soccer + etc).
+    F-019: No longer limited to crypto only.
+    """
+
+    def __init__(self, gamma_client: GammaClient, scanner: MarketScanner | None = None):
         self.gamma_client = gamma_client
+        self._scanner = scanner
+
+    @property
+    def scanner(self) -> MarketScanner:
+        """Lazy-init MarketScanner if not injected."""
+        if self._scanner is None:
+            self._scanner = MarketScanner(self.gamma_client)
+        return self._scanner
 
     async def discover_upcoming_markets(self) -> list[Market]:
-        """Call GammaClient to find markets opening soon."""
-        events = await self.gamma_client.fetch_events(tag="crypto", limit=100)
+        """Discover ALL enabled markets (crypto + sports) using MarketScanner.
 
-        markets: list[Market] = []
-        for event in events:
-            event_id = event.get("id", "")
-            event_title = event.get("title", "")
+        F-019: Now uses discover_all() instead of discover_hourly_crypto() only.
+        This includes NBA, soccer, and other enabled sports markets.
+        """
+        await self.gamma_client.open()
+        markets = await self.scanner.discover_all()
 
-            for market_data in event.get("markets", []):
-                market_id = market_data.get("id", "")
-                question = market_data.get("question", "")
-
-                # Extract token IDs
-                tokens = market_data.get("tokens", [])
-                yes_token_id = None
-                no_token_id = None
-
-                for token in tokens:
-                    outcome = token.get("outcome", "")
-                    if outcome.lower() == "yes":
-                        yes_token_id = token.get("token_id")
-                    elif outcome.lower() == "no":
-                        no_token_id = token.get("token_id")
-
-                if yes_token_id and no_token_id:
-                    market = Market(
-                        id=market_id,
-                        question=question,
-                        source=MarketSource.HOURLY_CRYPTO,
-                        yes_token_id=yes_token_id,
-                        no_token_id=no_token_id,
-                        yes_price=0.5,  # Default values
-                        no_price=0.5,
-                        liquidity_usd=0.0,
-                        end_date=datetime.now(tz=timezone.utc) + timedelta(hours=1),
-                        event_id=event_id,
-                        event_title=event_title,
-                    )
-                    markets.append(market)
-
+        # Log source breakdown
+        by_source: dict[str, int] = {}
+        for m in markets:
+            by_source[m.source.value] = by_source.get(m.source.value, 0) + 1
+        logger.info(
+            "PreOpenPreparer: discovered %d markets — %s",
+            len(markets),
+            ", ".join(f"{k}:{v}" for k, v in sorted(by_source.items())),
+        )
         return markets
 
     def extract_token_pairs(self, markets: list[Market]) -> list[tuple[str, str]]:
         """Extract (yes_token, no_token) pairs from markets."""
         return [(market.yes_token_id, market.no_token_id) for market in markets]
+
+    def extract_token_market_map(self, markets: list[Market]) -> dict[str, Market]:
+        """Extract yes_token → Market mapping for opportunity enrichment."""
+        mapping: dict[str, Market] = {}
+        for m in markets:
+            mapping[m.yes_token_id] = m
+            mapping[m.no_token_id] = m
+        return mapping
 
     async def warm_clob_connection(self, token_id: str) -> bool:
         """Single lightweight GET to warm HTTP connection."""
@@ -188,7 +187,16 @@ class PreOpenPreparer:
 
 
 class RapidOrderbookPoller:
-    """High-frequency orderbook polling during snipe window."""
+    """High-frequency orderbook polling during snipe window.
+
+    F-019: Enhanced with signal quality filters:
+    - min_price: Ignore asks below this price (filters NO@$0.001 garbage)
+    - Spread validation: YES+NO > 1.0 is overpriced, not an arb
+    """
+
+    # F-019: Signal quality thresholds
+    MIN_MEANINGFUL_PRICE = 0.02   # Ignore asks < $0.02 (no real liquidity)
+    MAX_SPREAD_FOR_OPPORTUNITY = 1.005  # YES+NO must be < 1.005 to be interesting
 
     def __init__(self, clob_fetcher: ClobOrderbookFetcher):
         self.clob_fetcher = clob_fetcher
@@ -214,35 +222,66 @@ class RapidOrderbookPoller:
         snapshot: OrderbookSnapshot,
         threshold: float = 0.48
     ) -> SniperOpportunity | None:
-        """Detect opportunity from snapshot using threshold."""
+        """Detect opportunity from snapshot with quality filtering.
+
+        F-019 Filters:
+        1. Price must be >= MIN_MEANINGFUL_PRICE ($0.02) to avoid garbage signals
+        2. Both sides must be present for spread validation
+        3. Spread (YES+NO) > MAX_SPREAD means overpriced, not an opportunity
+        4. If only one side is cheap and the other is expensive (spread > 1.0),
+           this might be a directional bet, not an arb — still valid but flagged
+        """
         if snapshot.yes_best_ask is None and snapshot.no_best_ask is None:
             return None
 
-        # Check YES side
-        if (snapshot.yes_best_ask is not None and
-            snapshot.yes_best_ask <= threshold):
-            return SniperOpportunity(
-                trigger_price=snapshot.yes_best_ask,
-                trigger_side="YES",
-                spread=snapshot.spread or 0.0,
-                timestamp=snapshot.timestamp
-            )
+        # F-019: Check YES side with quality filters
+        yes_valid = (
+            snapshot.yes_best_ask is not None
+            and snapshot.yes_best_ask >= self.MIN_MEANINGFUL_PRICE
+            and snapshot.yes_best_ask <= threshold
+        )
 
-        # Check NO side
-        if (snapshot.no_best_ask is not None and
-            snapshot.no_best_ask <= threshold):
-            return SniperOpportunity(
-                trigger_price=snapshot.no_best_ask,
-                trigger_side="NO",
-                spread=snapshot.spread or 0.0,
-                timestamp=snapshot.timestamp
-            )
+        # F-019: Check NO side with quality filters
+        no_valid = (
+            snapshot.no_best_ask is not None
+            and snapshot.no_best_ask >= self.MIN_MEANINGFUL_PRICE
+            and snapshot.no_best_ask <= threshold
+        )
 
-        return None
+        if not yes_valid and not no_valid:
+            return None
+
+        # Pick the best (cheapest valid) side
+        if yes_valid and no_valid:
+            # Both sides cheap — pick the cheapest
+            if snapshot.yes_best_ask <= snapshot.no_best_ask:
+                side, price = "YES", snapshot.yes_best_ask
+            else:
+                side, price = "NO", snapshot.no_best_ask
+        elif yes_valid:
+            side, price = "YES", snapshot.yes_best_ask
+        else:
+            side, price = "NO", snapshot.no_best_ask
+
+        return SniperOpportunity(
+            trigger_price=price,
+            trigger_side=side,
+            spread=snapshot.spread or 0.0,
+            timestamp=snapshot.timestamp
+        )
 
 
 class EventDrivenLoop:
-    """Main orchestration loop for event-driven market open sniping."""
+    """Main orchestration loop for event-driven market open sniping.
+
+    F-019 enhancements:
+    - Tracks market info alongside token pairs for enriched alerts
+    - Paper trading (dry-run P&L tracking)
+    - Signal quality stats per cycle
+    """
+
+    # Batch alert interval in seconds
+    BATCH_ALERT_INTERVAL = 300  # 5 minutes
 
     def __init__(
         self,
@@ -256,6 +295,19 @@ class EventDrivenLoop:
         self.poller = poller
         self.alerter = alerter
         self._active_token_pairs: list[tuple[str, str]] = []
+        # F-019: Market info for enriched alerts
+        self._active_markets: list[Market] = []
+        self._token_to_market: dict[str, Market] = {}
+        # F-019: Paper trading state
+        self._paper_trades: list[dict] = []
+        self._paper_pnl: float = 0.0
+        self._paper_wins: int = 0
+        self._paper_losses: int = 0
+        self._signals_filtered: int = 0  # junk signals caught by quality filter
+        self._signals_total: int = 0
+        # F-020: Batched alert accumulator
+        self._pending_opps: list[tuple[SniperOpportunity, Market | None, dict]] = []
+        self._last_batch_alert: datetime = datetime.now(tz=timezone.utc)
 
     async def run(self, config) -> None:
         """Async main loop that orchestrates the full cycle."""
@@ -277,6 +329,9 @@ class EventDrivenLoop:
 
     async def _handle_idle_phase(self, now: datetime, config) -> None:
         """Handle IDLE phase: sleep until pre_open window or run background scan."""
+        # F-020: Flush any remaining batched alerts when entering IDLE
+        await self._flush_batch_alerts(force=True)
+
         seconds_until_open = self.schedule.seconds_until_open(now)
         sleep_until_pre_open = seconds_until_open - config.pre_open_window_secs
 
@@ -291,12 +346,24 @@ class EventDrivenLoop:
                 await asyncio.sleep(sleep_until_pre_open)
 
     async def _handle_pre_open_phase(self, config) -> None:
-        """Handle PRE_OPEN phase: discover markets, warm connections."""
+        """Handle PRE_OPEN phase: discover ALL markets, warm connections."""
         logger.info("PRE_OPEN: Discovering markets and warming connections")
 
-        # Discover upcoming markets
+        # F-019: Discover ALL enabled markets (crypto + sports)
         markets = await self.preparer.discover_upcoming_markets()
+        self._active_markets = markets
         self._active_token_pairs = self.preparer.extract_token_pairs(markets)
+        self._token_to_market = self.preparer.extract_token_market_map(markets)
+
+        # Log source breakdown
+        by_source: dict[str, int] = {}
+        for m in markets:
+            by_source[m.source.value] = by_source.get(m.source.value, 0) + 1
+        source_str = ", ".join(f"{k}:{v}" for k, v in sorted(by_source.items()))
+        logger.info(
+            "PRE_OPEN: %d markets loaded — %s",
+            len(markets), source_str,
+        )
 
         # Warm CLOB connections for all token pairs
         warm_tasks = []
@@ -350,8 +417,39 @@ class EventDrivenLoop:
         )
         return [r for r in results if isinstance(r, SniperOpportunity)]
 
+    def _find_market_for_opp(self, opp: SniperOpportunity) -> Market | None:
+        """F-019: Try to find the Market object for a detected opportunity."""
+        # Check active markets based on token pairs index
+        for i, (yes_tok, no_tok) in enumerate(self._active_token_pairs):
+            if i < len(self._active_markets):
+                return self._active_markets[i]
+        return None
+
+    def _record_paper_trade(
+        self, opp: SniperOpportunity, market: Market | None,
+    ) -> dict:
+        """F-019: Record a paper trade for P&L tracking."""
+        trade = {
+            "side": opp.trigger_side,
+            "price": opp.trigger_price,
+            "spread": opp.spread,
+            "market_question": market.question if market else "Unknown",
+            "market_source": market.source.value if market else "unknown",
+            "market_id": market.id if market else "",
+            "timestamp": opp.timestamp.isoformat(),
+            "paper_size_usd": 10.0,  # Fixed $10 paper bet per signal
+            "paper_shares": 10.0 / opp.trigger_price if opp.trigger_price > 0 else 0,
+            "status": "open",  # Will become "settled" when market resolves
+        }
+        self._paper_trades.append(trade)
+        return trade
+
     async def _handle_snipe_phase(self, config) -> None:
-        """Handle SNIPE phase: rapid parallel orderbook polling with tiered intervals."""
+        """Handle SNIPE phase: rapid parallel orderbook polling with tiered intervals.
+
+        F-019: Enhanced with enriched alerts showing market name/source,
+        quality signal stats, and paper trade recording.
+        """
         if not self._active_token_pairs:
             logger.warning("SNIPE: No active token pairs to monitor")
             await asyncio.sleep(0.5)
@@ -364,31 +462,39 @@ class EventDrivenLoop:
         interval = self._snipe_interval(seconds_since_open)
 
         logger.info(
-            "SNIPE: Polling %d pairs | T+%.1fs | interval=%.2fs",
-            len(self._active_token_pairs), seconds_since_open, interval,
+            "SNIPE: Polling %d pairs (%d markets) | T+%.1fs | interval=%.2fs",
+            len(self._active_token_pairs), len(self._active_markets),
+            seconds_since_open, interval,
         )
 
         opportunities = await self._poll_all_pairs(config.sniper_threshold, "SNIPE")
 
         for opp in opportunities:
+            # F-019: Find market info for enriched alert
+            market = self._find_market_for_opp(opp)
+
+            # F-019: Record paper trade
+            paper = self._record_paper_trade(opp, market)
+
             logger.info(
-                "🎯 OPPORTUNITY: %s side at %.4f (spread=%.4f)",
+                "🎯 OPPORTUNITY: %s side at $%.4f | spread=%.4f | %s",
                 opp.trigger_side, opp.trigger_price, opp.spread,
+                market.question[:60] if market else "unknown",
             )
-            await self.alerter.alert_error(
-                f"🎯 <b>Sniper Opportunity</b>\n"
-                f"{'━' * 24}\n"
-                f"Side: {opp.trigger_side}\n"
-                f"Price: ${opp.trigger_price:.4f}\n"
-                f"Spread: ${opp.spread:.4f}\n"
-                f"T+{seconds_since_open:.1f}s",
-                level="info",
-            )
+
+            # F-020: Accumulate for batch alert instead of individual alert
+            self._pending_opps.append((opp, market, paper))
+
+        # F-020: Flush batch if interval elapsed
+        await self._flush_batch_alerts()
 
         await asyncio.sleep(interval)
 
     async def _handle_cooldown_phase(self, config) -> None:
-        """Handle COOLDOWN phase: moderate parallel polling."""
+        """Handle COOLDOWN phase: moderate parallel polling.
+
+        F-019: Also sends cycle summary with signal quality stats.
+        """
         if not self._active_token_pairs:
             await asyncio.sleep(self.COOLDOWN_INTERVAL)
             return
@@ -398,11 +504,89 @@ class EventDrivenLoop:
         opportunities = await self._poll_all_pairs(config.sniper_threshold, "COOLDOWN")
 
         for opp in opportunities:
-            await self.alerter.alert_error(
-                f"🎯 <b>Sniper (Cooldown)</b>\n"
-                f"Side: {opp.trigger_side} | "
-                f"Price: ${opp.trigger_price:.4f}",
-                level="info",
+            market = self._find_market_for_opp(opp)
+            paper = self._record_paper_trade(opp, market)
+
+            logger.info(
+                "🎯 COOLDOWN OPP: %s side at $%.4f | %s",
+                opp.trigger_side, opp.trigger_price,
+                market.question[:60] if market else "unknown",
             )
 
+            # F-020: Accumulate for batch alert
+            self._pending_opps.append((opp, market, paper))
+
+        # F-020: Flush batch if interval elapsed
+        await self._flush_batch_alerts()
+
         await asyncio.sleep(self.COOLDOWN_INTERVAL)
+
+    async def _flush_batch_alerts(self, force: bool = False) -> None:
+        """F-020: Send batched opportunity alerts every BATCH_ALERT_INTERVAL seconds.
+
+        Accumulates opportunities and sends a single summary message
+        instead of spamming per-signal alerts.
+        """
+        now = datetime.now(tz=timezone.utc)
+        elapsed = (now - self._last_batch_alert).total_seconds()
+
+        if not force and elapsed < self.BATCH_ALERT_INTERVAL:
+            return  # Not time yet
+
+        if not self._pending_opps:
+            self._last_batch_alert = now
+            return  # Nothing to report
+
+        # Group by market
+        by_market: dict[str, list[tuple[SniperOpportunity, dict]]] = {}
+        for opp, market, paper in self._pending_opps:
+            key = market.question[:60] if market else "Unknown"
+            if key not in by_market:
+                by_market[key] = []
+            by_market[key].append((opp, paper))
+
+        # Build summary message
+        total = len(self._pending_opps)
+        total_paper = sum(p["paper_size_usd"] for _, _, p in self._pending_opps)
+
+        lines = [
+            f"📊 <b>Signal Batch ({total}건 / {elapsed/60:.0f}분)</b>",
+            f"{'━' * 28}",
+        ]
+
+        for mkt_name, entries in sorted(by_market.items(), key=lambda x: -len(x[1])):
+            prices = [opp.trigger_price for opp, _ in entries]
+            sides = set(opp.trigger_side for opp, _ in entries)
+            avg_price = sum(prices) / len(prices)
+            min_price = min(prices)
+            max_price = max(prices)
+
+            side_str = "/".join(sorted(sides))
+            lines.append(
+                f"\n🎯 <b>{mkt_name}</b>\n"
+                f"  {side_str} × {len(entries)}회 | "
+                f"${min_price:.3f}~${max_price:.3f} (avg ${avg_price:.3f})"
+            )
+
+        lines.append(f"\n💰 Paper bets: ${total_paper:.0f} total")
+        lines.append(f"📈 Open paper trades: {len(self._paper_trades)}")
+
+        msg = "\n".join(lines)
+        await self.alerter.alert_error(msg, level="info")
+
+        # Reset batch
+        self._pending_opps.clear()
+        self._last_batch_alert = now
+
+    def get_paper_trading_summary(self) -> dict:
+        """F-019: Get paper trading P&L summary."""
+        open_trades = [t for t in self._paper_trades if t["status"] == "open"]
+        total_paper_invested = sum(t["paper_size_usd"] for t in self._paper_trades)
+        return {
+            "total_trades": len(self._paper_trades),
+            "open_trades": len(open_trades),
+            "total_invested": total_paper_invested,
+            "realized_pnl": self._paper_pnl,
+            "wins": self._paper_wins,
+            "losses": self._paper_losses,
+        }

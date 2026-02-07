@@ -273,32 +273,29 @@ def test_orderbook_snapshot_is_opportunity_no_side():
 def mock_gamma_client():
     """Mock GammaClient for testing."""
     client = MagicMock()
+    client.open = AsyncMock()
     client.fetch_events = AsyncMock()
+    client.fetch_events_by_tag_slug = AsyncMock()
     return client
 
 
 @pytest.mark.asyncio
 async def test_pre_open_preparer_discover_upcoming_markets(mock_gamma_client):
-    """discover_upcoming_markets() calls GammaClient and returns markets."""
-    # Mock response data
-    mock_gamma_client.fetch_events.return_value = [
-        {
-            "id": "evt_1",
-            "title": "ETH Price Movement",
-            "markets": [
-                {
-                    "id": "mkt_1",
-                    "question": "Will ETH go up?",
-                    "tokens": [
-                        {"token_id": "tok_yes_1", "outcome": "Yes"},
-                        {"token_id": "tok_no_1", "outcome": "No"}
-                    ]
-                }
-            ]
-        }
-    ]
+    """discover_upcoming_markets() delegates to MarketScanner.discover_all() (F-019)."""
+    from poly24h.discovery.market_scanner import MarketScanner
 
-    preparer = PreOpenPreparer(mock_gamma_client)
+    # Mock the scanner's discover_all method (F-019: uses discover_all, not just crypto)
+    mock_scanner = MagicMock(spec=MarketScanner)
+    expected_markets = [
+        _market(
+            question="Will ETH go up?",
+            yes_token_id="tok_yes_1",
+            no_token_id="tok_no_1",
+        ),
+    ]
+    mock_scanner.discover_all = AsyncMock(return_value=expected_markets)
+
+    preparer = PreOpenPreparer(mock_gamma_client, scanner=mock_scanner)
     markets = await preparer.discover_upcoming_markets()
 
     assert len(markets) == 1
@@ -306,19 +303,81 @@ async def test_pre_open_preparer_discover_upcoming_markets(mock_gamma_client):
     assert markets[0].yes_token_id == "tok_yes_1"
     assert markets[0].no_token_id == "tok_no_1"
 
-    # Should call with crypto tag
-    mock_gamma_client.fetch_events.assert_called_once_with(tag="crypto", limit=100)
+    # Should delegate to scanner.discover_all(), not fetch_events directly
+    mock_scanner.discover_all.assert_called_once()
+    mock_gamma_client.open.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_pre_open_preparer_discover_all_sources(mock_gamma_client):
+    """discover_upcoming_markets() returns markets from ALL enabled sources (F-019)."""
+    from poly24h.discovery.market_scanner import MarketScanner
+
+    mock_scanner = MagicMock(spec=MarketScanner)
+    expected_markets = [
+        _market(
+            id="mkt_crypto",
+            question="Will ETH go up?",
+            source=MarketSource.HOURLY_CRYPTO,
+        ),
+        _market(
+            id="mkt_nba",
+            question="CHA vs ATL?",
+            source=MarketSource.NBA,
+            yes_token_id="tok_nba_yes",
+            no_token_id="tok_nba_no",
+        ),
+    ]
+    mock_scanner.discover_all = AsyncMock(return_value=expected_markets)
+
+    preparer = PreOpenPreparer(mock_gamma_client, scanner=mock_scanner)
+    markets = await preparer.discover_upcoming_markets()
+
+    assert len(markets) == 2
+    sources = {m.source for m in markets}
+    assert MarketSource.HOURLY_CRYPTO in sources
+    assert MarketSource.NBA in sources
 
 
 @pytest.mark.asyncio
 async def test_pre_open_preparer_discover_empty_response(mock_gamma_client):
-    """discover_upcoming_markets() handles empty response."""
-    mock_gamma_client.fetch_events.return_value = []
+    """discover_upcoming_markets() handles empty response from scanner."""
+    from poly24h.discovery.market_scanner import MarketScanner
 
-    preparer = PreOpenPreparer(mock_gamma_client)
+    mock_scanner = MagicMock(spec=MarketScanner)
+    mock_scanner.discover_all = AsyncMock(return_value=[])
+
+    preparer = PreOpenPreparer(mock_gamma_client, scanner=mock_scanner)
     markets = await preparer.discover_upcoming_markets()
 
     assert markets == []
+
+
+@pytest.mark.asyncio
+async def test_pre_open_preparer_lazy_init_scanner(mock_gamma_client):
+    """PreOpenPreparer creates MarketScanner lazily if not injected."""
+    preparer = PreOpenPreparer(mock_gamma_client)
+    scanner = preparer.scanner
+    assert scanner is not None
+    # Same instance on second access
+    assert preparer.scanner is scanner
+
+
+def test_pre_open_preparer_extract_token_market_map():
+    """extract_token_market_map() maps token IDs to Market objects (F-019)."""
+    markets = [
+        _market(yes_token_id="tok_yes_1", no_token_id="tok_no_1"),
+        _market(id="mkt_2", yes_token_id="tok_yes_2", no_token_id="tok_no_2"),
+    ]
+
+    preparer = PreOpenPreparer(MagicMock())
+    mapping = preparer.extract_token_market_map(markets)
+
+    assert "tok_yes_1" in mapping
+    assert "tok_no_1" in mapping
+    assert "tok_yes_2" in mapping
+    assert mapping["tok_yes_1"].id == "mkt_1"
+    assert mapping["tok_yes_2"].id == "mkt_2"
 
 
 def test_pre_open_preparer_extract_token_pairs():
@@ -429,7 +488,7 @@ async def test_rapid_orderbook_poller_poll_once_no_data(mock_clob_fetcher):
 def test_rapid_orderbook_poller_detect_opportunity_found():
     """detect_opportunity() returns SniperOpportunity when threshold met."""
     snapshot = OrderbookSnapshot(
-        yes_best_ask=0.40,  # <= 0.48 threshold
+        yes_best_ask=0.40,  # <= 0.48 threshold, >= $0.02 min price
         no_best_ask=0.52,
         spread=0.92,
         timestamp=datetime.now(tz=timezone.utc)
@@ -472,6 +531,71 @@ def test_rapid_orderbook_poller_detect_opportunity_no_data():
     opportunity = poller.detect_opportunity(snapshot, threshold=0.48)
 
     assert opportunity is None
+
+
+def test_rapid_orderbook_poller_filters_garbage_signal():
+    """F-019: detect_opportunity() filters NO@$0.001 garbage signals."""
+    snapshot = OrderbookSnapshot(
+        yes_best_ask=0.55,
+        no_best_ask=0.001,  # Below MIN_MEANINGFUL_PRICE ($0.02)
+        spread=0.551,
+        timestamp=datetime.now(tz=timezone.utc)
+    )
+
+    poller = RapidOrderbookPoller(MagicMock())
+    opportunity = poller.detect_opportunity(snapshot, threshold=0.48)
+
+    # Should be None — NO@$0.001 is garbage, not a real opportunity
+    assert opportunity is None
+
+
+def test_rapid_orderbook_poller_filters_very_low_prices():
+    """F-019: Prices below $0.02 are always filtered out."""
+    snapshot = OrderbookSnapshot(
+        yes_best_ask=0.01,  # Below min meaningful price
+        no_best_ask=0.01,   # Below min meaningful price
+        spread=0.02,
+        timestamp=datetime.now(tz=timezone.utc)
+    )
+
+    poller = RapidOrderbookPoller(MagicMock())
+    opportunity = poller.detect_opportunity(snapshot, threshold=0.48)
+
+    assert opportunity is None
+
+
+def test_rapid_orderbook_poller_accepts_valid_cheap_signal():
+    """F-019: Valid cheap signals ($0.02+) are still detected."""
+    snapshot = OrderbookSnapshot(
+        yes_best_ask=0.55,
+        no_best_ask=0.05,  # Cheap but above MIN_MEANINGFUL_PRICE
+        spread=0.60,
+        timestamp=datetime.now(tz=timezone.utc)
+    )
+
+    poller = RapidOrderbookPoller(MagicMock())
+    opportunity = poller.detect_opportunity(snapshot, threshold=0.48)
+
+    assert opportunity is not None
+    assert opportunity.trigger_side == "NO"
+    assert opportunity.trigger_price == 0.05
+
+
+def test_rapid_orderbook_poller_picks_cheapest_valid_side():
+    """F-019: When both sides are valid, picks the cheapest."""
+    snapshot = OrderbookSnapshot(
+        yes_best_ask=0.30,
+        no_best_ask=0.25,
+        spread=0.55,
+        timestamp=datetime.now(tz=timezone.utc)
+    )
+
+    poller = RapidOrderbookPoller(MagicMock())
+    opportunity = poller.detect_opportunity(snapshot, threshold=0.48)
+
+    assert opportunity is not None
+    assert opportunity.trigger_side == "NO"
+    assert opportunity.trigger_price == 0.25
 
 
 # ---------------------------------------------------------------------------
@@ -627,9 +751,12 @@ async def test_event_driven_loop_run_snipe_phase_with_opportunity(
             with pytest.raises(SystemExit):
                 await loop.run(mock_config)
 
-        # Should have polled orderbook and alerted opportunity
+        # Should have polled orderbook and accumulated opportunity in batch
         mock_poller.poll_once.assert_called()
-        mock_telegram_alerter.alert_error.assert_called()
+        # F-020: Alerts are now batched, so check pending_opps instead
+        assert len(loop._pending_opps) > 0, "Opportunity should be accumulated in batch"
+        assert loop._pending_opps[0][0].trigger_price == 0.40
+        assert loop._pending_opps[0][0].trigger_side == "YES"
 
 
 # SniperOpportunity model for RapidOrderbookPoller.detect_opportunity()
@@ -653,3 +780,79 @@ def test_sniper_opportunity_creation(sniper_opportunity):
     assert sniper_opportunity.trigger_side == "YES"
     assert sniper_opportunity.spread == 0.92
     assert isinstance(sniper_opportunity.timestamp, datetime)
+
+
+# ---------------------------------------------------------------------------
+# F-019: Paper trading & signal quality tests
+
+
+def test_event_driven_loop_paper_trading_summary():
+    """F-019: get_paper_trading_summary() returns correct initial state."""
+    loop = EventDrivenLoop(
+        schedule=MagicMock(),
+        preparer=MagicMock(),
+        poller=MagicMock(),
+        alerter=MagicMock()
+    )
+
+    summary = loop.get_paper_trading_summary()
+    assert summary["total_trades"] == 0
+    assert summary["open_trades"] == 0
+    assert summary["total_invested"] == 0.0
+    assert summary["realized_pnl"] == 0.0
+
+
+def test_event_driven_loop_record_paper_trade():
+    """F-019: _record_paper_trade() stores trade with correct fields."""
+    loop = EventDrivenLoop(
+        schedule=MagicMock(),
+        preparer=MagicMock(),
+        poller=MagicMock(),
+        alerter=MagicMock()
+    )
+
+    market = _market(question="Will BTC go up?")
+    opp = SniperOpportunity(
+        trigger_price=0.40,
+        trigger_side="YES",
+        spread=0.92,
+        timestamp=datetime.now(tz=timezone.utc)
+    )
+
+    trade = loop._record_paper_trade(opp, market)
+
+    assert trade["side"] == "YES"
+    assert trade["price"] == 0.40
+    assert trade["paper_size_usd"] == 10.0
+    assert trade["paper_shares"] == 25.0  # $10 / $0.40
+    assert trade["market_question"] == "Will BTC go up?"
+    assert trade["status"] == "open"
+
+    summary = loop.get_paper_trading_summary()
+    assert summary["total_trades"] == 1
+    assert summary["total_invested"] == 10.0
+
+
+def test_event_driven_loop_find_market_for_opp():
+    """F-019: _find_market_for_opp() matches opp to market by index."""
+    loop = EventDrivenLoop(
+        schedule=MagicMock(),
+        preparer=MagicMock(),
+        poller=MagicMock(),
+        alerter=MagicMock()
+    )
+
+    market1 = _market(id="mkt_1", question="Will ETH go up?")
+    loop._active_markets = [market1]
+    loop._active_token_pairs = [("tok_yes_1", "tok_no_1")]
+
+    opp = SniperOpportunity(
+        trigger_price=0.40,
+        trigger_side="YES",
+        spread=0.92,
+        timestamp=datetime.now(tz=timezone.utc)
+    )
+
+    found = loop._find_market_for_opp(opp)
+    assert found is not None
+    assert found.id == "mkt_1"

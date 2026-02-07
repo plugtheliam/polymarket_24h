@@ -14,6 +14,7 @@ from aioresponses import aioresponses
 
 from poly24h.models.market import Market, MarketSource
 from poly24h.models.opportunity import ArbType, Opportunity
+from poly24h.strategy.orderbook_scanner import OrderbookLevel, OrderbookSummary
 
 CLOB_BOOK_PATTERN = re.compile(r"^https://clob\.polymarket\.com/book\b")
 EVENTS_PATTERN = re.compile(r"^https://gamma-api\.polymarket\.com/events\b")
@@ -621,3 +622,109 @@ class TestOrderbookFormatting:
         line = format_ob_opportunity_line(opp)
         assert "[OB]" in line
         assert "2.04" in line or "2.0" in line
+
+
+# ---------------------------------------------------------------------------
+# F-019: OrderbookLevel and OrderbookSummary tests
+# ---------------------------------------------------------------------------
+
+
+class TestOrderbookLevel:
+    """F-019: OrderbookLevel dataclass tests."""
+
+    def test_value_usd(self):
+        """value_usd is price * size."""
+        level = OrderbookLevel(price=0.50, size=100.0)
+        assert level.value_usd == 50.0
+
+    def test_value_usd_zero_size(self):
+        """value_usd is 0 when size is 0."""
+        level = OrderbookLevel(price=0.50, size=0.0)
+        assert level.value_usd == 0.0
+
+
+class TestOrderbookSummary:
+    """F-019: OrderbookSummary dataclass tests."""
+
+    def test_default_values(self):
+        """OrderbookSummary has sane defaults."""
+        summary = OrderbookSummary()
+        assert summary.best_ask is None
+        assert summary.best_ask_size == 0.0
+        assert summary.total_ask_depth_usd == 0.0
+        assert summary.ask_levels == 0
+
+    def test_with_values(self):
+        """OrderbookSummary can be created with all fields."""
+        summary = OrderbookSummary(
+            best_ask=0.45,
+            best_ask_size=200.0,
+            total_ask_depth_usd=500.0,
+            ask_levels=5,
+        )
+        assert summary.best_ask == 0.45
+        assert summary.best_ask_size == 200.0
+        assert summary.total_ask_depth_usd == 500.0
+        assert summary.ask_levels == 5
+
+
+class TestClobOrderbookFetcherSummary:
+    """F-019: ClobOrderbookFetcher.fetch_orderbook_summaries() tests."""
+
+    @pytest.mark.asyncio
+    async def test_fetch_orderbook_summary_success(self):
+        """fetch_orderbook_summaries() returns depth info."""
+        from poly24h.strategy.orderbook_scanner import ClobOrderbookFetcher
+
+        with aioresponses() as m:
+            m.get(
+                CLOB_BOOK_PATTERN,
+                payload={
+                    "asks": [
+                        {"price": "0.45", "size": "100"},
+                        {"price": "0.50", "size": "200"},
+                    ]
+                },
+            )
+            m.get(
+                CLOB_BOOK_PATTERN,
+                payload={
+                    "asks": [
+                        {"price": "0.55", "size": "50"},
+                    ]
+                },
+            )
+
+            fetcher = ClobOrderbookFetcher(timeout=5)
+            yes_summary, no_summary = await fetcher.fetch_orderbook_summaries(
+                "tok_yes", "tok_no"
+            )
+            await fetcher.close()
+
+        assert yes_summary.best_ask == 0.45
+        assert yes_summary.best_ask_size == 100.0
+        assert yes_summary.ask_levels == 2
+        # total depth: 0.45*100 + 0.50*200 = 45 + 100 = 145
+        assert abs(yes_summary.total_ask_depth_usd - 145.0) < 0.01
+
+        assert no_summary.best_ask == 0.55
+        assert no_summary.best_ask_size == 50.0
+        assert no_summary.ask_levels == 1
+
+    @pytest.mark.asyncio
+    async def test_fetch_orderbook_summary_empty_book(self):
+        """fetch_orderbook_summaries() handles empty orderbook."""
+        from poly24h.strategy.orderbook_scanner import ClobOrderbookFetcher
+
+        with aioresponses() as m:
+            m.get(CLOB_BOOK_PATTERN, payload={"asks": []})
+            m.get(CLOB_BOOK_PATTERN, payload={"asks": []})
+
+            fetcher = ClobOrderbookFetcher(timeout=5)
+            yes_summary, no_summary = await fetcher.fetch_orderbook_summaries(
+                "tok_yes", "tok_no"
+            )
+            await fetcher.close()
+
+        assert yes_summary.best_ask is None
+        assert no_summary.best_ask is None
