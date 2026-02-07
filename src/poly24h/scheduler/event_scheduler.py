@@ -996,8 +996,7 @@ class EventDrivenLoop:
                     "SETTLEMENT: %d newly settled | P&L: $%.2f",
                     summary.newly_settled, summary.cumulative_pnl,
                 )
-                if self.alerter.enabled:
-                    await self.alerter.alert_error(report, level="info")
+                # 정산 리포트는 로그에만 기록, 텔레그램 알림 비활성화
 
                 # Update internal P&L tracking
                 self._paper_pnl = summary.cumulative_pnl
