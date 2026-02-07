@@ -305,19 +305,20 @@ async def sniper_loop(config: BotConfig, threshold: float = 0.48) -> None:
     print(f"Signal filter: min price=${RapidOrderbookPoller.MIN_MEANINGFUL_PRICE}")
     print("-" * 60)
 
-    try:
-        if alerter.enabled:
-            await alerter.alert_error(
-                f"🎯 poly24h SNIPER v2 started — {mode}\n"
-                f"Threshold: ${threshold:.2f}\n"
-                f"Sources: {source_names}\n"
-                f"Signal filter: min_price≥${RapidOrderbookPoller.MIN_MEANINGFUL_PRICE}\n"
-                f"Paper trading: ON\n"
-                f"Strategy: Event-driven market open sniper",
-                level="info",
-            )
-    except Exception as e:
-        logger.warning("Failed to send startup alert: %s", e)
+    # Startup alert disabled for Telegram (user request 2026-02-07)
+    # try:
+    #     if alerter.enabled:
+    #         await alerter.alert_error(
+    #             f"🎯 poly24h SNIPER v2 started — {mode}\n"
+    #             f"Threshold: ${threshold:.2f}\n"
+    #             f"Sources: {source_names}\n"
+    #             f"Signal filter: min_price≥${RapidOrderbookPoller.MIN_MEANINGFUL_PRICE}\n"
+    #             f"Paper trading: ON\n"
+    #             f"Strategy: Event-driven market open sniper",
+    #             level="info",
+    #         )
+    # except Exception as e:
+    #     logger.warning("Failed to send startup alert: %s", e)
 
     # Create a simple config-like namespace for the loop
     class SniperConfig:

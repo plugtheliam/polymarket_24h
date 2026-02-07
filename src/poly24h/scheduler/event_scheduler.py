@@ -1099,7 +1099,9 @@ class EventDrivenLoop:
         lines.append(f"📈 Open paper trades: {len(self._paper_trades)}")
 
         msg = "\n".join(lines)
-        await self.alerter.alert_error(msg, level="info")
+        # Batch signal alert disabled for Telegram (user request 2026-02-07)
+        # await self.alerter.alert_error(msg, level="info")
+        logger.info("Signal batch: %d signals, $%.0f paper", total, total_paper)
 
         # Reset batch
         self._pending_opps.clear()
