@@ -6,6 +6,11 @@ Switches between phases:
 - PRE_OPEN: 30s before open, discover markets + warm connections
 - SNIPE: 0-60s after open, rapid orderbook polling (3s interval)
 - COOLDOWN: 60-120s after open, moderate polling (15s interval)
+
+Phase 2 enhancements:
+- Cycle end summary report on IDLE entry
+- Paper trade settlement tracking
+- Dynamic threshold based on market liquidity
 """
 
 from __future__ import annotations
@@ -21,7 +26,10 @@ import aiohttp
 from poly24h.discovery.gamma_client import GammaClient
 from poly24h.discovery.market_scanner import MarketScanner
 from poly24h.models.market import Market, MarketSource
+from poly24h.monitoring.cycle_report import CycleStats, format_cycle_report
+from poly24h.monitoring.settlement import PaperSettlementTracker, PaperTrade
 from poly24h.monitoring.telegram import TelegramAlerter
+from poly24h.strategy.dynamic_threshold import DynamicThreshold
 from poly24h.strategy.orderbook_scanner import ClobOrderbookFetcher
 
 logger = logging.getLogger(__name__)
@@ -278,6 +286,11 @@ class EventDrivenLoop:
     - Tracks market info alongside token pairs for enriched alerts
     - Paper trading (dry-run P&L tracking)
     - Signal quality stats per cycle
+
+    Phase 2 enhancements:
+    - Cycle end summary report on IDLE entry
+    - Paper trade settlement via Gamma API
+    - Dynamic threshold per market liquidity
     """
 
     # Batch alert interval in seconds
@@ -308,6 +321,12 @@ class EventDrivenLoop:
         # F-020: Batched alert accumulator
         self._pending_opps: list[tuple[SniperOpportunity, Market | None, dict]] = []
         self._last_batch_alert: datetime = datetime.now(tz=timezone.utc)
+        # Phase 2: Cycle stats, settlement, dynamic threshold
+        self._cycle_stats: CycleStats = CycleStats()
+        self._settlement_tracker: PaperSettlementTracker = PaperSettlementTracker()
+        self._dynamic_threshold: DynamicThreshold = DynamicThreshold()
+        self._previous_phase: Phase = Phase.IDLE
+        self._cycle_count: int = 0
 
     async def run(self, config) -> None:
         """Async main loop that orchestrates the full cycle."""
@@ -328,9 +347,20 @@ class EventDrivenLoop:
             await asyncio.sleep(1)
 
     async def _handle_idle_phase(self, now: datetime, config) -> None:
-        """Handle IDLE phase: sleep until pre_open window or run background scan."""
+        """Handle IDLE phase: sleep until pre_open window or run background scan.
+
+        Phase 2: On transition to IDLE (from COOLDOWN/SNIPE), sends:
+        1. Cycle end summary report
+        2. Paper trade settlement check
+        """
         # F-020: Flush any remaining batched alerts when entering IDLE
         await self._flush_batch_alerts(force=True)
+
+        # Phase 2: Send cycle end report on transition to IDLE
+        if self._previous_phase in (Phase.SNIPE, Phase.COOLDOWN):
+            await self._send_cycle_end_report()
+            await self._run_settlement_check()
+        self._previous_phase = Phase.IDLE
 
         seconds_until_open = self.schedule.seconds_until_open(now)
         sleep_until_pre_open = seconds_until_open - config.pre_open_window_secs
@@ -347,7 +377,12 @@ class EventDrivenLoop:
 
     async def _handle_pre_open_phase(self, config) -> None:
         """Handle PRE_OPEN phase: discover ALL markets, warm connections."""
+        self._previous_phase = Phase.PRE_OPEN
         logger.info("PRE_OPEN: Discovering markets and warming connections")
+
+        # Phase 2: Start new cycle stats
+        self._cycle_count += 1
+        self._cycle_stats = CycleStats()
 
         # F-019: Discover ALL enabled markets (crypto + sports)
         markets = await self.preparer.discover_upcoming_markets()
@@ -364,6 +399,9 @@ class EventDrivenLoop:
             "PRE_OPEN: %d markets loaded — %s",
             len(markets), source_str,
         )
+
+        # Phase 2: Record discovery in cycle stats
+        self._cycle_stats.record_discovery(len(markets), by_source)
 
         # Warm CLOB connections for all token pairs
         warm_tasks = []
@@ -449,7 +487,10 @@ class EventDrivenLoop:
 
         F-019: Enhanced with enriched alerts showing market name/source,
         quality signal stats, and paper trade recording.
+
+        Phase 2: Dynamic threshold per market, cycle stats tracking.
         """
+        self._previous_phase = Phase.SNIPE
         if not self._active_token_pairs:
             logger.warning("SNIPE: No active token pairs to monitor")
             await asyncio.sleep(0.5)
@@ -467,14 +508,59 @@ class EventDrivenLoop:
             seconds_since_open, interval,
         )
 
+        # Phase 2: Record poll in cycle stats
+        self._cycle_stats.record_poll()
+
         opportunities = await self._poll_all_pairs(config.sniper_threshold, "SNIPE")
+
+        # Phase 2: Track raw signals
+        self._cycle_stats.raw_signals += len(opportunities)
 
         for opp in opportunities:
             # F-019: Find market info for enriched alert
             market = self._find_market_for_opp(opp)
 
+            # Phase 2: Apply dynamic threshold based on liquidity
+            if market:
+                dynamic_thresh = self._dynamic_threshold.get_threshold(
+                    market.liquidity_usd
+                )
+                # Re-check against dynamic threshold
+                if opp.trigger_price > dynamic_thresh:
+                    logger.debug(
+                        "SNIPE: Skipped %s (price $%.4f > dynamic threshold $%.4f, liq=$%.0f)",
+                        market.question[:40] if market else "?",
+                        opp.trigger_price, dynamic_thresh, market.liquidity_usd,
+                    )
+                    continue
+
             # F-019: Record paper trade
             paper = self._record_paper_trade(opp, market)
+
+            # Phase 2: Record as filtered signal in cycle stats + settlement tracker
+            self._cycle_stats.record_filtered_signal(
+                market_question=market.question if market else "Unknown",
+                market_source=market.source.value if market else "unknown",
+                trigger_price=opp.trigger_price,
+                trigger_side=opp.trigger_side,
+                paper_size_usd=paper.get("paper_size_usd", 10.0),
+            )
+
+            # Phase 2: Record paper trade for settlement tracking
+            if market:
+                self._settlement_tracker.record_trade(
+                    PaperTrade(
+                        market_id=market.id,
+                        market_question=market.question,
+                        market_source=market.source.value,
+                        side=opp.trigger_side,
+                        price=opp.trigger_price,
+                        shares=10.0 / opp.trigger_price if opp.trigger_price > 0 else 0,
+                        cost=10.0,
+                        timestamp=opp.timestamp.isoformat(),
+                        end_date=market.end_date.isoformat(),
+                    )
+                )
 
             logger.info(
                 "🎯 OPPORTUNITY: %s side at $%.4f | spread=%.4f | %s",
@@ -494,18 +580,56 @@ class EventDrivenLoop:
         """Handle COOLDOWN phase: moderate parallel polling.
 
         F-019: Also sends cycle summary with signal quality stats.
+        Phase 2: Dynamic threshold, cycle stats tracking.
         """
+        self._previous_phase = Phase.COOLDOWN
         if not self._active_token_pairs:
             await asyncio.sleep(self.COOLDOWN_INTERVAL)
             return
 
         logger.info("COOLDOWN: Polling %d pairs", len(self._active_token_pairs))
 
+        # Phase 2: Record poll
+        self._cycle_stats.record_poll()
+
         opportunities = await self._poll_all_pairs(config.sniper_threshold, "COOLDOWN")
+        self._cycle_stats.raw_signals += len(opportunities)
 
         for opp in opportunities:
             market = self._find_market_for_opp(opp)
+
+            # Phase 2: Dynamic threshold check
+            if market:
+                dynamic_thresh = self._dynamic_threshold.get_threshold(
+                    market.liquidity_usd
+                )
+                if opp.trigger_price > dynamic_thresh:
+                    continue
+
             paper = self._record_paper_trade(opp, market)
+
+            # Phase 2: Record filtered signal + settlement trade
+            self._cycle_stats.record_filtered_signal(
+                market_question=market.question if market else "Unknown",
+                market_source=market.source.value if market else "unknown",
+                trigger_price=opp.trigger_price,
+                trigger_side=opp.trigger_side,
+            )
+
+            if market:
+                self._settlement_tracker.record_trade(
+                    PaperTrade(
+                        market_id=market.id,
+                        market_question=market.question,
+                        market_source=market.source.value,
+                        side=opp.trigger_side,
+                        price=opp.trigger_price,
+                        shares=10.0 / opp.trigger_price if opp.trigger_price > 0 else 0,
+                        cost=10.0,
+                        timestamp=opp.timestamp.isoformat(),
+                        end_date=market.end_date.isoformat(),
+                    )
+                )
 
             logger.info(
                 "🎯 COOLDOWN OPP: %s side at $%.4f | %s",
@@ -590,3 +714,50 @@ class EventDrivenLoop:
             "wins": self._paper_wins,
             "losses": self._paper_losses,
         }
+
+    # ------------------------------------------------------------------
+    # Phase 2: Cycle report + settlement
+    # ------------------------------------------------------------------
+
+    async def _send_cycle_end_report(self) -> None:
+        """Phase 2: Send cycle end summary report via Telegram."""
+        self._cycle_stats.finalize()
+        report = format_cycle_report(self._cycle_stats)
+
+        logger.info(
+            "CYCLE END: #%d | markets=%d | signals=%d/%d | paper=%d ($%.0f)",
+            self._cycle_count,
+            self._cycle_stats.markets_discovered,
+            self._cycle_stats.filtered_signals,
+            self._cycle_stats.raw_signals,
+            self._cycle_stats.paper_trades,
+            self._cycle_stats.paper_total_invested,
+        )
+
+        if self.alerter.enabled:
+            await self.alerter.alert_error(report, level="info")
+
+    async def _run_settlement_check(self) -> None:
+        """Phase 2: Check pending paper trades for settlement."""
+        try:
+            summary = await self._settlement_tracker.check_and_settle()
+            if summary.newly_settled > 0:
+                report = self._settlement_tracker.format_settlement_report(summary)
+                logger.info(
+                    "SETTLEMENT: %d newly settled | P&L: $%.2f",
+                    summary.newly_settled, summary.cumulative_pnl,
+                )
+                if self.alerter.enabled:
+                    await self.alerter.alert_error(report, level="info")
+
+                # Update internal P&L tracking
+                self._paper_pnl = summary.cumulative_pnl
+                self._paper_wins = summary.wins
+                self._paper_losses = summary.losses
+            else:
+                logger.info(
+                    "SETTLEMENT: No new settlements (open=%d, expired=%d)",
+                    summary.total_open, summary.total_expired,
+                )
+        except Exception:
+            logger.exception("Error during settlement check")

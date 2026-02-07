@@ -1222,3 +1222,9 @@ Signal filter: min price=$0.02
 ------------------------------------------------------------
 2026-02-07 04:03:13,621 [INFO] poly24h.main: === Cycle 1 | Phase: idle | Next open in: 3406s ===
 2026-02-07 04:03:13,621 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 3376s
+2026-02-07 04:08:14,658 [INFO] poly24h.main: === Cycle 2 | Phase: idle | Next open in: 3105s ===
+2026-02-07 04:08:14,659 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 3075s
+2026-02-07 04:13:15,715 [INFO] poly24h.main: === Cycle 3 | Phase: idle | Next open in: 2804s ===
+2026-02-07 04:13:15,715 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 2774s
+2026-02-07 04:18:16,754 [INFO] poly24h.main: === Cycle 4 | Phase: idle | Next open in: 2503s ===
+2026-02-07 04:18:16,754 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 2473s
