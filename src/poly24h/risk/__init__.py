@@ -1,1 +1,1 @@
-"""Risk management — loss limiter, position limiter, cooldown, controller."""
+"""Risk management — loss limiter, position limiter, cooldown, controller, adaptive."""

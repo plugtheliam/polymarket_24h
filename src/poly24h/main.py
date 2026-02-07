@@ -13,6 +13,7 @@ import asyncio
 import logging
 import os
 import signal
+from datetime import datetime
 
 from poly24h.config import MARKET_SOURCES, BotConfig
 from poly24h.discovery.gamma_client import GammaClient
@@ -166,8 +167,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--mode", type=str, default="sniper",
-        choices=["sniper", "scan"],
-        help="Bot mode: sniper (event-driven) or scan (polling)",
+        choices=["sniper", "scan", "analyze", "preflight"],
+        help="Bot mode: sniper, scan, analyze (paper P&L), or preflight (env check)",
     )
     parser.add_argument(
         "--interval", type=int, default=60,
@@ -188,6 +189,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--threshold", type=float, default=0.48,
         help="Sniper threshold: buy if best ask ≤ this (default: 0.48)",
+    )
+    parser.add_argument(
+        "--date", type=str, default=None,
+        help="Date for analysis (YYYY-MM-DD). Default: all dates.",
+    )
+    parser.add_argument(
+        "--days", type=int, default=None,
+        help="Number of days to analyze (e.g., --days 7 for last week).",
     )
     return parser.parse_args(argv)
 
@@ -370,6 +379,35 @@ async def sniper_loop(config: BotConfig, threshold: float = 0.48) -> None:
     print("Goodbye! 🤙")
 
 
+def _run_preflight() -> None:
+    """Run preflight environment checks."""
+    from poly24h.analysis.preflight import format_preflight_report, run_preflight
+
+    report = asyncio.run(run_preflight())
+    print(format_preflight_report(report))
+
+
+def _run_analyze(args: argparse.Namespace) -> None:
+    """Run paper trade analysis and print report."""
+    from poly24h.analysis.paper_analyzer import PaperTradeAnalyzer, format_analysis_report
+
+    analyzer = PaperTradeAnalyzer()
+
+    start_date = None
+    if args.date:
+        from datetime import timezone as tz
+        start_date = datetime.strptime(args.date, "%Y-%m-%d").replace(tzinfo=tz.utc)
+
+    result = analyzer.analyze(
+        start_date=start_date,
+        end_date=start_date if start_date and not args.days else None,
+        days=args.days,
+    )
+
+    report = format_analysis_report(result)
+    print(report)
+
+
 def cli_main() -> None:
     """CLI entry point."""
     logging.basicConfig(
@@ -384,6 +422,16 @@ def cli_main() -> None:
         config.dry_run = False
     if args.orderbook:
         config.enable_orderbook_scan = True
+
+    # Analyze mode
+    if args.mode == "analyze":
+        _run_analyze(args)
+        return
+
+    # Preflight mode
+    if args.mode == "preflight":
+        _run_preflight()
+        return
 
     # Sniper mode (default)
     if args.mode == "sniper":
