@@ -1,11 +1,12 @@
 """Crypto Fair Value Calculator (F-021).
 
-Calculates fair probability for crypto 1H markets using technical analysis:
-- RSI (Relative Strength Index): Oversold/overbought detection
-- Bollinger Bands: Price relative to volatility envelope
+Calculates fair probability for crypto 1H markets using:
+- Momentum: 1-hour price change rate for direction prediction
+- Volume Weighting: Volume spike detection for trend continuation
+- RSI (backup): Oversold/overbought detection
+- Bollinger Bands (backup): Price relative to volatility envelope
 
-When RSI < 30 (oversold) and price near BB lower → high UP probability
-When RSI > 70 (overbought) and price near BB upper → low UP probability
+Primary signals: Momentum + Volume (proven more effective than RSI/BB alone)
 """
 
 from __future__ import annotations
@@ -19,17 +20,26 @@ logger = logging.getLogger(__name__)
 
 
 class CryptoFairValueCalculator:
-    """Calculates fair value for crypto 1H markets using technical analysis.
+    """Calculates fair value for crypto 1H markets using momentum + volume.
     
     Usage:
         calc = CryptoFairValueCalculator()
-        ohlcv = await calc.fetch_binance_ohlcv("BTCUSDT", "1h", 20)
+        ohlcv = await calc.fetch_binance_ohlcv("BTCUSDT", "1h", 24)
         closes = [c["close"] for c in ohlcv]
         
+        # PRIMARY signals (momentum + volume)
+        momentum = calc.calculate_1h_momentum(ohlcv)
+        volume_spike, trend_dir = calc.calculate_volume_spike(ohlcv, lookback=10)
+        
+        # SECONDARY signals (RSI + BB)
         rsi = calc.calculate_rsi(closes, period=14)
         bb_lower, bb_mid, bb_upper = calc.calculate_bollinger_bands(closes, period=20)
         
-        fair_prob = calc.calculate_fair_probability(rsi, closes[-1], bb_lower, bb_upper)
+        # Combined fair probability
+        fair_prob = calc.calculate_fair_probability(
+            rsi, closes[-1], bb_lower, bb_upper,
+            momentum=momentum, volume_spike=volume_spike, trend_direction=trend_dir
+        )
         is_under = calc.is_undervalued("YES", 0.40, fair_prob)
     """
     
@@ -137,6 +147,71 @@ class CryptoFairValueCalculator:
         
         return rsi
     
+    def calculate_1h_momentum(
+        self,
+        ohlcv: List[dict],
+    ) -> float:
+        """Calculate 1-hour price momentum (change rate).
+        
+        Args:
+            ohlcv: List of OHLCV dicts (needs at least 2 candles for 1h interval)
+        
+        Returns:
+            Momentum as percentage change (-100 to +100).
+            Positive = price going UP, Negative = price going DOWN.
+        """
+        if len(ohlcv) < 2:
+            return 0.0
+        
+        # Use last candle's open vs current close for 1h change
+        current_close = ohlcv[-1]["close"]
+        prev_close = ohlcv[-2]["close"]
+        
+        if prev_close == 0:
+            return 0.0
+        
+        momentum = ((current_close - prev_close) / prev_close) * 100
+        return momentum
+    
+    def calculate_volume_spike(
+        self,
+        ohlcv: List[dict],
+        lookback: int = 10,
+    ) -> Tuple[float, float]:
+        """Detect volume spike and return spike ratio and trend direction.
+        
+        Args:
+            ohlcv: List of OHLCV dicts
+            lookback: Number of candles for average volume calculation
+        
+        Returns:
+            Tuple of (spike_ratio, trend_direction)
+            - spike_ratio: current volume / average volume (1.0 = normal)
+            - trend_direction: +1 if price up in current candle, -1 if down
+        """
+        if len(ohlcv) < 2:
+            return (1.0, 0.0)
+        
+        current = ohlcv[-1]
+        current_volume = current["volume"]
+        
+        # Calculate average volume over lookback period (excluding current)
+        lookback_candles = ohlcv[-(lookback + 1):-1] if len(ohlcv) > lookback else ohlcv[:-1]
+        if not lookback_candles:
+            return (1.0, 0.0)
+        
+        avg_volume = sum(c["volume"] for c in lookback_candles) / len(lookback_candles)
+        
+        if avg_volume == 0:
+            return (1.0, 0.0)
+        
+        spike_ratio = current_volume / avg_volume
+        
+        # Determine trend direction in current candle
+        trend_direction = 1.0 if current["close"] > current["open"] else -1.0
+        
+        return (spike_ratio, trend_direction)
+    
     def calculate_bollinger_bands(
         self,
         closes: List[float],
@@ -185,10 +260,17 @@ class CryptoFairValueCalculator:
         price: float,
         bb_lower: float,
         bb_upper: float,
+        momentum: float = 0.0,
+        volume_spike: float = 1.0,
+        trend_direction: float = 0.0,
     ) -> float:
         """Calculate fair UP probability based on technical indicators.
         
-        Logic:
+        PRIMARY SIGNALS (momentum + volume):
+        - Momentum: Recent 1h price change predicts continuation
+        - Volume Spike: High volume = trend likely continues
+        
+        SECONDARY SIGNALS (RSI + BB):
         - RSI < 30 (oversold) → expect bounce → UP prob increases
         - RSI > 70 (overbought) → expect pullback → UP prob decreases
         - Price near BB lower → mean reversion up likely
@@ -199,6 +281,9 @@ class CryptoFairValueCalculator:
             price: Current price
             bb_lower: Bollinger Band lower value
             bb_upper: Bollinger Band upper value
+            momentum: 1h price change percentage (positive = up)
+            volume_spike: Current volume / average volume ratio
+            trend_direction: +1 (up candle) or -1 (down candle)
         
         Returns:
             Fair UP probability (0.0 to 1.0)
@@ -206,44 +291,46 @@ class CryptoFairValueCalculator:
         # Base probability: neutral
         prob = 0.50
         
-        # === RSI Component ===
-        # RSI contribution: -0.25 to +0.25
+        # === PRIMARY: Momentum Component ===
+        # Momentum contribution: -0.25 to +0.25
+        # Scale: ±2% price change → ±0.25 probability adjustment
+        momentum_factor = max(-0.25, min(0.25, momentum / 2 * 0.25))
+        prob += momentum_factor
+        
+        # === PRIMARY: Volume Spike Component ===
+        # Volume spike amplifies the trend direction signal
+        # Spike > 2x average = strong continuation signal
+        if volume_spike >= 2.0:
+            # Strong volume spike: +/- 0.15 based on trend direction
+            volume_contribution = trend_direction * 0.15
+            prob += volume_contribution
+        elif volume_spike >= 1.5:
+            # Moderate spike: +/- 0.08
+            volume_contribution = trend_direction * 0.08
+            prob += volume_contribution
+        # Below 1.5x: no significant volume signal
+        
+        # === SECONDARY: RSI Component (reduced weight) ===
+        # RSI contribution: -0.10 to +0.10 (reduced from 0.25)
         if rsi <= 30:
-            # Oversold: strong UP signal
-            # Linear scale from RSI 30 → 0: 0 → +0.25
-            rsi_factor = (30 - rsi) / 30 * 0.25
+            rsi_factor = (30 - rsi) / 30 * 0.10
             prob += rsi_factor
         elif rsi >= 70:
-            # Overbought: strong DOWN signal
-            # Linear scale from RSI 70 → 100: 0 → -0.25
-            rsi_factor = (rsi - 70) / 30 * 0.25
+            rsi_factor = (rsi - 70) / 30 * 0.10
             prob -= rsi_factor
-        else:
-            # Neutral RSI (30-70): minor adjustment toward 50
-            # Slight weight toward extremes
-            if rsi < 50:
-                prob += (50 - rsi) / 100 * 0.05
-            else:
-                prob -= (rsi - 50) / 100 * 0.05
         
-        # === Bollinger Band Component ===
-        # BB contribution: -0.15 to +0.15
+        # === SECONDARY: Bollinger Band Component (reduced weight) ===
+        # BB contribution: -0.08 to +0.08 (reduced from 0.15)
         bb_range = bb_upper - bb_lower
         if bb_range > 0:
-            bb_middle = (bb_upper + bb_lower) / 2
-            
             if price <= bb_lower:
-                # At or below lower band: strong UP signal
-                prob += 0.15
+                prob += 0.08
             elif price >= bb_upper:
-                # At or above upper band: strong DOWN signal
-                prob -= 0.15
+                prob -= 0.08
             else:
-                # Within bands: proportional adjustment
-                # Position: -1 (at lower) to +1 (at upper)
+                bb_middle = (bb_upper + bb_lower) / 2
                 position = (price - bb_middle) / (bb_range / 2)
-                # Invert: below middle → positive (expect up)
-                bb_factor = -position * 0.10
+                bb_factor = -position * 0.05
                 prob += bb_factor
         
         # Clamp to valid range

@@ -499,7 +499,7 @@ class EventDrivenLoop:
     async def _calculate_crypto_fair_value(self, market: Market) -> float:
         """Calculate fair UP probability for crypto 1H market.
 
-        Uses RSI and Bollinger Bands from Binance OHLCV data.
+        Uses momentum + volume as primary signals, RSI/BB as secondary.
         """
         # Extract asset from question (e.g., "Will BTC go up..." → "BTC")
         question_lower = market.question.lower()
@@ -525,7 +525,13 @@ class EventDrivenLoop:
 
         closes = [c["close"] for c in ohlcv]
 
-        # Calculate indicators
+        # Calculate PRIMARY indicators (momentum + volume)
+        momentum = self._crypto_fair_value.calculate_1h_momentum(ohlcv)
+        volume_spike, trend_direction = self._crypto_fair_value.calculate_volume_spike(
+            ohlcv, lookback=10
+        )
+
+        # Calculate SECONDARY indicators (RSI + BB)
         rsi = self._crypto_fair_value.calculate_rsi(closes, period=14)
         bb_lower, bb_mid, bb_upper = self._crypto_fair_value.calculate_bollinger_bands(
             closes, period=20, std_dev=2
@@ -533,14 +539,20 @@ class EventDrivenLoop:
 
         current_price = closes[-1]
 
-        # Calculate fair UP probability
+        # Calculate fair UP probability with all signals
         fair_prob = self._crypto_fair_value.calculate_fair_probability(
-            rsi, current_price, bb_lower, bb_upper
+            rsi=rsi,
+            price=current_price,
+            bb_lower=bb_lower,
+            bb_upper=bb_upper,
+            momentum=momentum,
+            volume_spike=volume_spike,
+            trend_direction=trend_direction,
         )
 
         logger.debug(
-            "Crypto fair value: %s RSI=%.1f, BB=(%.2f,%.2f,%.2f), price=%.2f → prob=%.2f",
-            symbol, rsi, bb_lower, bb_mid, bb_upper, current_price, fair_prob
+            "Crypto fair value: %s mom=%.2f%% vol=%.1fx trend=%+.0f RSI=%.1f → prob=%.2f",
+            symbol, momentum, volume_spike, trend_direction, rsi, fair_prob
         )
 
         return fair_prob
