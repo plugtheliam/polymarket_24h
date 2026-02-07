@@ -276,7 +276,13 @@ async def main_loop(config: BotConfig, scanner_config: dict | None = None) -> No
 
 
 async def sniper_loop(config: BotConfig, threshold: float = 0.48) -> None:
-    """이벤트 드리븐 스나이퍼 루프 (F-018)."""
+    """이벤트 드리븐 스나이퍼 루프 (F-018).
+    
+    Enhanced with robust error handling:
+    - Never-crash design: catches ALL exceptions in main loop
+    - Auto-recovery: recreates resources after failures
+    - Backoff: exponential delay on repeated failures
+    """
     from poly24h.scheduler.event_scheduler import (
         EventDrivenLoop,
         MarketOpenSchedule,
@@ -299,24 +305,19 @@ async def sniper_loop(config: BotConfig, threshold: float = 0.48) -> None:
     print(f"Signal filter: min price=${RapidOrderbookPoller.MIN_MEANINGFUL_PRICE}")
     print("-" * 60)
 
-    if alerter.enabled:
-        await alerter.alert_error(
-            f"🎯 poly24h SNIPER v2 started — {mode}\n"
-            f"Threshold: ${threshold:.2f}\n"
-            f"Sources: {source_names}\n"
-            f"Signal filter: min_price≥${RapidOrderbookPoller.MIN_MEANINGFUL_PRICE}\n"
-            f"Paper trading: ON\n"
-            f"Strategy: Event-driven market open sniper",
-            level="info",
-        )
-
-    schedule = MarketOpenSchedule()
-    gamma_client = GammaClient()
-    scanner = MarketScanner(gamma_client)
-    preparer = PreOpenPreparer(gamma_client, scanner=scanner)
-    clob_fetcher = ClobOrderbookFetcher(timeout=8)
-    poller = RapidOrderbookPoller(clob_fetcher)
-    loop = EventDrivenLoop(schedule, preparer, poller, alerter)
+    try:
+        if alerter.enabled:
+            await alerter.alert_error(
+                f"🎯 poly24h SNIPER v2 started — {mode}\n"
+                f"Threshold: ${threshold:.2f}\n"
+                f"Sources: {source_names}\n"
+                f"Signal filter: min_price≥${RapidOrderbookPoller.MIN_MEANINGFUL_PRICE}\n"
+                f"Paper trading: ON\n"
+                f"Strategy: Event-driven market open sniper",
+                level="info",
+            )
+    except Exception as e:
+        logger.warning("Failed to send startup alert: %s", e)
 
     # Create a simple config-like namespace for the loop
     class SniperConfig:
@@ -343,38 +344,104 @@ async def sniper_loop(config: BotConfig, threshold: float = 0.48) -> None:
     from datetime import datetime, timezone
 
     cycle = 0
+    consecutive_errors = 0
+    MAX_CONSECUTIVE_ERRORS = 10
+    
+    # Outer loop: recreates resources on catastrophic failure
     while not stop_event.is_set():
-        cycle += 1
-        now = datetime.now(tz=timezone.utc)
-        phase = schedule.current_phase(now)
-        secs = schedule.seconds_until_open(now)
-
-        logger.info(
-            "=== Cycle %d | Phase: %s | Next open in: %.0fs ===",
-            cycle, phase.value, secs,
-        )
-
         try:
-            if phase.value == "idle":
-                await loop._handle_idle_phase(now, sniper_cfg)
-            elif phase.value == "pre_open":
-                await loop._handle_pre_open_phase(sniper_cfg)
-            elif phase.value == "snipe":
-                await loop._handle_snipe_phase(sniper_cfg)
-            elif phase.value == "cooldown":
-                await loop._handle_cooldown_phase(sniper_cfg)
-        except Exception:
-            logger.exception("Error in cycle %d (phase: %s)", cycle, phase.value)
-            if alerter.enabled:
-                await alerter.alert_error(
-                    f"Sniper error in {phase.value} phase — check logs"
+            # Initialize resources (can be recreated on failure)
+            schedule = MarketOpenSchedule()
+            gamma_client = GammaClient()
+            scanner = MarketScanner(gamma_client)
+            preparer = PreOpenPreparer(gamma_client, scanner=scanner)
+            clob_fetcher = ClobOrderbookFetcher(timeout=8)
+            poller = RapidOrderbookPoller(clob_fetcher)
+            loop = EventDrivenLoop(schedule, preparer, poller, alerter)
+            
+            logger.info("Resources initialized successfully")
+            consecutive_errors = 0  # Reset on successful init
+            
+            # Inner loop: main event loop
+            while not stop_event.is_set():
+                cycle += 1
+                now = datetime.now(tz=timezone.utc)
+                phase = schedule.current_phase(now)
+                secs = schedule.seconds_until_open(now)
+
+                logger.info(
+                    "=== Cycle %d | Phase: %s | Next open in: %.0fs ===",
+                    cycle, phase.value, secs,
                 )
 
-        # Brief pause
-        try:
-            await asyncio.wait_for(stop_event.wait(), timeout=1)
-        except asyncio.TimeoutError:
-            pass
+                try:
+                    if phase.value == "idle":
+                        await loop._handle_idle_phase(now, sniper_cfg)
+                    elif phase.value == "pre_open":
+                        await loop._handle_pre_open_phase(sniper_cfg)
+                    elif phase.value == "snipe":
+                        await loop._handle_snipe_phase(sniper_cfg)
+                    elif phase.value == "cooldown":
+                        await loop._handle_cooldown_phase(sniper_cfg)
+                    
+                    consecutive_errors = 0  # Reset on success
+                    
+                except asyncio.CancelledError:
+                    logger.info("Task cancelled, shutting down...")
+                    stop_event.set()
+                    break
+                except Exception as e:
+                    consecutive_errors += 1
+                    logger.exception(
+                        "Error in cycle %d (phase: %s) [%d/%d]: %s", 
+                        cycle, phase.value, consecutive_errors, MAX_CONSECUTIVE_ERRORS, e
+                    )
+                    
+                    try:
+                        if alerter.enabled:
+                            await alerter.alert_error(
+                                f"Sniper error in {phase.value} phase ({consecutive_errors}/{MAX_CONSECUTIVE_ERRORS})\n"
+                                f"Error: {str(e)[:100]}"
+                            )
+                    except Exception:
+                        pass  # Don't let alert failure crash us
+                    
+                    # Exponential backoff on repeated failures
+                    if consecutive_errors >= MAX_CONSECUTIVE_ERRORS:
+                        logger.error("Too many consecutive errors, reinitializing resources...")
+                        break  # Break inner loop to reinit resources
+                    
+                    backoff = min(30, 2 ** consecutive_errors)
+                    await asyncio.sleep(backoff)
+
+                # Brief pause between cycles
+                try:
+                    await asyncio.wait_for(stop_event.wait(), timeout=1)
+                except asyncio.TimeoutError:
+                    pass
+
+        except asyncio.CancelledError:
+            logger.info("Task cancelled during resource init, shutting down...")
+            break
+        except Exception as e:
+            consecutive_errors += 1
+            logger.exception(
+                "Fatal error during resource initialization [%d]: %s",
+                consecutive_errors, e
+            )
+            
+            try:
+                if alerter.enabled:
+                    await alerter.alert_error(
+                        f"🔴 Fatal error during resource init\n"
+                        f"Error: {str(e)[:100]}\n"
+                        f"Retrying in 60s..."
+                    )
+            except Exception:
+                pass
+            
+            # Wait before retry
+            await asyncio.sleep(60)
 
     print("Goodbye! 🤙")
 

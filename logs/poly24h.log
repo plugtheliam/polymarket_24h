@@ -1,0 +1,3 @@
+2026-02-07 12:32:49,793 [INFO] poly24h.main: Resources initialized successfully
+2026-02-07 12:32:49,793 [INFO] poly24h.main: === Cycle 1 | Phase: idle | Next open in: 1630s ===
+2026-02-07 12:32:49,793 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1600s

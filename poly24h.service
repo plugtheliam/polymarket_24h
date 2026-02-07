@@ -1,0 +1,22 @@
+[Unit]
+Description=Poly24H - Polymarket 24H Arbitrage Bot
+After=network.target
+
+[Service]
+Type=simple
+User=liam
+Group=liam
+WorkingDirectory=/home/liam/workspace/polymarket_24h
+Environment="PATH=/home/liam/workspace/polymarket_24h/.venv/bin:/usr/local/bin:/usr/bin:/bin"
+ExecStart=/home/liam/workspace/polymarket_24h/.venv/bin/python -m poly24h --mode sniper --threshold 0.48
+Restart=always
+RestartSec=10
+StandardOutput=append:/home/liam/workspace/polymarket_24h/logs/poly24h.log
+StandardError=append:/home/liam/workspace/polymarket_24h/logs/poly24h.log
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

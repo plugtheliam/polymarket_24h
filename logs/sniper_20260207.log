@@ -1,0 +1,4 @@
+2026-02-07 09:56:24,095 [INFO] poly24h.main: === Cycle 1 | Phase: idle | Next open in: 216s ===
+2026-02-07 09:56:24,095 [INFO] poly24h.scheduler.event_scheduler: IDLE: Sleeping 185s until pre-open
+2026-02-07 10:05:14,907 [INFO] poly24h.main: === Cycle 1 | Phase: idle | Next open in: 3285s ===
+2026-02-07 10:05:14,907 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 3255s
