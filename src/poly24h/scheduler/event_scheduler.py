@@ -11,6 +11,11 @@ Phase 2 enhancements:
 - Cycle end summary report on IDLE entry
 - Paper trade settlement tracking
 - Dynamic threshold based on market liquidity
+
+Phase 3 enhancements:
+- WebSocket price cache integration (WS-first, HTTP fallback)
+- Paired entry detection (YES+NO < $1.00 → guaranteed profit)
+- Per-market detailed logging (asset breakdown, timing analysis)
 """
 
 from __future__ import annotations
@@ -27,10 +32,16 @@ from poly24h.discovery.gamma_client import GammaClient
 from poly24h.discovery.market_scanner import MarketScanner
 from poly24h.models.market import Market, MarketSource
 from poly24h.monitoring.cycle_report import CycleStats, format_cycle_report
+from poly24h.monitoring.market_logger import MarketOpportunityLogger
 from poly24h.monitoring.settlement import PaperSettlementTracker, PaperTrade
 from poly24h.monitoring.telegram import TelegramAlerter
 from poly24h.strategy.dynamic_threshold import DynamicThreshold
 from poly24h.strategy.orderbook_scanner import ClobOrderbookFetcher
+from poly24h.strategy.paired_entry import (
+    PairedEntryDetector,
+    PairedEntrySimulator,
+)
+from poly24h.websocket.price_cache import PriceCache
 
 logger = logging.getLogger(__name__)
 
@@ -301,7 +312,8 @@ class EventDrivenLoop:
         schedule: MarketOpenSchedule,
         preparer: PreOpenPreparer,
         poller: RapidOrderbookPoller,
-        alerter: TelegramAlerter
+        alerter: TelegramAlerter,
+        price_cache: PriceCache | None = None,
     ):
         self.schedule = schedule
         self.preparer = preparer
@@ -327,6 +339,13 @@ class EventDrivenLoop:
         self._dynamic_threshold: DynamicThreshold = DynamicThreshold()
         self._previous_phase: Phase = Phase.IDLE
         self._cycle_count: int = 0
+        # Phase 3: WebSocket cache, paired entry, market logger
+        self._price_cache: PriceCache = price_cache or PriceCache()
+        self._paired_detector: PairedEntryDetector = PairedEntryDetector()
+        self._paired_simulator: PairedEntrySimulator = PairedEntrySimulator()
+        self._market_logger: MarketOpportunityLogger = MarketOpportunityLogger()
+        self._ws_cache_hits: int = 0
+        self._http_fallback_count: int = 0
 
     async def run(self, config) -> None:
         """Async main loop that orchestrates the full cycle."""
@@ -437,12 +456,26 @@ class EventDrivenLoop:
     async def _poll_all_pairs(
         self, threshold: float, phase_label: str = "SNIPE",
     ) -> list[SniperOpportunity]:
-        """Poll all active token pairs in parallel, return opportunities."""
+        """Poll all active token pairs in parallel, return opportunities.
+
+        Phase 3: WS-cache-first approach. If WS cache has fresh prices,
+        use them directly (saves ~200ms HTTP latency). Otherwise fall back
+        to HTTP polling.
+        """
         if not self._active_token_pairs:
             return []
 
         async def _poll_one(yes_token: str, no_token: str) -> SniperOpportunity | None:
             try:
+                # Phase 3: Try WS cache first for lower latency
+                snapshot = self._try_ws_cache(yes_token, no_token)
+                if snapshot is not None:
+                    self._ws_cache_hits += 1
+                    opp = self.poller.detect_opportunity(snapshot, threshold)
+                    return opp
+
+                # Fallback to HTTP polling
+                self._http_fallback_count += 1
                 snapshot = await self.poller.poll_once(yes_token, no_token)
                 return self.poller.detect_opportunity(snapshot, threshold)
             except Exception as exc:
@@ -454,6 +487,122 @@ class EventDrivenLoop:
             return_exceptions=True,
         )
         return [r for r in results if isinstance(r, SniperOpportunity)]
+
+    def _try_ws_cache(
+        self, yes_token: str, no_token: str, max_age: float = 5.0,
+    ) -> OrderbookSnapshot | None:
+        """Try to build OrderbookSnapshot from WebSocket price cache.
+
+        Returns None if either side's cache is stale or missing.
+        """
+        # Check freshness of both sides
+        if not self._price_cache.is_orderbook_fresh(yes_token, max_age):
+            return None
+        if not self._price_cache.is_orderbook_fresh(no_token, max_age):
+            return None
+
+        yes_ask = self._price_cache.get_best_ask(yes_token)
+        no_ask = self._price_cache.get_best_ask(no_token)
+
+        if yes_ask is None or no_ask is None:
+            return None
+
+        spread = yes_ask + no_ask
+
+        return OrderbookSnapshot(
+            yes_best_ask=yes_ask,
+            no_best_ask=no_ask,
+            spread=spread,
+            timestamp=datetime.now(tz=timezone.utc),
+        )
+
+    async def _check_paired_entries(
+        self, threshold: float, phase_label: str = "SNIPE",
+    ) -> list[tuple[SniperOpportunity, Market | None, dict]]:
+        """Phase 3: Check all active markets for paired entry opportunities.
+
+        Looks for YES_ask + NO_ask < 1.0 (both sides cheap → guaranteed profit).
+        Uses WS cache first, then HTTP fallback for orderbook data.
+
+        Returns list of (opportunity, market, paper_trade) tuples.
+        """
+        paired_results = []
+
+        for i, (yes_token, no_token) in enumerate(self._active_token_pairs):
+            market = self._active_markets[i] if i < len(self._active_markets) else None
+            if market is None:
+                continue
+
+            # Get best asks (try WS cache first, then use last poll data)
+            yes_ask = self._price_cache.get_best_ask(yes_token)
+            no_ask = self._price_cache.get_best_ask(no_token)
+
+            if yes_ask is None or no_ask is None:
+                continue
+
+            # Determine detection source
+            source = "ws_cache"
+            if not self._price_cache.is_orderbook_fresh(yes_token, 5.0):
+                source = "http_poll"
+
+            # Get sizes from orderbook entries if available
+            yes_entry = self._price_cache.get_orderbook_entry(yes_token)
+            no_entry = self._price_cache.get_orderbook_entry(no_token)
+            yes_size = yes_entry.ask_size if yes_entry else 0.0
+            no_size = no_entry.ask_size if no_entry else 0.0
+
+            # Check for paired opportunity
+            paired_opp = self._paired_detector.detect(
+                market=market,
+                yes_ask=yes_ask,
+                no_ask=no_ask,
+                yes_size=yes_size,
+                no_size=no_size,
+                source=source,
+            )
+
+            if paired_opp is not None:
+                # Simulate paper trade
+                paper = self._paired_simulator.simulate_trade(paired_opp)
+
+                # Log detailed opportunity
+                now = datetime.now(tz=timezone.utc)
+                open_time = now.replace(minute=0, second=0, microsecond=0)
+                secs_since_open = (now - open_time).total_seconds()
+
+                self._market_logger.record(
+                    market_id=market.id,
+                    market_question=market.question,
+                    market_source=market.source.value,
+                    trigger_side="PAIRED",
+                    trigger_price=paired_opp.total_cost,
+                    spread=paired_opp.spread,
+                    seconds_since_open=secs_since_open,
+                    detection_source=source,
+                    is_paired=True,
+                )
+
+                # Create a synthetic SniperOpportunity for the batch alert system
+                synth_opp = SniperOpportunity(
+                    trigger_price=paired_opp.total_cost,
+                    trigger_side="PAIRED",
+                    spread=paired_opp.spread,
+                    timestamp=now,
+                )
+
+                paired_results.append((synth_opp, market, paper.to_dict()))
+
+                logger.info(
+                    "🔗 [%s] PAIRED ENTRY: %s | Y=$%.4f+N=$%.4f=$%.4f | "
+                    "profit=$%.4f (%.2f%%) | %s",
+                    phase_label, market.question[:50],
+                    paired_opp.yes_ask, paired_opp.no_ask,
+                    paired_opp.total_cost,
+                    paired_opp.spread, paired_opp.roi_pct,
+                    source,
+                )
+
+        return paired_results
 
     def _find_market_for_opp(self, opp: SniperOpportunity) -> Market | None:
         """F-019: Try to find the Market object for a detected opportunity."""
@@ -568,8 +717,41 @@ class EventDrivenLoop:
                 market.question[:60] if market else "unknown",
             )
 
+            # Phase 3: Log to market logger
+            self._market_logger.record(
+                market_id=market.id if market else "",
+                market_question=market.question if market else "Unknown",
+                market_source=market.source.value if market else "unknown",
+                trigger_side=opp.trigger_side,
+                trigger_price=opp.trigger_price,
+                spread=opp.spread,
+                seconds_since_open=seconds_since_open,
+                detection_source=(
+                    "ws_cache"
+                    if self._price_cache.get_best_ask(
+                        self._active_token_pairs[0][0]
+                        if self._active_token_pairs else ""
+                    ) is not None
+                    else "http_poll"
+                ),
+                is_paired=False,
+            )
+
             # F-020: Accumulate for batch alert instead of individual alert
             self._pending_opps.append((opp, market, paper))
+
+        # Phase 3: Check for paired entry opportunities
+        paired_results = await self._check_paired_entries(
+            config.sniper_threshold, "SNIPE",
+        )
+        for synth_opp, market, paper_dict in paired_results:
+            self._pending_opps.append((synth_opp, market, paper_dict))
+            self._cycle_stats.record_filtered_signal(
+                market_question=market.question if market else "Unknown",
+                market_source=market.source.value if market else "unknown",
+                trigger_price=synth_opp.trigger_price,
+                trigger_side="PAIRED",
+            )
 
         # F-020: Flush batch if interval elapsed
         await self._flush_batch_alerts()
@@ -637,8 +819,31 @@ class EventDrivenLoop:
                 market.question[:60] if market else "unknown",
             )
 
+            # Phase 3: Log to market logger
+            now_cd = datetime.now(tz=timezone.utc)
+            open_cd = now_cd.replace(minute=0, second=0, microsecond=0)
+            secs_cd = (now_cd - open_cd).total_seconds()
+            self._market_logger.record(
+                market_id=market.id if market else "",
+                market_question=market.question if market else "Unknown",
+                market_source=market.source.value if market else "unknown",
+                trigger_side=opp.trigger_side,
+                trigger_price=opp.trigger_price,
+                spread=opp.spread,
+                seconds_since_open=secs_cd,
+                detection_source="http_poll",
+                is_paired=False,
+            )
+
             # F-020: Accumulate for batch alert
             self._pending_opps.append((opp, market, paper))
+
+        # Phase 3: Check paired entries in cooldown too
+        paired_results = await self._check_paired_entries(
+            config.sniper_threshold, "COOLDOWN",
+        )
+        for synth_opp, market, paper_dict in paired_results:
+            self._pending_opps.append((synth_opp, market, paper_dict))
 
         # F-020: Flush batch if interval elapsed
         await self._flush_batch_alerts()
@@ -720,18 +925,54 @@ class EventDrivenLoop:
     # ------------------------------------------------------------------
 
     async def _send_cycle_end_report(self) -> None:
-        """Phase 2: Send cycle end summary report via Telegram."""
+        """Phase 2+3: Send cycle end summary report via Telegram.
+
+        Phase 3: Includes WS cache stats, paired entry stats,
+        and market-level opportunity breakdown.
+        """
         self._cycle_stats.finalize()
         report = format_cycle_report(self._cycle_stats)
 
+        # Phase 3: Append WS cache and paired entry stats
+        cache_stats = self._price_cache.stats
+        paired_summary = self._paired_simulator.get_summary()
+        market_report = self._market_logger.format_stats_report()
+
+        extra_lines = []
+        if self._ws_cache_hits > 0 or self._http_fallback_count > 0:
+            total = self._ws_cache_hits + self._http_fallback_count
+            ws_pct = self._ws_cache_hits / total * 100 if total > 0 else 0
+            extra_lines.append(
+                f"\n<b>Phase 3: WS Cache</b>\n"
+                f"  WS hits: {self._ws_cache_hits} | HTTP fallback: {self._http_fallback_count}\n"
+                f"  WS hit rate: {ws_pct:.0f}%\n"
+                f"  Cached: {cache_stats['prices_cached']} prices, "
+                f"{cache_stats['orderbooks_cached']} orderbooks"
+            )
+
+        if paired_summary["total_trades"] > 0:
+            extra_lines.append(
+                f"\n<b>Phase 3: Paired Entry</b>\n"
+                f"  Trades: {paired_summary['total_trades']}건\n"
+                f"  Cost: ${paired_summary['total_cost']:.2f}\n"
+                f"  Guaranteed profit: ${paired_summary['total_guaranteed_profit']:.4f}\n"
+                f"  Avg ROI: {paired_summary['avg_roi_pct']:.2f}%"
+            )
+
+        if extra_lines:
+            report += "\n" + "\n".join(extra_lines)
+
         logger.info(
-            "CYCLE END: #%d | markets=%d | signals=%d/%d | paper=%d ($%.0f)",
+            "CYCLE END: #%d | markets=%d | signals=%d/%d | paper=%d ($%.0f) "
+            "| ws_hits=%d | paired=%d",
             self._cycle_count,
             self._cycle_stats.markets_discovered,
             self._cycle_stats.filtered_signals,
             self._cycle_stats.raw_signals,
             self._cycle_stats.paper_trades,
             self._cycle_stats.paper_total_invested,
+            self._ws_cache_hits,
+            paired_summary["total_trades"],
         )
 
         if self.alerter.enabled:
