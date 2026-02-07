@@ -1173,8 +1173,10 @@ class EventDrivenLoop:
             paired_summary["total_trades"],
         )
 
-        if self.alerter.enabled:
-            await self.alerter.alert_error(report, level="info")
+        # Cycle report disabled for Telegram (user request 2026-02-07)
+        # Logs are still written locally
+        # if self.alerter.enabled:
+        #     await self.alerter.alert_error(report, level="info")
 
     async def _run_settlement_check(self) -> None:
         """Phase 2: Check pending paper trades for settlement."""
