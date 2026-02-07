@@ -1,31 +1,28 @@
-# Mission: NBA Team Name Parser Improvement
+# Mission: Hybrid Mode Implementation
 
-## Problem
-현재 NBA 마켓 팀명 파싱이 실패하여 모든 NBA 마켓에서 "Unknown NBA team: opponent" 경고 발생.
-결과적으로 NBA 마켓 트레이드가 0건.
+## 목표
+- Crypto 1H: Paired Entry (무위험, Taker 우선)
+- NBA: Sniper (방향 예측, 기존 유지)
+- Fallback: 한쪽 체결 시 Unwind
 
-## Root Cause
-Polymarket NBA 마켓 질문 형식:
-- "Mavericks vs. Spurs"
-- "Warriors vs. Lakers"
-- "Knicks vs. Celtics"
-- "76ers vs. Suns"
+## 설정
+- Taker 우선 (확실한 체결)
+- FOK 주문 (전량 체결 or 취소)
+- Unwind 슬리피지 한도: 5%
+- 자본 배분: Crypto 60% / NBA 40%
+- 마켓당 최대: $100
+- 일일 손실 한도: $200
 
-현재 파서는 질문에서 팀 키워드를 검색하지만, 두 번째 팀을 "opponent"로 잘못 설정.
+## Phase 1: 수수료 로직 (TDD)
+- [x] tests/test_fee_calculator.py
+- [x] src/poly24h/strategy/fee_calculator.py
 
-## Solution
-1. "Team1 vs. Team2" 패턴을 파싱하는 정규식 추가
-2. 팀명 매핑 확장 (Mavericks → mavericks, 76ers → sixers 등)
-3. Kent Beck TDD 방식으로 테스트 먼저 작성
+## Phase 2: Atomic State Machine
+- [ ] tests/test_atomic_paired.py
+- [ ] src/poly24h/execution/atomic_paired.py
 
-## Acceptance Criteria
-- [ ] "Mavericks vs. Spurs" → team_a="mavericks", team_b="spurs"
-- [ ] "Warriors vs. Lakers" → team_a="warriors", team_b="lakers"
-- [ ] "76ers vs. Suns" → team_a="sixers", team_b="suns"
-- [ ] "Knicks vs. Celtics" → team_a="knicks", team_b="celtics"
-- [ ] 모든 테스트 통과
-- [ ] 드라이런에서 NBA 마켓 트레이드 발생
+## Phase 3: Hybrid Scheduler
+- [ ] src/poly24h/scheduler/hybrid_scheduler.py
 
-## Files to Modify
-- `src/poly24h/strategy/nba_fair_value.py` - 팀명 파싱 로직 추가
-- `tests/test_nba_parser.py` - TDD 테스트 (신규)
+## Phase 4: 포지션 관리
+- [ ] src/poly24h/portfolio/hybrid_portfolio.py

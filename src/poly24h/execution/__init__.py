@@ -1,1 +1,1 @@
-"""Execution engine — order building and execution."""
+"""Execution module for order management."""
