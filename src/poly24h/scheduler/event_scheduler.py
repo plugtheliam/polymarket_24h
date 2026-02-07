@@ -453,31 +453,39 @@ class EventDrivenLoop:
             return self.SNIPE_EARLY_INTERVAL
         return self.SNIPE_NORMAL_INTERVAL
 
+    # Max concurrent HTTP requests to CLOB API to avoid 429 rate limits
+    MAX_CONCURRENT_POLLS = 10
+
     async def _poll_all_pairs(
         self, threshold: float, phase_label: str = "SNIPE",
     ) -> list[SniperOpportunity]:
-        """Poll all active token pairs in parallel, return opportunities.
+        """Poll all active token pairs with concurrency control.
 
         Phase 3: WS-cache-first approach. If WS cache has fresh prices,
         use them directly (saves ~200ms HTTP latency). Otherwise fall back
         to HTTP polling.
+
+        F-020: Semaphore limits concurrent HTTP requests to avoid CLOB 429.
         """
         if not self._active_token_pairs:
             return []
 
+        semaphore = asyncio.Semaphore(self.MAX_CONCURRENT_POLLS)
+
         async def _poll_one(yes_token: str, no_token: str) -> SniperOpportunity | None:
             try:
-                # Phase 3: Try WS cache first for lower latency
+                # Phase 3: Try WS cache first for lower latency (no semaphore needed)
                 snapshot = self._try_ws_cache(yes_token, no_token)
                 if snapshot is not None:
                     self._ws_cache_hits += 1
                     opp = self.poller.detect_opportunity(snapshot, threshold)
                     return opp
 
-                # Fallback to HTTP polling
-                self._http_fallback_count += 1
-                snapshot = await self.poller.poll_once(yes_token, no_token)
-                return self.poller.detect_opportunity(snapshot, threshold)
+                # Fallback to HTTP polling (rate-limited)
+                async with semaphore:
+                    self._http_fallback_count += 1
+                    snapshot = await self.poller.poll_once(yes_token, no_token)
+                    return self.poller.detect_opportunity(snapshot, threshold)
             except Exception as exc:
                 logger.error("[%s] Error polling %s/%s: %s", phase_label, yes_token, no_token, exc)
                 return None

@@ -1298,3 +1298,659 @@ Signal filter: min price=$0.02
 2026-02-07 04:59:32,864 [INFO] poly24h.discovery.market_scanner: Discovered 139 markets from 6 sources
 2026-02-07 04:59:32,864 [INFO] poly24h.scheduler.event_scheduler: PreOpenPreparer: discovered 139 markets — hourly_crypto:94, nba:45
 2026-02-07 04:59:32,864 [INFO] poly24h.scheduler.event_scheduler: PRE_OPEN: 139 markets loaded — hourly_crypto:94, nba:45
+2026-02-07 05:00:01,015 [INFO] poly24h.main: === Cycle 4 | Phase: snipe | Next open in: 3599s ===
+2026-02-07 05:00:01,015 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 139 pairs (139 markets) | T+1.0s | interval=0.20s
+2026-02-07 05:00:01,517 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.3700 $10.00 | hourly_crypto
+2026-02-07 05:00:01,517 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.3700 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:01,518 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4200 $10.00 | hourly_crypto
+2026-02-07 05:00:01,518 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4200 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:01,518 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4300 $10.00 | hourly_crypto
+2026-02-07 05:00:01,518 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4300 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:01,518 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4500 $10.00 | hourly_crypto
+2026-02-07 05:00:01,518 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4500 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:01,518 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.2200 $10.00 | hourly_crypto
+2026-02-07 05:00:01,519 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.2200 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:01,519 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.2500 $10.00 | hourly_crypto
+2026-02-07 05:00:01,519 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.2500 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:01,519 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4700 $10.00 | hourly_crypto
+2026-02-07 05:00:01,519 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4700 | spread=1.0300 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:01,519 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4600 $10.00 | hourly_crypto
+2026-02-07 05:00:01,519 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4600 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:01,519 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4700 $10.00 | hourly_crypto
+2026-02-07 05:00:01,520 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4700 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:01,520 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.3500 $10.00 | hourly_crypto
+2026-02-07 05:00:01,520 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.3500 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:01,520 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4700 $10.00 | hourly_crypto
+2026-02-07 05:00:01,520 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4700 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:01,520 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4200 $10.00 | hourly_crypto
+2026-02-07 05:00:01,520 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4200 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:01,521 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4500 $10.00 | hourly_crypto
+2026-02-07 05:00:01,521 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4500 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:01,521 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4700 $10.00 | hourly_crypto
+2026-02-07 05:00:01,521 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4700 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:01,521 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4300 $10.00 | hourly_crypto
+2026-02-07 05:00:01,521 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4300 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:01,522 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4400 $10.00 | hourly_crypto
+2026-02-07 05:00:01,522 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4400 | spread=1.0300 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:01,522 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4600 $10.00 | hourly_crypto
+2026-02-07 05:00:01,522 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4600 | spread=1.0300 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:01,522 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4700 $10.00 | hourly_crypto
+2026-02-07 05:00:01,522 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4700 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:01,522 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.2400 $10.00 | hourly_crypto
+2026-02-07 05:00:01,522 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.2400 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:01,523 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.1700 $10.00 | hourly_crypto
+2026-02-07 05:00:01,523 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.1700 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:02,732 [INFO] poly24h.main: === Cycle 5 | Phase: snipe | Next open in: 3597s ===
+2026-02-07 05:00:02,732 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 139 pairs (139 markets) | T+2.7s | interval=0.20s
+2026-02-07 05:00:02,952 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.3700 $10.00 | hourly_crypto
+2026-02-07 05:00:02,952 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.3700 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:02,953 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4200 $10.00 | hourly_crypto
+2026-02-07 05:00:02,953 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4200 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:02,954 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4300 $10.00 | hourly_crypto
+2026-02-07 05:00:02,954 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4300 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:02,954 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4500 $10.00 | hourly_crypto
+2026-02-07 05:00:02,954 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4500 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:02,954 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.2200 $10.00 | hourly_crypto
+2026-02-07 05:00:02,955 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.2200 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:02,955 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.2500 $10.00 | hourly_crypto
+2026-02-07 05:00:02,955 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.2500 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:02,956 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4700 $10.00 | hourly_crypto
+2026-02-07 05:00:02,956 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4700 | spread=1.0300 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:02,956 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4600 $10.00 | hourly_crypto
+2026-02-07 05:00:02,956 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4600 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:02,957 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4700 $10.00 | hourly_crypto
+2026-02-07 05:00:02,957 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4700 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:02,957 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.3500 $10.00 | hourly_crypto
+2026-02-07 05:00:02,957 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.3500 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:02,957 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4700 $10.00 | hourly_crypto
+2026-02-07 05:00:02,958 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4700 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:02,958 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4200 $10.00 | hourly_crypto
+2026-02-07 05:00:02,958 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4200 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:02,958 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4500 $10.00 | hourly_crypto
+2026-02-07 05:00:02,958 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4500 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:02,965 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4700 $10.00 | hourly_crypto
+2026-02-07 05:00:02,965 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4700 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:02,965 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4300 $10.00 | hourly_crypto
+2026-02-07 05:00:02,965 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4300 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:02,966 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4400 $10.00 | hourly_crypto
+2026-02-07 05:00:02,966 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4400 | spread=1.0300 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:02,966 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4600 $10.00 | hourly_crypto
+2026-02-07 05:00:02,966 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4600 | spread=1.0300 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:02,967 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4700 $10.00 | hourly_crypto
+2026-02-07 05:00:02,967 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4700 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:02,967 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.2400 $10.00 | hourly_crypto
+2026-02-07 05:00:02,967 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.2400 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:02,968 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.1700 $10.00 | hourly_crypto
+2026-02-07 05:00:02,968 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.1700 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:04,170 [INFO] poly24h.main: === Cycle 6 | Phase: snipe | Next open in: 3596s ===
+2026-02-07 05:00:04,170 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 139 pairs (139 markets) | T+4.2s | interval=0.20s
+2026-02-07 05:00:04,342 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.3700 $10.00 | hourly_crypto
+2026-02-07 05:00:04,342 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.3700 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:04,343 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4200 $10.00 | hourly_crypto
+2026-02-07 05:00:04,343 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4200 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:04,343 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4300 $10.00 | hourly_crypto
+2026-02-07 05:00:04,343 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4300 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:04,343 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4500 $10.00 | hourly_crypto
+2026-02-07 05:00:04,343 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4500 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:04,344 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.2200 $10.00 | hourly_crypto
+2026-02-07 05:00:04,344 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.2200 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:04,344 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.2500 $10.00 | hourly_crypto
+2026-02-07 05:00:04,344 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.2500 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:04,344 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4700 $10.00 | hourly_crypto
+2026-02-07 05:00:04,344 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4700 | spread=1.0300 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:04,344 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4600 $10.00 | hourly_crypto
+2026-02-07 05:00:04,344 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4600 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:04,345 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4700 $10.00 | hourly_crypto
+2026-02-07 05:00:04,345 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4700 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:04,345 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.3500 $10.00 | hourly_crypto
+2026-02-07 05:00:04,345 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.3500 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:04,345 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4700 $10.00 | hourly_crypto
+2026-02-07 05:00:04,345 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4700 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:04,345 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4200 $10.00 | hourly_crypto
+2026-02-07 05:00:04,346 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4200 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:04,346 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4500 $10.00 | hourly_crypto
+2026-02-07 05:00:04,346 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4500 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:04,346 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4700 $10.00 | hourly_crypto
+2026-02-07 05:00:04,346 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4700 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:04,346 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4300 $10.00 | hourly_crypto
+2026-02-07 05:00:04,346 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4300 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:04,347 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4400 $10.00 | hourly_crypto
+2026-02-07 05:00:04,347 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4400 | spread=1.0300 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:04,347 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4600 $10.00 | hourly_crypto
+2026-02-07 05:00:04,347 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4600 | spread=1.0300 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:04,347 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4700 $10.00 | hourly_crypto
+2026-02-07 05:00:04,347 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4700 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:04,347 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.2400 $10.00 | hourly_crypto
+2026-02-07 05:00:04,348 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.2400 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:04,348 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.1700 $10.00 | hourly_crypto
+2026-02-07 05:00:04,348 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.1700 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:05,550 [INFO] poly24h.main: === Cycle 7 | Phase: snipe | Next open in: 3594s ===
+2026-02-07 05:00:05,550 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 139 pairs (139 markets) | T+5.6s | interval=0.20s
+2026-02-07 05:00:05,764 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.3700 $10.00 | hourly_crypto
+2026-02-07 05:00:05,764 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.3700 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:05,765 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4200 $10.00 | hourly_crypto
+2026-02-07 05:00:05,765 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4200 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:05,765 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4300 $10.00 | hourly_crypto
+2026-02-07 05:00:05,765 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4300 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:05,765 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4500 $10.00 | hourly_crypto
+2026-02-07 05:00:05,765 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4500 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:05,766 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.2200 $10.00 | hourly_crypto
+2026-02-07 05:00:05,766 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.2200 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:05,766 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.2500 $10.00 | hourly_crypto
+2026-02-07 05:00:05,766 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.2500 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:05,766 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4700 $10.00 | hourly_crypto
+2026-02-07 05:00:05,766 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4700 | spread=1.0300 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:05,767 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4600 $10.00 | hourly_crypto
+2026-02-07 05:00:05,767 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4600 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:05,767 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4700 $10.00 | hourly_crypto
+2026-02-07 05:00:05,767 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4700 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:05,768 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.3500 $10.00 | hourly_crypto
+2026-02-07 05:00:05,768 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.3500 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:05,768 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4700 $10.00 | hourly_crypto
+2026-02-07 05:00:05,768 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4700 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:05,768 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4200 $10.00 | hourly_crypto
+2026-02-07 05:00:05,768 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4200 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:05,769 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4500 $10.00 | hourly_crypto
+2026-02-07 05:00:05,769 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4500 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:05,769 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4700 $10.00 | hourly_crypto
+2026-02-07 05:00:05,769 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4700 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:05,769 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4300 $10.00 | hourly_crypto
+2026-02-07 05:00:05,769 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4300 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:05,770 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4400 $10.00 | hourly_crypto
+2026-02-07 05:00:05,770 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4400 | spread=1.0300 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:05,770 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4600 $10.00 | hourly_crypto
+2026-02-07 05:00:05,770 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4600 | spread=1.0300 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:05,770 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4700 $10.00 | hourly_crypto
+2026-02-07 05:00:05,770 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4700 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:05,771 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.2400 $10.00 | hourly_crypto
+2026-02-07 05:00:05,771 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.2400 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:05,771 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.1700 $10.00 | hourly_crypto
+2026-02-07 05:00:05,771 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.1700 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:06,973 [INFO] poly24h.main: === Cycle 8 | Phase: snipe | Next open in: 3593s ===
+2026-02-07 05:00:06,974 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 139 pairs (139 markets) | T+7.0s | interval=0.20s
+2026-02-07 05:00:07,245 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.3700 $10.00 | hourly_crypto
+2026-02-07 05:00:07,245 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.3700 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:07,246 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4200 $10.00 | hourly_crypto
+2026-02-07 05:00:07,246 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4200 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:07,246 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4300 $10.00 | hourly_crypto
+2026-02-07 05:00:07,246 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4300 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:07,247 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4500 $10.00 | hourly_crypto
+2026-02-07 05:00:07,247 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4500 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:07,247 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.2200 $10.00 | hourly_crypto
+2026-02-07 05:00:07,247 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.2200 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:07,248 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.2500 $10.00 | hourly_crypto
+2026-02-07 05:00:07,248 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.2500 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:07,248 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4700 $10.00 | hourly_crypto
+2026-02-07 05:00:07,248 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4700 | spread=1.0300 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:07,249 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4600 $10.00 | hourly_crypto
+2026-02-07 05:00:07,249 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4600 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:07,249 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4700 $10.00 | hourly_crypto
+2026-02-07 05:00:07,249 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4700 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:07,249 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.3500 $10.00 | hourly_crypto
+2026-02-07 05:00:07,250 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.3500 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:07,250 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4700 $10.00 | hourly_crypto
+2026-02-07 05:00:07,250 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4700 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:07,251 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4200 $10.00 | hourly_crypto
+2026-02-07 05:00:07,251 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4200 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:07,251 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4500 $10.00 | hourly_crypto
+2026-02-07 05:00:07,251 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4500 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:07,252 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.4700 $10.00 | hourly_crypto
+2026-02-07 05:00:07,252 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.4700 | spread=1.0200 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:07,252 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4300 $10.00 | hourly_crypto
+2026-02-07 05:00:07,252 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4300 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:07,253 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4400 $10.00 | hourly_crypto
+2026-02-07 05:00:07,253 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4400 | spread=1.0300 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:07,253 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4600 $10.00 | hourly_crypto
+2026-02-07 05:00:07,253 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4600 | spread=1.0300 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:07,254 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4700 $10.00 | hourly_crypto
+2026-02-07 05:00:07,254 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4700 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:07,254 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.2400 $10.00 | hourly_crypto
+2026-02-07 05:00:07,254 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.2400 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:07,254 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] NO Bitcoin Up or Down - February 6, 11PM ET@$0.1700 $10.00 | hourly_crypto
+2026-02-07 05:00:07,254 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: NO side at $0.1700 | spread=1.0100 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:08,459 [INFO] poly24h.main: === Cycle 9 | Phase: snipe | Next open in: 3592s ===
+2026-02-07 05:00:08,460 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 139 pairs (139 markets) | T+8.5s | interval=0.20s
+2026-02-07 05:00:08,552 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 68219442501392630014378700454752614505530493869458295958700141501020422789794
+2026-02-07 05:00:08,552 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 2416236171476041337869914234349470200869556881892173743495856651402545524689
+2026-02-07 05:00:08,552 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 18423735334266694075475392476173353606784023588754335082377365864328668630059
+2026-02-07 05:00:08,552 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 30541822993045925255580341701154048396017853282876907353774162251519275035937
+2026-02-07 05:00:08,553 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 26416464191421330585241039702185623675187046023167485551979489044666924600590
+2026-02-07 05:00:08,553 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 42410218343134761660740026963138280796855676069303245896949356652000493099604
+2026-02-07 05:00:08,553 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 92969743436660666246827575294463901701282996705731098437660668217885178044472
+2026-02-07 05:00:08,554 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 58475719686258763612059537636561571204578907470647656604169069607886488698286
+2026-02-07 05:00:08,554 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 106617859932600955925713602096266154376971056178135054390317161399601567209542
+2026-02-07 05:00:08,555 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 54205942848191216124381565241948588584619687656959427280332278136992683078281
+2026-02-07 05:00:08,555 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 55995919738418225886190843487636906123632359086651749015114119124164300838695
+2026-02-07 05:00:08,556 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 32699557786723653882574358411009560879805517552799342923009575718283130978348
+2026-02-07 05:00:08,556 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 92158160294091506359738086010069991867791535583704678034171214061684767470884
+2026-02-07 05:00:08,556 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 51247429661913841505167555763714865956796244224430859118558105550106947362368
+2026-02-07 05:00:08,557 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 42362335043778070185048870977103774264530806729321672479343507181445489775814
+2026-02-07 05:00:08,557 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 81914581859369021075798717411088901466827495006506144420241125120823724623162
+2026-02-07 05:00:08,558 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 96837333226418635826097220797179896260894055050747739050802738448574692907636
+2026-02-07 05:00:08,558 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 1530295885138135064955453261729510908805020190344499508717836064968222772851
+2026-02-07 05:00:08,559 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 11279251339224585536299349028205458680424812357929329388422791539045325597409
+2026-02-07 05:00:08,559 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 28833900239172231076564972943978689040999859056646231013284672381117225160899
+2026-02-07 05:00:08,560 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 246643939640725324281400310943768515738334779188246828746429430582324909276
+2026-02-07 05:00:08,569 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 33630548383888453039467372119278122237969765642949642661814704040606593270351
+2026-02-07 05:00:08,569 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 32251832774995763363544524370294724915425242050781437343849841973071800396372
+2026-02-07 05:00:08,570 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 90493416099574121551597562584934493668767262546979704459779425246070217556268
+2026-02-07 05:00:08,570 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 107373552233966344558132307836929574656755561891182266736506363690041342541614
+2026-02-07 05:00:08,570 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 18277695560462942958099899091584877076404476900837586858820147110247301548485
+2026-02-07 05:00:08,571 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 86307252155330480126707006714722698079818082306781295371000618195065059419848
+2026-02-07 05:00:08,571 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 20208152522169153347075944255696873262993797152388836071038513655727267034130
+2026-02-07 05:00:08,572 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 48728808932948220671556034011600064854029677784650460006671448106128364526687
+2026-02-07 05:00:08,572 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 64460944380861023236723225325789001731560711867276687149528386234645168841864
+2026-02-07 05:00:08,572 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 51056932528194464554269593803155302417147219530876807504201124967622884322783
+2026-02-07 05:00:08,572 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 1869169406914561937305347055999154588503261418317990188201391621467897983758
+2026-02-07 05:00:08,573 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 38198099613312718113578984140399843545614441968814854595977695093544562510882
+2026-02-07 05:00:08,574 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 29758750029751696016050152840612713580469668260794421956483649228371068512612
+2026-02-07 05:00:08,574 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 6947886350774756502528964747065711016287071994006435066781894678790499108913
+2026-02-07 05:00:08,574 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 67590011776514871233712565559145604940187596460568193713287898140597913356728
+2026-02-07 05:00:08,574 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 74840822420079660445700603632458634953228293608695214256228068760408441038513
+2026-02-07 05:00:08,575 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 109567001810700300589814563044594518547600301620660353012951270886643227469382
+2026-02-07 05:00:08,575 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 31015227696227721554932110733503635076468898388946469806409610143916822176708
+2026-02-07 05:00:08,576 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 10775385077437768992507413760586601773022809479658952556668828501343863535086
+2026-02-07 05:00:08,576 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 57529217019230987668344635013818657097138404617886561356332019784810177696328
+2026-02-07 05:00:08,576 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 13254827947558139695798556818091958918605773895771504001616935401818451352728
+2026-02-07 05:00:08,576 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 18588757118843797133536994306795428677177972803269733007521907699697699153056
+2026-02-07 05:00:08,577 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 806927652384224996365895801388682155942358168379374337249495370339083570926
+2026-02-07 05:00:08,577 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 27828552139490259067082900677345829849470095159308339116922870097345092583563
+2026-02-07 05:00:08,577 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 52124289028534150696992856994236442073338098029749294680070091926586593258384
+2026-02-07 05:00:08,577 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 78732625754476084586291627437257290369909360953852191887601980981585739532330
+2026-02-07 05:00:08,577 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 2385530439600156056310418136926470525759732685514808383302566616934363300283
+2026-02-07 05:00:08,578 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 36074460358221959283473033575665395027528546731342421061429976073869540734391
+2026-02-07 05:00:08,578 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 42076851220641620282059630854577666177729004999887265687935955458275502533362
+2026-02-07 05:00:08,578 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 99277405287888451408877103885604338342494061716560475348473917394159309774599
+2026-02-07 05:00:08,578 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 33981954618551222743131449788710677222559056807924055357317845587314769493092
+2026-02-07 05:00:08,578 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 97286296161362726893448802672768059374966496857626810788799602762032658164365
+2026-02-07 05:00:08,578 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 73952830484995541872256174600328911206889280911426598392117892013005424602579
+2026-02-07 05:00:08,578 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 16562061121507562297844043229616259429696867168834910344238987891228334469515
+2026-02-07 05:00:08,579 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 59067849655362864129246435217648634538113929674180836215025722231642387028653
+2026-02-07 05:00:08,579 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 64465210523942236376500441110145418226435397356028959230647226623905243284653
+2026-02-07 05:00:08,579 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 16770246159475948742303133639393101936101070997568567747023012747262706493001
+2026-02-07 05:00:08,579 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 94998123425399301583646431204758642555395860882424264696816043430241466418096
+2026-02-07 05:00:08,579 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 36519217669400383619147770368050803636934893416191923670181795367268209983937
+2026-02-07 05:00:08,583 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 83657223927920601560287769531209874583857331116849625033968242665030363693020
+2026-02-07 05:00:08,583 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 62818703312820729103212804092994524880195774006133941847174871838325205835188
+2026-02-07 05:00:08,583 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 53308059710086323874660037531500493607877309186888022498572645584186599045713
+2026-02-07 05:00:08,583 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 27200294122703686140523169734934182038830378491261181229493173569842153399580
+2026-02-07 05:00:08,583 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 41781109298635229906445209961843719955874645311324781470134929677048035352920
+2026-02-07 05:00:08,583 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 67148520795921318446349923737454477221550561993184371592798516163622898805484
+2026-02-07 05:00:08,584 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 15450563763702502183355306540065346041881338096261293263976005897387201539642
+2026-02-07 05:00:08,584 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 16331927871116047612546358449191608600317763748992256566078186490670276685163
+2026-02-07 05:00:08,584 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 6293681959172718364131348996666872839137146752750719177008431950924493628526
+2026-02-07 05:00:08,584 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 5414783432381212104798312853940902394350942929004200739369410159248876326294
+2026-02-07 05:00:08,584 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 103007778663877862166834239329494927319390518207910412441555487219504317861953
+2026-02-07 05:00:08,584 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 28149458592268876865348965690329874908774416133115349861024777797987576603394
+2026-02-07 05:00:08,584 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 108483996173557810787018033563859464877441684358886269296929072048457248741226
+2026-02-07 05:00:08,584 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 83717079203198971580232605650440746218944499784878722793722390379284802854569
+2026-02-07 05:00:08,584 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 48870861012855871607599549185958570941025829470014774846607208125835781112347
+2026-02-07 05:00:08,585 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 45256732114590035597536245244913680599338825903109191202901841403043490443452
+2026-02-07 05:00:08,585 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 77786852837481810911787752889689667851139635604501013417306409559611021869832
+2026-02-07 05:00:08,585 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 78572114048127547921064387312157329241400278034620858104051067950125068636969
+2026-02-07 05:00:08,588 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 19917924668726578941683002985001638183280657448496041954838942366281896363641
+2026-02-07 05:00:08,589 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 52152384213061754421732748612260617522788635931268513065263897941274190831305
+2026-02-07 05:00:08,589 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 104113555432230264266192977340401550061895952124928293560689080363786351577473
+2026-02-07 05:00:08,590 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 24713668630765757890790479582781820075824949580708358821144154153749268041375
+2026-02-07 05:00:08,590 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 54672687636134758020334166854100657615019180169670928418237350028722803677582
+2026-02-07 05:00:08,591 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 683214936326772673559427272251689992762814875640688433243760061050710304584
+2026-02-07 05:00:08,591 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 89034880126226073940362132298638741095929221956663190117029514454157734335238
+2026-02-07 05:00:08,591 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 8067391329483645524483069777673207356650433272108172193021097103888553863724
+2026-02-07 05:00:08,592 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 100175777057238379620441415468793322151938456302325174107110893817722789054237
+2026-02-07 05:00:08,592 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 6472001121218850168895798511284874723488670458480041852392361298343709954989
+2026-02-07 05:00:08,593 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 95592131671565767037854052108885904365292211331118973296719242953887532781910
+2026-02-07 05:00:08,593 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 456912726759751404312540129377889361728430346681406209896243370436171728735
+2026-02-07 05:00:08,593 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 23487799279314140316881545943038110138707869126617562712009687017442612465835
+2026-02-07 05:00:08,594 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 79096033469215479210197414129938554026610861181690066746824020407074053763965
+2026-02-07 05:00:08,594 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 88278156213290133002226233968056495027404581669884226081032897447342444307688
+2026-02-07 05:00:08,594 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 89853545508815769449927269100576912200738480265299853812308995866903182254062
+2026-02-07 05:00:08,594 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 82430295840995958842960750179587067312977666599152496295343615155261869189268
+2026-02-07 05:00:08,595 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 19355352164896451215130369969742256249097747806069232263215012727720506604721
+2026-02-07 05:00:08,595 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 58023483964295397004503901234881799231543462176990479269261653023038885412449
+2026-02-07 05:00:08,595 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 105953602931176330634945189470603815398578926675344274530308318869106796109516
+2026-02-07 05:00:08,596 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 6255320452641422941621038128789524651465940317202804204135955636591062446985
+2026-02-07 05:00:08,596 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 33402623887713499464637381593495383528874963126704601554073373188920614128317
+2026-02-07 05:00:08,596 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 17766549263656126902064436408528465935588388534888949680605683206533504598634
+2026-02-07 05:00:08,597 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 112826983475451701429917439458812959427469688442650571834420748746636563951968
+2026-02-07 05:00:08,597 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 63859017361017380034168097904844899789093156132354452700780464339462445199934
+2026-02-07 05:00:08,598 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 5786539617104946442005732097256982988639914450746718098965305791833207391933
+2026-02-07 05:00:08,598 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 88457596764802545440170492369328494381309338432878749623124528368967992223507
+2026-02-07 05:00:08,599 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 73761326660152547752931183998408649438561547287878037092325207673221836844349
+2026-02-07 05:00:08,599 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 12216008272459034343527670918889556537582181019487901591587576311887828823830
+2026-02-07 05:00:08,599 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 41959817118250520575212740067512470625873852795513105809653331368003867707549
+2026-02-07 05:00:08,600 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 49090530941735463664381065014553724531598436444292909482235136723179042058986
+2026-02-07 05:00:08,600 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 66102038605831310389404947371152864222733782453052231057451617865534584971869
+2026-02-07 05:00:08,600 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 23952759183120664313773204994051844558439497138461680303044455220033032259977
+2026-02-07 05:00:08,600 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 58902462410018657250222198294182648973506597429769138083609504246446571273902
+2026-02-07 05:00:08,601 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 57570120007570659354798108822980757719824765489047566546867894377119371656700
+2026-02-07 05:00:08,604 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 44333360018858895824039046159621309176137811225790650654043272098914100211128
+2026-02-07 05:00:08,604 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 98558067067508682741063569911297744180950340635896792763655268317329313169571
+2026-02-07 05:00:08,605 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 91956347310434108250305460582521466567536578008979317279073596763621984632464
+2026-02-07 05:00:08,605 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 43663136434673646893579677006354467702914331654745643327193831664541589897899
+2026-02-07 05:00:08,606 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 85088235192557943174402752914269886081517621279313920793113139923857376831133
+2026-02-07 05:00:08,606 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 26931321900399171039220309805217584503999551980805413668292177345927775317613
+2026-02-07 05:00:08,607 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 81359788606288212110123578395849104877368949177852999736060213520953326623635
+2026-02-07 05:00:08,607 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 24603882521977113142817411812657428276596251827921338045384454429996753992346
+2026-02-07 05:00:08,608 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 83519242748820729649012278499411084600746053438923975829851380202713901291531
+2026-02-07 05:00:08,608 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 64230902965160198181929108419091182564221161566375653212914176668345553830504
+2026-02-07 05:00:08,608 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 114039301422151187258567989067113675946739170603482826528429663893627489372707
+2026-02-07 05:00:08,608 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 98403671062952657132268061411499199341436486861168316357536781306103024184075
+2026-02-07 05:00:08,608 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 86464597214760196436920538951774904067171099243233128068848569782142862121226
+2026-02-07 05:00:08,608 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 32836607289498385534232393424286324638542843608044043704686313267456786671273
+2026-02-07 05:00:08,608 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 23475761349668138960876152652103947202671912759729225548734027310270156635335
+2026-02-07 05:00:08,608 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 94990809632301802035644947624170279684029313839595888784447628718776818384501
+2026-02-07 05:00:08,609 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 7394748216757971306167769025661671798170416481719396938388389998753833004413
+2026-02-07 05:00:08,610 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 57226909639432176334134041491681597334226466946937204009192184727642253345269
+2026-02-07 05:00:08,610 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 44579469332903975695692057350644055669100030611864052050610369640745603966781
+2026-02-07 05:00:08,610 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 103085961432316343375167975545622007972337711811077894427382536320151718812223
+2026-02-07 05:00:08,610 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 5566253698371585581618221312708043247813882884807145129732304321182862862292
+2026-02-07 05:00:08,611 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 86672950352732648054946944920995641753037970401155347550692236494086459710193
+2026-02-07 05:00:08,611 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 40666901406999307951777270236432698444660125359067626988790505769680288072681
+2026-02-07 05:00:08,611 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 92656551878176377093369881714140821364467089999677992811904589829810734748809
+2026-02-07 05:00:08,611 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 75661462832127801996225654011676331136134833172698064019163103156652099018306
+2026-02-07 05:00:08,612 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 110937647658145626163244322868382303745422426884991401935386845997921723846104
+2026-02-07 05:00:08,613 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 50845609828816027579531229496801692152002294902015543673051271355313144842310
+2026-02-07 05:00:08,613 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 76714272761467455106904335251858583044975598090073484500449107806126136124180
+2026-02-07 05:00:08,613 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 19570244374713662780168760009819472164861698106866428313480829273443039606414
+2026-02-07 05:00:08,613 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 3443172670151497815139902043483524845538143450797732932424619870656102470540
+2026-02-07 05:00:08,613 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 47497027375408641491123176271646074191754160274694355520331037873361724823646
+2026-02-07 05:00:08,613 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 7632819195111888471550235362701346886981799877853496237182537534437497396466
+2026-02-07 05:00:08,613 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 104907604602525800356519982746054168111665943734128216854896329730652356433711
+2026-02-07 05:00:08,614 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 7594053332792132426100961551485318047874125830407310153873647432161127815193
+2026-02-07 05:00:08,614 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 35529119879071557882914716746304446900195693129431161693679189824177163224862
+2026-02-07 05:00:08,614 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 25428144832785371262262742459558090480108888702258907900289924257177228945024
+2026-02-07 05:00:08,614 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 22343315009218591557083630598602740994046128817874703637703391113136700923239
+2026-02-07 05:00:08,614 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 89334771349821530201381157715196310136355191676922291739127690373331480916958
+2026-02-07 05:00:08,615 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 63153567217726850111099887831232160025472429842464489404525223698753815806544
+2026-02-07 05:00:08,615 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 67964618638935944601757074979926313011601384633493436077437462201218305613339
+2026-02-07 05:00:08,615 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 63212573398780713275195602479185599231234159291951613688624095099872414424462
+2026-02-07 05:00:08,615 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 42251052525716848585799108580743135314863168233837071493020205352418578707118
+2026-02-07 05:00:08,615 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 49394111221574819127605822734308046521237022492435507132759780153627075816912
+2026-02-07 05:00:08,615 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 62826707179424728366355860282998415903574461321238314323943651595502654832110
+2026-02-07 05:00:08,616 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 105134949557846638546517321383623687897379291612978829189268057156328717801424
+2026-02-07 05:00:08,617 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 105909740451238367345937594094062608037999217939861729360961788629746084020660
+2026-02-07 05:00:08,617 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 69871408555855423109329959565387686305777433444928006147847192599899378539387
+2026-02-07 05:00:08,617 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.3700 $10.00 | hourly_crypto
+2026-02-07 05:00:08,617 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.3700 | spread=0.0000 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:08,618 [INFO] poly24h.monitoring.settlement: [PAPER-TRADE] YES Bitcoin Up or Down - February 6, 11PM ET@$0.4200 $10.00 | hourly_crypto
+2026-02-07 05:00:08,618 [INFO] poly24h.scheduler.event_scheduler: 🎯 OPPORTUNITY: YES side at $0.4200 | spread=0.0000 | Bitcoin Up or Down - February 6, 11PM ET
+2026-02-07 05:00:09,820 [INFO] poly24h.main: === Cycle 10 | Phase: snipe | Next open in: 3590s ===
+2026-02-07 05:00:09,820 [INFO] poly24h.scheduler.event_scheduler: SNIPE: Polling 139 pairs (139 markets) | T+9.8s | interval=0.20s
+2026-02-07 05:00:09,865 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 17563400651587165605140426433410589891360807442829033297590842653753806040276
+2026-02-07 05:00:09,866 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 13792438437271400960638130120146007111205067705299057874512989731853484963892
+2026-02-07 05:00:09,866 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 42487250723111176956103465718204383406608245491485592832718415360977781520111
+2026-02-07 05:00:09,867 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 28828203185976428071431851783190445854392667862407314373932640678519386313287
+2026-02-07 05:00:09,867 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 71463290501958093582539379774518669282333586807218025678464197087932242489619
+2026-02-07 05:00:09,867 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 1963429057482458371940432184037357744363450469732578103460849525034208706928
+2026-02-07 05:00:09,868 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 107474677248940784669739959137550470880603359085713476780866933663984943020170
+2026-02-07 05:00:09,868 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 12174592124635201893841149340724286847481775367002060459891854558198724069618
+2026-02-07 05:00:09,868 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 32271902232390905972137884856720797072420928035621087505208364704326032654490
+2026-02-07 05:00:09,869 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 62352748219872189685837665104847262489356153482200433343585402550298465041832
+2026-02-07 05:00:09,869 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 75432025033948598535762746728451961554459989562938255484596156717801520242193
+2026-02-07 05:00:09,869 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 34484385439463677670574060340706504186874443392899500746767928292393890201197
+2026-02-07 05:00:09,870 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 81261770183438646256276643924804378540794123834334825027933741409618974948603
+2026-02-07 05:00:09,870 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 11898191232354845787043890773796754346886303227781113589242883146034464138090
+2026-02-07 05:00:09,870 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 57162171863032659403928189980102699549180903607407627860981282029641368841809
+2026-02-07 05:00:09,871 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 4414413136612085165893141950833723112805211976544652094530581623157323332484
+2026-02-07 05:00:09,871 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 107272802203829697445721640569259391108431836000886669083105138128290690128642
+2026-02-07 05:00:09,872 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 25952255582458784605509447740726518290167023031895533947275862590819335188582
+2026-02-07 05:00:09,872 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 85833060907816753740076990421276735886459702711658363441135055393407576898148
+2026-02-07 05:00:09,873 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 79321992769499637134640170094407441754302626585368611437740763312899262823965
+2026-02-07 05:00:09,873 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 79011375463429355014251760291943715238206255361728772873050417749014285509193
+2026-02-07 05:00:09,873 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 95123506976132076835536027611348166750484134418397824096163110793108568078007
+2026-02-07 05:00:09,874 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 98113700053512059781549890082085701113012471052659069769812326816895657149835
+2026-02-07 05:00:09,874 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 4945123201149140805492967416472785773052607389521729888264966337760569147370
+2026-02-07 05:00:09,874 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 6558044132199132144148969906473111652815070045727363710891562699149924187571
+2026-02-07 05:00:09,875 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 40287041499355944128293627810843667796842002121019192312108291390819775025384
+2026-02-07 05:00:09,875 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 94006892160375918018183036371763871436369176287124449352926740850349078929535
+2026-02-07 05:00:09,876 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 91921729512386517662552772064284788497968795833105040829371236191040739509187
+2026-02-07 05:00:09,876 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 52370659307043216663613447676021839898863514618555661058609013207199057743346
+2026-02-07 05:00:09,877 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 71152091696903891573308317697859217297454769480630549826853625049618595198315
+2026-02-07 05:00:09,877 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 36741451259242314135818987896438703419725244353723777140484594120034504396987
+2026-02-07 05:00:09,878 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 13302709104772962721360244231570588140759611437863721112590813079521044388514
+2026-02-07 05:00:09,878 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 68150534472757462324449153150333419111219433342783969389676397354598371472799
+2026-02-07 05:00:09,878 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 50806741974385660494829406501330131368406285366416735683330610234758175848256
+2026-02-07 05:00:09,879 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 41253083810459382077727106129012175729045530199129116800676968892443786567874
+2026-02-07 05:00:09,880 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 29110979414718436855337557499576173667458435109187492349308726129781559286581
+2026-02-07 05:00:09,880 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 71476855279062773992437244447013904239570853843083619260477288369984144761600
+2026-02-07 05:00:09,880 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 55712518369965151618917773441594201972037088364135938646669932900316145123768
+2026-02-07 05:00:09,881 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 104852817086961745304848076830767945795441082080397405492689858601071090458013
+2026-02-07 05:00:09,881 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 38600251512934453765441315342293280463958816793752379107015686367429617077413
+2026-02-07 05:00:09,882 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 17750426320505788915025245998995427281725183373644182285331501208935917624701
+2026-02-07 05:00:09,882 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 84932119680498750242619593288600399281923000907046528348329755832409123220457
+2026-02-07 05:00:09,882 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 62472802387364781407841688258120731916307159648393461333101153260041535748016
+2026-02-07 05:00:09,883 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 46002539595915771494587355187044846425206299892075340623387144216136501720435
+2026-02-07 05:00:09,884 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 108947860004360423413690586220787884853731401882848862871251831722806920366638
+2026-02-07 05:00:09,884 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 115072509453226245529781035467572257459550180447319554001959485081210870309189
+2026-02-07 05:00:09,885 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 94366748362971113970257130350084571976801596895660608077965117110563389656655
+2026-02-07 05:00:09,885 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 52215970937313369277156199232224430032737273493192179451554810107781996375934
+2026-02-07 05:00:09,885 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 76934418315573950451581721579970584675397667977882375479495289769384920233460
+2026-02-07 05:00:09,886 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 104924881332315891708749779913985264833665976589780206234524355386448131442479
+2026-02-07 05:00:09,886 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 102636342658550433191994071956005211640694853481364445581659515927701741784555
+2026-02-07 05:00:09,887 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 110221372781369858798975836832005690295388920633136252062594398191102929290787
+2026-02-07 05:00:09,887 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 45815206745036947072276568131423482658845791684072694258034984518645681053331
+2026-02-07 05:00:09,888 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 24633011797582044961914086222464315946450054022760053136046416904832268160067
+2026-02-07 05:00:09,888 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 57577428647304701142335751591092611791218792048179400006907778462469086565552
+2026-02-07 05:00:09,888 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 89933700985802070830989764490153525427949678032871806972141098549280441968658
+2026-02-07 05:00:09,889 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 33147094010844533332978634212158510745669433126932103822365719339227754445280
+2026-02-07 05:00:09,889 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 2071869626030069331262523110133100656057662144679394666759118178160616366528
+2026-02-07 05:00:09,889 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 14574714577305379034148021427205099716103216033347029180212678129857744066077
+2026-02-07 05:00:09,890 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 11504166344356357301832362763910704884412060793080194001929079153137980434248
+2026-02-07 05:00:09,890 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 29964262295822150388122145485538186378541085189196276923451033996947030298322
+2026-02-07 05:00:09,891 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 20052721194302619294903576085782453837880600537017629928692002646203341860985
+2026-02-07 05:00:09,891 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 64108169313696229111449467667623938097746149527955695267797538506747473846368
+2026-02-07 05:00:09,891 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 43612412332003504203748048076116719289328571643315164129829188934173575955086
+2026-02-07 05:00:09,892 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 53748415963304278898492472207324978404328884297470049179158374754611133510289
+2026-02-07 05:00:09,892 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 75900620249471425696900133032075209175317114822160888991715334517160753695559
+2026-02-07 05:00:09,893 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 41176011822866211526331296223795012111542068736588558835841257988978670630979
+2026-02-07 05:00:09,893 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 64141243045079364243337150943335853200535056280589013247663317689482853573098
+2026-02-07 05:00:09,894 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 51315495750750567857932001603993434088915208272248994781980670000735065651928
+2026-02-07 05:00:09,894 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 82088136277227151764338118429004279569933999163146725228724163575335975347588
+2026-02-07 05:00:09,894 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 86475170726575632879649163897351152250607429680907574007023203071763906962626
+2026-02-07 05:00:09,895 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 98749016886366964961681793482545161448989742733658711611576129949580938456880
+2026-02-07 05:00:09,895 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 114976226338875702901945959637963654631273651984314378853053004902478685052092
+2026-02-07 05:00:09,896 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 19360577883723313285259083443490044978402619427103497176125851879168395591198
+2026-02-07 05:00:09,896 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 57448555409204101459523001162373639229560699711501876771489482665344886180772
+2026-02-07 05:00:09,896 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 93841003162932035354368526033043682246361672346763823900195101261928542733908
+2026-02-07 05:00:09,897 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 52861197486471625481771647255409537797681375441305848650787386954115987765301
+2026-02-07 05:00:09,897 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 18329968490137707022740137799675070492682597084469142894556393076382966335836
+2026-02-07 05:00:09,898 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 93517664594758092313952532922036857333460589044008637461769681602449436412266
+2026-02-07 05:00:09,898 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 114913238809560114885145829944510415373911832930798171707774660025369122477688
+2026-02-07 05:00:09,898 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 80491927910373352112377632079646353928657790664820735429936953651952592840490
+2026-02-07 05:00:09,899 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 45134597450572508511812533407343764666116337151043632998206895723927513871296
+2026-02-07 05:00:09,899 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 60127798325133499777623215336612460387049242789376566151719276440726455247008
+2026-02-07 05:00:09,899 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 3457632345945742116084267168740820548922840039450182273935342827668239298086
+2026-02-07 05:00:09,900 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 96741623881452068431661431000384986424687337039948436963732355584998658598880
+2026-02-07 05:00:09,900 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 109172119348962143758541166263881883160414589819466105809636284716426582548539
+2026-02-07 05:00:09,900 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 68658964247682286985476355665387396723327156085466635468353578386980675397080
+2026-02-07 05:00:09,901 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 4674160231874804561613975143174660728466147379445523474649645735696133742658
+2026-02-07 05:00:09,901 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 82147558287649062970153844461590179945290387500105652433996082904375990417238
+2026-02-07 05:00:09,901 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 33685887434564966114072817200183456753103244065420097692350432620097534892319
+2026-02-07 05:00:09,902 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 17067237180344093116079882823654696424141944353096046432571183506233276178195
+2026-02-07 05:00:09,902 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 65578897889673626004460817535161402298527602844377586899371536346231585154123
+2026-02-07 05:00:09,904 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 38004107332520872761948544918671408474813745567068085476381270024461140016040
+2026-02-07 05:00:09,904 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 35733976495514380195534333383547217095137780958966656831382089089355084839198
+2026-02-07 05:00:09,905 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 89297646729143186813088211317222267107844137708387164416788707167447833021890
+2026-02-07 05:00:09,905 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 77616250122515342024291212123070593809888806984504805553309220477398351837052
+2026-02-07 05:00:09,906 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 109500248498201625735037633495978916397034826902869244539395190675107163989667
+2026-02-07 05:00:09,906 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 49504040386469423908774436358894141575473290821607686815564355073734747167100
+2026-02-07 05:00:09,907 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 81324243040466053527983715244168451119905783679289096055904339686764431771192
+2026-02-07 05:00:09,907 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 69805959553710901603069575477389014051105774283916985387747017549077971626966
+2026-02-07 05:00:09,913 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 35814546490520206898852789396536141678021135950589751820523657110778351407180
+2026-02-07 05:00:09,913 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 112717682943311503280382570873137346446268523197050804723254788198417938084946
+2026-02-07 05:00:09,913 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 33040342297874587659986085489070832463402746515277053407907698776325814170492
+2026-02-07 05:00:09,913 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 83314197667665017437204577529861632455941273867289340896521195270984567512603
+2026-02-07 05:00:09,913 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 51247429661913841505167555763714865956796244224430859118558105550106947362368
+2026-02-07 05:00:09,913 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 66564452048722004940425107633583877865491910602699950650222974501528639340062
+2026-02-07 05:00:09,914 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 51318242776201759976524422948067837119436000795233200474474702750886446277160
+2026-02-07 05:00:09,914 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 10706009124344914622362535928424788818711364025145809789875314061827580647999
+2026-02-07 05:00:09,914 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 19315162066300986424080661259912799274007360715759730099917093588553029291348
+2026-02-07 05:00:09,914 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 18272482572639512357876689373281458860079765728925477892054110350827565638681
+2026-02-07 05:00:09,914 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 13406482738962967667882798652465599012668526823314892897505740069270765682520
+2026-02-07 05:00:09,914 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 50452791241736446481170955942582300670288540938827239360573963400722646472252
+2026-02-07 05:00:09,914 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 108688769097678292580800005484997268176236195352309309746792330911387731256888
+2026-02-07 05:00:09,914 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 32251832774995763363544524370294724915425242050781437343849841973071800396372
+2026-02-07 05:00:09,914 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 14830044435801834677618478694258622104634510273945854750729090423517522513799
+2026-02-07 05:00:09,914 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 18423735334266694075475392476173353606784023588754335082377365864328668630059
+2026-02-07 05:00:09,914 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 9340376271600538485446175288518046129242462819622908614824609786411318454830
+2026-02-07 05:00:09,915 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 92969743436660666246827575294463901701282996705731098437660668217885178044472
+2026-02-07 05:00:09,915 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 42362335043778070185048870977103774264530806729321672479343507181445489775814
+2026-02-07 05:00:09,915 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 60972120385937719212985855687640954190156406999891326568824714009364123105341
+2026-02-07 05:00:09,915 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 2416236171476041337869914234349470200869556881892173743495856651402545524689
+2026-02-07 05:00:09,915 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 11279251339224585536299349028205458680424812357929329388422791539045325597409
+2026-02-07 05:00:09,915 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 55995919738418225886190843487636906123632359086651749015114119124164300838695
+2026-02-07 05:00:09,915 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 30477901964934496823134483862086675051226846940372189965560116545699785077443
+2026-02-07 05:00:09,916 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 99726510583616329291735327495793288843894903560936730528341323774959714913469
+2026-02-07 05:00:09,916 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 101311088028897483150006839025035348244695392421565260679291098043793847723304
+2026-02-07 05:00:09,916 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 30541822993045925255580341701154048396017853282876907353774162251519275035937
+2026-02-07 05:00:09,916 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 42410218343134761660740026963138280796855676069303245896949356652000493099604
+2026-02-07 05:00:09,916 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 90493416099574121551597562584934493668767262546979704459779425246070217556268
+2026-02-07 05:00:09,916 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 28833900239172231076564972943978689040999859056646231013284672381117225160899
+2026-02-07 05:00:09,916 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 15450563763702502183355306540065346041881338096261293263976005897387201539642
+2026-02-07 05:00:09,916 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 74840822420079660445700603632458634953228293608695214256228068760408441038513
+2026-02-07 05:00:09,916 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 107373552233966344558132307836929574656755561891182266736506363690041342541614
+2026-02-07 05:00:09,917 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 106617859932600955925713602096266154376971056178135054390317161399601567209542
+2026-02-07 05:00:09,917 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 26416464191421330585241039702185623675187046023167485551979489044666924600590
+2026-02-07 05:00:09,917 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 58475719686258763612059537636561571204578907470647656604169069607886488698286
+2026-02-07 05:00:09,917 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 96837333226418635826097220797179896260894055050747739050802738448574692907636
+2026-02-07 05:00:09,917 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 36519217669400383619147770368050803636934893416191923670181795367268209983937
+2026-02-07 05:00:09,917 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 31015227696227721554932110733503635076468898388946469806409610143916822176708
+2026-02-07 05:00:09,917 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 57529217019230987668344635013818657097138404617886561356332019784810177696328
+2026-02-07 05:00:09,917 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 67148520795921318446349923737454477221550561993184371592798516163622898805484
+2026-02-07 05:00:09,917 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 86307252155330480126707006714722698079818082306781295371000618195065059419848
+2026-02-07 05:00:09,917 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 20208152522169153347075944255696873262993797152388836071038513655727267034130
+2026-02-07 05:00:09,917 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 64460944380861023236723225325789001731560711867276687149528386234645168841864
+2026-02-07 05:00:09,918 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 81914581859369021075798717411088901466827495006506144420241125120823724623162
+2026-02-07 05:00:09,918 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 68219442501392630014378700454752614505530493869458295958700141501020422789794
+2026-02-07 05:00:09,918 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 92158160294091506359738086010069991867791535583704678034171214061684767470884
+2026-02-07 05:00:09,918 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 54205942848191216124381565241948588584619687656959427280332278136992683078281
+2026-02-07 05:00:09,918 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 108483996173557810787018033563859464877441684358886269296929072048457248741226
+2026-02-07 05:00:09,918 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 19917924668726578941683002985001638183280657448496041954838942366281896363641
+2026-02-07 05:00:09,918 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 1530295885138135064955453261729510908805020190344499508717836064968222772851
+2026-02-07 05:00:09,918 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 32699557786723653882574358411009560879805517552799342923009575718283130978348
+2026-02-07 05:00:09,918 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 33630548383888453039467372119278122237969765642949642661814704040606593270351
+2026-02-07 05:00:09,918 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 1869169406914561937305347055999154588503261418317990188201391621467897983758
+2026-02-07 05:00:09,918 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 246643939640725324281400310943768515738334779188246828746429430582324909276
+2026-02-07 05:00:09,919 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 48728808932948220671556034011600064854029677784650460006671448106128364526687
+2026-02-07 05:00:09,919 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 45256732114590035597536245244913680599338825903109191202901841403043490443452
+2026-02-07 05:00:09,919 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 67590011776514871233712565559145604940187596460568193713287898140597913356728
+2026-02-07 05:00:09,919 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 16562061121507562297844043229616259429696867168834910344238987891228334469515
+2026-02-07 05:00:09,919 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 51056932528194464554269593803155302417147219530876807504201124967622884322783
+2026-02-07 05:00:09,919 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 16770246159475948742303133639393101936101070997568567747023012747262706493001
+2026-02-07 05:00:09,919 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 27200294122703686140523169734934182038830378491261181229493173569842153399580
+2026-02-07 05:00:09,919 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 29758750029751696016050152840612713580469668260794421956483649228371068512612
+2026-02-07 05:00:09,919 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 38198099613312718113578984140399843545614441968814854595977695093544562510882
+2026-02-07 05:00:09,919 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 36074460358221959283473033575665395027528546731342421061429976073869540734391
+2026-02-07 05:00:09,920 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 18277695560462942958099899091584877076404476900837586858820147110247301548485
+2026-02-07 05:00:09,920 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 27828552139490259067082900677345829849470095159308339116922870097345092583563
+2026-02-07 05:00:09,920 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 6947886350774756502528964747065711016287071994006435066781894678790499108913
+2026-02-07 05:00:09,920 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 97286296161362726893448802672768059374966496857626810788799602762032658164365
+2026-02-07 05:00:09,920 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 13254827947558139695798556818091958918605773895771504001616935401818451352728
+2026-02-07 05:00:09,920 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 41781109298635229906445209961843719955874645311324781470134929677048035352920
+2026-02-07 05:00:09,920 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 58902462410018657250222198294182648973506597429769138083609504246446571273902
+2026-02-07 05:00:09,926 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 64465210523942236376500441110145418226435397356028959230647226623905243284653
+2026-02-07 05:00:09,926 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 10775385077437768992507413760586601773022809479658952556668828501343863535086
+2026-02-07 05:00:09,926 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 99277405287888451408877103885604338342494061716560475348473917394159309774599
+2026-02-07 05:00:09,926 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 53308059710086323874660037531500493607877309186888022498572645584186599045713
+2026-02-07 05:00:09,926 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 83717079203198971580232605650440746218944499784878722793722390379284802854569
+2026-02-07 05:00:09,927 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 5414783432381212104798312853940902394350942929004200739369410159248876326294
+2026-02-07 05:00:09,927 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 73952830484995541872256174600328911206889280911426598392117892013005424602579
+2026-02-07 05:00:09,927 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 109567001810700300589814563044594518547600301620660353012951270886643227469382
+2026-02-07 05:00:09,927 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 62818703312820729103212804092994524880195774006133941847174871838325205835188
+2026-02-07 05:00:09,927 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 78732625754476084586291627437257290369909360953852191887601980981585739532330
+2026-02-07 05:00:09,927 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 16331927871116047612546358449191608600317763748992256566078186490670276685163
+2026-02-07 05:00:09,927 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 33981954618551222743131449788710677222559056807924055357317845587314769493092
+2026-02-07 05:00:09,927 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 806927652384224996365895801388682155942358168379374337249495370339083570926
+2026-02-07 05:00:09,927 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 42076851220641620282059630854577666177729004999887265687935955458275502533362
+2026-02-07 05:00:09,928 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 77786852837481810911787752889689667851139635604501013417306409559611021869832
+2026-02-07 05:00:09,928 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 94998123425399301583646431204758642555395860882424264696816043430241466418096
+2026-02-07 05:00:09,928 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 52152384213061754421732748612260617522788635931268513065263897941274190831305
+2026-02-07 05:00:09,928 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 78572114048127547921064387312157329241400278034620858104051067950125068636969
+2026-02-07 05:00:09,928 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 48870861012855871607599549185958570941025829470014774846607208125835781112347
+2026-02-07 05:00:09,928 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 28149458592268876865348965690329874908774416133115349861024777797987576603394
+2026-02-07 05:00:09,928 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 2385530439600156056310418136926470525759732685514808383302566616934363300283
+2026-02-07 05:00:09,928 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 59067849655362864129246435217648634538113929674180836215025722231642387028653
+2026-02-07 05:00:09,929 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 52124289028534150696992856994236442073338098029749294680070091926586593258384
+2026-02-07 05:00:09,929 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 66102038605831310389404947371152864222733782453052231057451617865534584971869
+2026-02-07 05:00:09,929 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 6293681959172718364131348996666872839137146752750719177008431950924493628526
+2026-02-07 05:00:09,930 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 83657223927920601560287769531209874583857331116849625033968242665030363693020
+2026-02-07 05:00:09,930 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 103007778663877862166834239329494927319390518207910412441555487219504317861953
+2026-02-07 05:00:09,930 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 18588757118843797133536994306795428677177972803269733007521907699697699153056
+2026-02-07 05:00:09,930 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 104113555432230264266192977340401550061895952124928293560689080363786351577473
+2026-02-07 05:00:09,931 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 19355352164896451215130369969742256249097747806069232263215012727720506604721
+2026-02-07 05:00:09,932 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 89034880126226073940362132298638741095929221956663190117029514454157734335238
+2026-02-07 05:00:09,933 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 54672687636134758020334166854100657615019180169670928418237350028722803677582
+2026-02-07 05:00:09,933 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 24713668630765757890790479582781820075824949580708358821144154153749268041375
+2026-02-07 05:00:09,934 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 57570120007570659354798108822980757719824765489047566546867894377119371656700
+2026-02-07 05:00:09,935 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 44333360018858895824039046159621309176137811225790650654043272098914100211128
+2026-02-07 05:00:09,936 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 23952759183120664313773204994051844558439497138461680303044455220033032259977
+2026-02-07 05:00:09,936 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 26931321900399171039220309805217584503999551980805413668292177345927775317613
+2026-02-07 05:00:09,936 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 73761326660152547752931183998408649438561547287878037092325207673221836844349
+2026-02-07 05:00:09,937 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 23487799279314140316881545943038110138707869126617562712009687017442612465835
+2026-02-07 05:00:09,937 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 88457596764802545440170492369328494381309338432878749623124528368967992223507
+2026-02-07 05:00:09,938 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 91956347310434108250305460582521466567536578008979317279073596763621984632464
+2026-02-07 05:00:09,938 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 43663136434673646893579677006354467702914331654745643327193831664541589897899
+2026-02-07 05:00:09,938 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 85088235192557943174402752914269886081517621279313920793113139923857376831133
+2026-02-07 05:00:09,939 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 95592131671565767037854052108885904365292211331118973296719242953887532781910
+2026-02-07 05:00:09,939 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 100175777057238379620441415468793322151938456302325174107110893817722789054237
+2026-02-07 05:00:09,939 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 683214936326772673559427272251689992762814875640688433243760061050710304584
+2026-02-07 05:00:09,940 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 89853545508815769449927269100576912200738480265299853812308995866903182254062
+2026-02-07 05:00:09,941 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 41959817118250520575212740067512470625873852795513105809653331368003867707549
+2026-02-07 05:00:09,942 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 82430295840995958842960750179587067312977666599152496295343615155261869189268
+2026-02-07 05:00:09,942 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 58023483964295397004503901234881799231543462176990479269261653023038885412449
+2026-02-07 05:00:09,942 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 33402623887713499464637381593495383528874963126704601554073373188920614128317
+2026-02-07 05:00:09,942 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 6472001121218850168895798511284874723488670458480041852392361298343709954989
+2026-02-07 05:00:09,943 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 17766549263656126902064436408528465935588388534888949680605683206533504598634
+2026-02-07 05:00:09,943 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 49090530941735463664381065014553724531598436444292909482235136723179042058986
+2026-02-07 05:00:09,943 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 105953602931176330634945189470603815398578926675344274530308318869106796109516
+2026-02-07 05:00:09,944 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 6255320452641422941621038128789524651465940317202804204135955636591062446985
+2026-02-07 05:00:09,944 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 456912726759751404312540129377889361728430346681406209896243370436171728735
+2026-02-07 05:00:09,945 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 112826983475451701429917439458812959427469688442650571834420748746636563951968
+2026-02-07 05:00:09,945 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 81359788606288212110123578395849104877368949177852999736060213520953326623635
+2026-02-07 05:00:09,945 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 98558067067508682741063569911297744180950340635896792763655268317329313169571
+2026-02-07 05:00:09,947 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 5786539617104946442005732097256982988639914450746718098965305791833207391933
+2026-02-07 05:00:09,947 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 88278156213290133002226233968056495027404581669884226081032897447342444307688
+2026-02-07 05:00:09,948 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 63859017361017380034168097904844899789093156132354452700780464339462445199934
+2026-02-07 05:00:09,948 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 12216008272459034343527670918889556537582181019487901591587576311887828823830
+2026-02-07 05:00:09,948 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 114039301422151187258567989067113675946739170603482826528429663893627489372707
+2026-02-07 05:00:09,949 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 24603882521977113142817411812657428276596251827921338045384454429996753992346
+2026-02-07 05:00:09,949 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 103085961432316343375167975545622007972337711811077894427382536320151718812223
+2026-02-07 05:00:09,949 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 79096033469215479210197414129938554026610861181690066746824020407074053763965
+2026-02-07 05:00:09,950 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 25428144832785371262262742459558090480108888702258907900289924257177228945024
+2026-02-07 05:00:09,951 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 64230902965160198181929108419091182564221161566375653212914176668345553830504
+2026-02-07 05:00:09,951 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 83519242748820729649012278499411084600746053438923975829851380202713901291531
+2026-02-07 05:00:09,951 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 63153567217726850111099887831232160025472429842464489404525223698753815806544
+2026-02-07 05:00:09,951 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 69871408555855423109329959565387686305777433444928006147847192599899378539387
+2026-02-07 05:00:09,951 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 57226909639432176334134041491681597334226466946937204009192184727642253345269
+2026-02-07 05:00:09,951 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 104907604602525800356519982746054168111665943734128216854896329730652356433711
+2026-02-07 05:00:09,951 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 105909740451238367345937594094062608037999217939861729360961788629746084020660
+2026-02-07 05:00:09,952 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 42251052525716848585799108580743135314863168233837071493020205352418578707118
+2026-02-07 05:00:09,952 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 89334771349821530201381157715196310136355191676922291739127690373331480916958
+2026-02-07 05:00:09,952 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 86464597214760196436920538951774904067171099243233128068848569782142862121226
+2026-02-07 05:00:09,953 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 49394111221574819127605822734308046521237022492435507132759780153627075816912
+2026-02-07 05:00:09,953 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 40666901406999307951777270236432698444660125359067626988790505769680288072681
+2026-02-07 05:00:09,953 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 63212573398780713275195602479185599231234159291951613688624095099872414424462
+2026-02-07 05:00:09,953 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 94990809632301802035644947624170279684029313839595888784447628718776818384501
+2026-02-07 05:00:09,953 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 32836607289498385534232393424286324638542843608044043704686313267456786671273
+2026-02-07 05:00:09,953 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 47497027375408641491123176271646074191754160274694355520331037873361724823646
+2026-02-07 05:00:09,953 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 3443172670151497815139902043483524845538143450797732932424619870656102470540
+2026-02-07 05:00:09,954 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 19570244374713662780168760009819472164861698106866428313480829273443039606414
+2026-02-07 05:00:09,954 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 92656551878176377093369881714140821364467089999677992811904589829810734748809
+2026-02-07 05:00:09,954 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 110937647658145626163244322868382303745422426884991401935386845997921723846104
+2026-02-07 05:00:09,954 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 7594053332792132426100961551485318047874125830407310153873647432161127815193
+2026-02-07 05:00:09,954 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 86672950352732648054946944920995641753037970401155347550692236494086459710193
+2026-02-07 05:00:09,955 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 7632819195111888471550235362701346886981799877853496237182537534437497396466
+2026-02-07 05:00:09,955 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 75661462832127801996225654011676331136134833172698064019163103156652099018306
+2026-02-07 05:00:09,955 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 44579469332903975695692057350644055669100030611864052050610369640745603966781
+2026-02-07 05:00:09,956 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 67964618638935944601757074979926313011601384633493436077437462201218305613339
+2026-02-07 05:00:09,956 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 35529119879071557882914716746304446900195693129431161693679189824177163224862
+2026-02-07 05:00:09,956 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 105134949557846638546517321383623687897379291612978829189268057156328717801424
+2026-02-07 05:00:09,956 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 7394748216757971306167769025661671798170416481719396938388389998753833004413
+2026-02-07 05:00:09,956 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 50845609828816027579531229496801692152002294902015543673051271355313144842310
+2026-02-07 05:00:09,957 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 76714272761467455106904335251858583044975598090073484500449107806126136124180
+2026-02-07 05:00:09,957 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 62826707179424728366355860282998415903574461321238314323943651595502654832110
+2026-02-07 05:00:09,957 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 5566253698371585581618221312708043247813882884807145129732304321182862862292
+2026-02-07 05:00:09,959 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 22343315009218591557083630598602740994046128817874703637703391113136700923239
+2026-02-07 05:00:09,960 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 8067391329483645524483069777673207356650433272108172193021097103888553863724
+2026-02-07 05:00:09,961 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 23475761349668138960876152652103947202671912759729225548734027310270156635335
+2026-02-07 05:00:09,969 [WARNING] poly24h.strategy.orderbook_scanner: CLOB API returned 429 for token 98403671062952657132268061411499199341436486861168316357536781306103024184075
