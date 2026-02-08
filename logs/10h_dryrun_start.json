@@ -1,0 +1,23 @@
+{
+  "start_time": "2026-02-07T23:54:00Z",
+  "end_time": "2026-02-08T23:54:00Z",
+  "duration": "24h",
+  "mode": "hybrid",
+  "config": {
+    "crypto": {
+      "strategy": "paired_entry",
+      "threshold": 0.94,
+      "allocation": "60%"
+    },
+    "nba": {
+      "strategy": "sniper",
+      "threshold": 0.48,
+      "allocation": "40%"
+    },
+    "portfolio": {
+      "max_per_market": 100,
+      "daily_loss_limit": 200
+    }
+  },
+  "pids": [3587206, 3583450]
+}

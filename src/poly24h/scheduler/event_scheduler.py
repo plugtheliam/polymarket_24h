@@ -50,6 +50,7 @@ from poly24h.scheduler.hybrid_strategy import (
     HybridStrategy,
     StrategyType,
 )
+from poly24h.position_manager import PositionManager
 from poly24h.portfolio.hybrid_portfolio import HybridPortfolio
 from poly24h.websocket.price_cache import PriceCache
 
@@ -380,6 +381,12 @@ class EventDrivenLoop:
             daily_loss_limit=Decimal("200"),
         )
         self._hybrid_mode_enabled: bool = True  # Toggle for hybrid mode
+        
+        # F-018: Position Manager for realistic dry-run (one position per market)
+        self._position_manager: PositionManager = PositionManager(
+            bankroll=1000.0,  # Starting capital
+            max_per_market=100.0,  # Max $100 per market
+        )
 
     async def run(self, config) -> None:
         """Async main loop that orchestrates the full cycle."""
@@ -854,17 +861,51 @@ class EventDrivenLoop:
     def _record_paper_trade(
         self, opp: SniperOpportunity, market: Market | None,
     ) -> dict:
-        """F-019: Record a paper trade for P&L tracking."""
+        """F-019: Record a paper trade for P&L tracking.
+        
+        F-018 enhancement: Uses PositionManager for realistic position limits.
+        - Only one position per market allowed
+        - Bankroll and max_per_market limits enforced
+        """
+        market_id = market.id if market else ""
+        
+        # F-018: Check if we can enter this market (one position per market)
+        if market_id and not self._position_manager.can_enter(market_id):
+            logger.debug(
+                "SKIP: Already have position in %s",
+                market.question[:40] if market else "Unknown",
+            )
+            return {}  # Empty dict signals skipped trade
+        
+        # Enter position via PositionManager
+        if market_id and market:
+            position = self._position_manager.enter_position(
+                market_id=market_id,
+                market_question=market.question,
+                side=opp.trigger_side,
+                price=opp.trigger_price,
+                end_date=market.end_date.isoformat() if market.end_date else "",
+            )
+            if position:
+                paper_size = position.size_usd
+                paper_shares = position.shares
+            else:
+                return {}  # Failed to enter (shouldn't happen if can_enter passed)
+        else:
+            # Fallback for unknown markets (legacy behavior)
+            paper_size = 10.0
+            paper_shares = 10.0 / opp.trigger_price if opp.trigger_price > 0 else 0
+        
         trade = {
             "side": opp.trigger_side,
             "price": opp.trigger_price,
             "spread": opp.spread,
             "market_question": market.question if market else "Unknown",
             "market_source": market.source.value if market else "unknown",
-            "market_id": market.id if market else "",
+            "market_id": market_id,
             "timestamp": opp.timestamp.isoformat(),
-            "paper_size_usd": 10.0,  # Fixed $10 paper bet per signal
-            "paper_shares": 10.0 / opp.trigger_price if opp.trigger_price > 0 else 0,
+            "paper_size_usd": paper_size,
+            "paper_shares": paper_shares,
             "status": "open",  # Will become "settled" when market resolves
         }
         self._paper_trades.append(trade)

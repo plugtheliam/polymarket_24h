@@ -823,14 +823,17 @@ def test_event_driven_loop_record_paper_trade():
 
     assert trade["side"] == "YES"
     assert trade["price"] == 0.40
-    assert trade["paper_size_usd"] == 10.0
-    assert trade["paper_shares"] == 25.0  # $10 / $0.40
+    # F-018: Now uses PositionManager with max_per_market=$100 (was $10 fixed)
+    assert trade["paper_size_usd"] == 100.0
+    # F-018: Now uses max_per_market=$100, so shares = $100 / $0.40 = 250
+    assert trade["paper_shares"] == 250.0
     assert trade["market_question"] == "Will BTC go up?"
     assert trade["status"] == "open"
 
     summary = loop.get_paper_trading_summary()
     assert summary["total_trades"] == 1
-    assert summary["total_invested"] == 10.0
+    # F-018: Now uses max_per_market=$100
+    assert summary["total_invested"] == 100.0
 
 
 def test_event_driven_loop_find_market_for_opp():
