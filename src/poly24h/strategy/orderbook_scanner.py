@@ -93,64 +93,89 @@ class ClobOrderbookFetcher:
         no_summary = await self._fetch_orderbook_summary(no_token)
         return yes_summary, no_summary
 
+    # Retry config for 429 errors
+    MAX_RETRIES = 3
+    BACKOFF_BASE = 0.5  # seconds
+
     async def _fetch_single_best_ask(self, token_id: str) -> float | None:
-        """단일 토큰의 best ask 가격 조회. 실패 시 None."""
-        try:
-            session = await self._ensure_session()
-            async with session.get(
-                CLOB_BOOK_URL, params={"token_id": token_id},
-            ) as resp:
-                if resp.status != 200:
-                    logger.warning(
-                        "CLOB API returned %d for token %s", resp.status, token_id,
-                    )
-                    return None
-                data = await resp.json()
-                asks = data.get("asks", [])
-                if not asks:
-                    return None
-                # asks may not be sorted — find min
-                return min(float(a["price"]) for a in asks)
-        except Exception as exc:
-            logger.warning("CLOB fetch error for token %s: %s", token_id, exc)
-            return None
+        """단일 토큰의 best ask 가격 조회. 429시 지수 백오프 재시도. 실패 시 None."""
+        for attempt in range(1, self.MAX_RETRIES + 1):
+            try:
+                session = await self._ensure_session()
+                async with session.get(
+                    CLOB_BOOK_URL, params={"token_id": token_id},
+                ) as resp:
+                    if resp.status == 429:
+                        wait = self.BACKOFF_BASE * (2 ** (attempt - 1))
+                        logger.warning(
+                            "CLOB API 429 for token %s (attempt %d/%d), backing off %.1fs",
+                            token_id, attempt, self.MAX_RETRIES, wait,
+                        )
+                        await asyncio.sleep(wait)
+                        continue
+                    if resp.status != 200:
+                        logger.warning(
+                            "CLOB API returned %d for token %s", resp.status, token_id,
+                        )
+                        return None
+                    data = await resp.json()
+                    asks = data.get("asks", [])
+                    if not asks:
+                        return None
+                    # asks may not be sorted — find min
+                    return min(float(a["price"]) for a in asks)
+            except Exception as exc:
+                logger.warning("CLOB fetch error for token %s: %s", token_id, exc)
+                return None
+        logger.warning("CLOB API exhausted retries for token %s", token_id)
+        return None
 
     async def _fetch_orderbook_summary(self, token_id: str) -> OrderbookSummary:
-        """단일 토큰의 오더북 요약 조회."""
-        try:
-            session = await self._ensure_session()
-            async with session.get(
-                CLOB_BOOK_URL, params={"token_id": token_id},
-            ) as resp:
-                if resp.status != 200:
-                    return OrderbookSummary()
-                data = await resp.json()
-                asks = data.get("asks", [])
-                if not asks:
-                    return OrderbookSummary()
+        """단일 토큰의 오더북 요약 조회. 429시 지수 백오프."""
+        for attempt in range(1, self.MAX_RETRIES + 1):
+            try:
+                session = await self._ensure_session()
+                async with session.get(
+                    CLOB_BOOK_URL, params={"token_id": token_id},
+                ) as resp:
+                    if resp.status == 429:
+                        wait = self.BACKOFF_BASE * (2 ** (attempt - 1))
+                        logger.warning(
+                            "CLOB API 429 for summary %s (attempt %d/%d), backing off %.1fs",
+                            token_id, attempt, self.MAX_RETRIES, wait,
+                        )
+                        await asyncio.sleep(wait)
+                        continue
+                    if resp.status != 200:
+                        return OrderbookSummary()
+                    data = await resp.json()
+                    asks = data.get("asks", [])
+                    if not asks:
+                        return OrderbookSummary()
 
-                # Parse all ask levels
-                levels = []
-                for a in asks:
-                    price = float(a["price"])
-                    size = float(a.get("size", 0))
-                    levels.append(OrderbookLevel(price=price, size=size))
+                    # Parse all ask levels
+                    levels = []
+                    for a in asks:
+                        price = float(a["price"])
+                        size = float(a.get("size", 0))
+                        levels.append(OrderbookLevel(price=price, size=size))
 
-                # Sort by price ascending (best ask first)
-                levels.sort(key=lambda lv: lv.price)
+                    # Sort by price ascending (best ask first)
+                    levels.sort(key=lambda lv: lv.price)
 
-                best = levels[0]
-                total_depth = sum(lv.value_usd for lv in levels)
+                    best = levels[0]
+                    total_depth = sum(lv.value_usd for lv in levels)
 
-                return OrderbookSummary(
-                    best_ask=best.price,
-                    best_ask_size=best.size,
-                    total_ask_depth_usd=total_depth,
-                    ask_levels=len(levels),
-                )
-        except Exception as exc:
-            logger.warning("CLOB fetch error for token %s: %s", token_id, exc)
-            return OrderbookSummary()
+                    return OrderbookSummary(
+                        best_ask=best.price,
+                        best_ask_size=best.size,
+                        total_ask_depth_usd=total_depth,
+                        ask_levels=len(levels),
+                    )
+            except Exception as exc:
+                logger.warning("CLOB fetch error for token %s: %s", token_id, exc)
+                return OrderbookSummary()
+        return OrderbookSummary()
 
     async def close(self) -> None:
         """Close owned aiohttp session."""

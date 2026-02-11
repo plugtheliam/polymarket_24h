@@ -111,14 +111,44 @@ class PaperSettlementTracker:
         self._cumulative_pnl: float = 0.0
         self._wins: int = 0
         self._losses: int = 0
+        self._recorded_market_ids: set[str] = set()  # Dedup: prevent duplicate JSONL writes
 
     def _get_file_path(self, date: datetime | None = None) -> Path:
         if date is None:
             date = datetime.now(tz=timezone.utc)
         return self.data_dir / f"{date.strftime('%Y-%m-%d')}.jsonl"
 
+    def _load_recorded_ids(self, date: datetime | None = None) -> None:
+        """Load already-recorded market IDs from today's file for dedup."""
+        if self._recorded_market_ids:
+            return  # Already loaded
+        file_path = self._get_file_path(date)
+        if not file_path.exists():
+            return
+        try:
+            with open(file_path) as f:
+                for line in f:
+                    line = line.strip()
+                    if line:
+                        data = json.loads(line)
+                        mid = data.get("market_id", "")
+                        if mid:
+                            self._recorded_market_ids.add(mid)
+        except Exception as e:
+            logger.warning("Failed to load recorded IDs: %s", e)
+
     def record_trade(self, trade: PaperTrade) -> None:
-        """Append a new paper trade to today's file."""
+        """Append a new paper trade to today's file (with dedup)."""
+        # Dedup: skip if already recorded for this market
+        self._load_recorded_ids()
+        if trade.market_id in self._recorded_market_ids:
+            logger.debug(
+                "[PAPER-TRADE] SKIP duplicate: %s already recorded",
+                trade.market_question[:40],
+            )
+            return
+
+        self._recorded_market_ids.add(trade.market_id)
         file_path = self._get_file_path()
         with open(file_path, "a") as f:
             f.write(json.dumps(trade.to_dict()) + "\n")
@@ -217,12 +247,17 @@ class PaperSettlementTracker:
         return pnl
 
     async def check_and_settle(
-        self, date: datetime | None = None
+        self, date: datetime | None = None, grace_minutes: int = 5,
     ) -> SettlementSummary:
         """Check all open trades for settlement.
 
         Iterates through today's trades, queries expired markets,
         updates P&L, and returns summary.
+
+        Args:
+            date: Date to check (default: today).
+            grace_minutes: Wait this many minutes past end_date before querying.
+                Gives Polymarket time to resolve the market.
         """
         now = datetime.now(tz=timezone.utc)
         trades = self.load_trades(date)
@@ -254,7 +289,14 @@ class PaperSettlementTracker:
                 summary.total_open += 1
                 continue
 
-            # Past end_date — try to settle
+            # Grace period: wait a few minutes for market to resolve
+            from datetime import timedelta
+            grace_dt = end_dt + timedelta(minutes=grace_minutes)
+            if now < grace_dt:
+                summary.total_expired += 1
+                continue
+
+            # Past end_date + grace — try to settle
             winner = await self.query_market_result(trade.market_id)
 
             if winner in ("YES", "NO"):

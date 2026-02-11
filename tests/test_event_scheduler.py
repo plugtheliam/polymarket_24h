@@ -804,12 +804,15 @@ def test_event_driven_loop_paper_trading_summary():
 
 def test_event_driven_loop_record_paper_trade():
     """F-019: _record_paper_trade() stores trade with correct fields."""
-    loop = EventDrivenLoop(
-        schedule=MagicMock(),
-        preparer=MagicMock(),
-        poller=MagicMock(),
-        alerter=MagicMock()
-    )
+    from poly24h.position_manager import PositionManager
+    with patch.object(PositionManager, 'load_state'):
+        with patch.object(PositionManager, 'sync_from_paper_trades'):
+            loop = EventDrivenLoop(
+                schedule=MagicMock(),
+                preparer=MagicMock(),
+                poller=MagicMock(),
+                alerter=MagicMock()
+            )
 
     market = _market(question="Will BTC go up?")
     opp = SniperOpportunity(
@@ -856,6 +859,6 @@ def test_event_driven_loop_find_market_for_opp():
         timestamp=datetime.now(tz=timezone.utc)
     )
 
-    found = loop._find_market_for_opp(opp)
+    found = loop._find_market_for_tokens("tok_yes_1", "tok_no_1")
     assert found is not None
     assert found.id == "mkt_1"

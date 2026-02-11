@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from datetime import datetime, timezone
 from typing import Optional
 
 import aiohttp
@@ -11,8 +12,28 @@ import aiohttp
 logger = logging.getLogger(__name__)
 
 GAMMA_API_URL = "https://gamma-api.polymarket.com"
+CLOB_API_URL = "https://clob.polymarket.com"
 DEFAULT_TIMEOUT = 15  # seconds
 DEFAULT_MAX_RETRIES = 3
+
+
+def is_market_active(end_date_str: str | None) -> bool:
+    """Check if market end date is in the future.
+    
+    Args:
+        end_date_str: ISO format datetime string
+        
+    Returns:
+        True if market is still active (end date > now)
+    """
+    if not end_date_str:
+        return False
+    
+    try:
+        end_date = datetime.fromisoformat(end_date_str.replace('Z', '+00:00'))
+        return end_date > datetime.now(tz=timezone.utc)
+    except (ValueError, AttributeError):
+        return False
 
 
 class GammaClient:
@@ -51,6 +72,53 @@ class GammaClient:
 
     async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
         await self.close()
+
+    # ------------------------------------------------------------------
+    # F-022: New methods for direct market lookup and CLOB verification
+    # ------------------------------------------------------------------
+
+    async def get_market_by_id(self, market_id: str) -> dict | None:
+        """GET /markets/{id} — Direct market lookup by ID.
+        
+        Args:
+            market_id: Market ID (e.g., "1326267")
+            
+        Returns:
+            Market data dict or None if not found
+        """
+        url = f"{self.base_url}/markets/{market_id}"
+        return await self._get_dict(url, {})
+
+    async def verify_clob_liquidity(
+        self, 
+        token_id: str, 
+        min_liquidity: float = 10000.0
+    ) -> bool:
+        """Verify market has sufficient liquidity in CLOB orderbook.
+        
+        Args:
+            token_id: CLOB token ID for YES or NO side
+            min_liquidity: Minimum liquidity threshold (default $10k)
+            
+        Returns:
+            True if market has sufficient liquidity
+        """
+        url = f"{CLOB_API_URL}/book"
+        params = {"token_id": token_id}
+        
+        orderbook = await self._get_dict(url, params)
+        if not orderbook:
+            return False
+        
+        asks = orderbook.get("asks", [])
+        bids = orderbook.get("bids", [])
+        
+        # Calculate total liquidity
+        total_ask_size = sum(float(a.get("size", 0)) for a in asks)
+        total_bid_size = sum(float(b.get("size", 0)) for b in bids)
+        total_liquidity = total_ask_size + total_bid_size
+        
+        return total_liquidity >= min_liquidity
 
     # ------------------------------------------------------------------
     # Public API
@@ -129,13 +197,21 @@ class GammaClient:
     # ------------------------------------------------------------------
 
     async def _get_list(self, url: str, params: dict) -> list[dict]:
-        """GET → list. 실패 시 빈 리스트 반환 (크래시 방지)."""
+        """GET → list. 429시 지수 백오프. 실패 시 빈 리스트 반환 (크래시 방지)."""
         for attempt in range(1, self.max_retries + 1):
             try:
                 async with self._session.get(url, params=params) as resp:
                     if resp.status == 200:
                         data = await resp.json()
                         return data if isinstance(data, list) else []
+                    if resp.status == 429:
+                        wait = 1.0 * (2 ** (attempt - 1))
+                        logger.warning(
+                            "API 429 rate limit %s (attempt %d/%d), backing off %.1fs",
+                            url, attempt, self.max_retries, wait,
+                        )
+                        await asyncio.sleep(wait)
+                        continue
                     logger.warning(
                         "Gamma API %s returned %d (attempt %d/%d)",
                         url, resp.status, attempt, self.max_retries,
@@ -153,13 +229,21 @@ class GammaClient:
         return []
 
     async def _get_dict(self, url: str, params: dict) -> Optional[dict]:
-        """GET → dict. 실패 시 None 반환."""
+        """GET → dict. 429시 지수 백오프. 실패 시 None 반환."""
         for attempt in range(1, self.max_retries + 1):
             try:
                 async with self._session.get(url, params=params) as resp:
                     if resp.status == 200:
                         data = await resp.json()
                         return data if isinstance(data, dict) else None
+                    if resp.status == 429:
+                        wait = 1.0 * (2 ** (attempt - 1))
+                        logger.warning(
+                            "API 429 rate limit %s (attempt %d/%d), backing off %.1fs",
+                            url, attempt, self.max_retries, wait,
+                        )
+                        await asyncio.sleep(wait)
+                        continue
                     logger.warning(
                         "Gamma API %s returned %d (attempt %d/%d)",
                         url, resp.status, attempt, self.max_retries,

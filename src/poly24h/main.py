@@ -264,7 +264,8 @@ async def main_loop(config: BotConfig, scanner_config: dict | None = None) -> No
 
         except Exception:
             logger.exception("Error in cycle %d", cycle)
-            await alerter.alert_error(f"Cycle {cycle} error — check logs")
+            # Error alerts disabled for Telegram (user request 2026-02-08)
+            # await alerter.alert_error(f"Cycle {cycle} error — check logs")
 
         # Wait for next cycle or shutdown
         try:
@@ -398,14 +399,13 @@ async def sniper_loop(config: BotConfig, threshold: float = 0.48) -> None:
                         cycle, phase.value, consecutive_errors, MAX_CONSECUTIVE_ERRORS, e
                     )
                     
-                    try:
-                        if alerter.enabled:
-                            await alerter.alert_error(
-                                f"Sniper error in {phase.value} phase ({consecutive_errors}/{MAX_CONSECUTIVE_ERRORS})\n"
-                                f"Error: {str(e)[:100]}"
-                            )
-                    except Exception:
-                        pass  # Don't let alert failure crash us
+                    # Error alerts disabled for Telegram (user request 2026-02-08)
+                    # Log only to local logs, don't spam Telegram
+                    # try:
+                    #     if alerter.enabled:
+                    #         await alerter.alert_error(...)
+                    # except Exception:
+                    #     pass
                     
                     # Exponential backoff on repeated failures
                     if consecutive_errors >= MAX_CONSECUTIVE_ERRORS:
@@ -431,15 +431,12 @@ async def sniper_loop(config: BotConfig, threshold: float = 0.48) -> None:
                 consecutive_errors, e
             )
             
-            try:
-                if alerter.enabled:
-                    await alerter.alert_error(
-                        f"🔴 Fatal error during resource init\n"
-                        f"Error: {str(e)[:100]}\n"
-                        f"Retrying in 60s..."
-                    )
-            except Exception:
-                pass
+            # Fatal error alerts disabled for Telegram (user request 2026-02-08)
+            # try:
+            #     if alerter.enabled:
+            #         await alerter.alert_error(...)
+            # except Exception:
+            #     pass
             
             # Wait before retry
             await asyncio.sleep(60)

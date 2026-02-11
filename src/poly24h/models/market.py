@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 class MarketSource(Enum):
     """마켓 소스 카테고리."""
 
+    UNKNOWN = "unknown"
     HOURLY_CRYPTO = "hourly_crypto"
     NBA = "nba"
     NHL = "nhl"
@@ -38,6 +39,11 @@ class Market:
     end_date: datetime
     event_id: str
     event_title: str
+    
+    # F-022: Verification fields
+    is_verified: bool = False
+    polymarket_url: str = ""
+    slug: str = ""
 
     @property
     def total_cost(self) -> float:
@@ -107,4 +113,5 @@ class Market:
             end_date=end_date,
             event_id=str(event.get("id", "")),
             event_title=event.get("title", ""),
+            slug=raw_mkt.get("slug", ""),
         )

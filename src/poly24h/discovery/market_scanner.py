@@ -22,6 +22,53 @@ from poly24h.models.market import Market, MarketSource
 
 logger = logging.getLogger(__name__)
 
+# F-022: NBA 팀 약자 매핑
+TEAM_ABBREVIATIONS = {
+    "atl": "Atlanta Hawks",
+    "bos": "Boston Celtics",
+    "bkn": "Brooklyn Nets",
+    "cha": "Charlotte Hornets",
+    "chi": "Chicago Bulls",
+    "cle": "Cleveland Cavaliers",
+    "dal": "Dallas Mavericks",
+    "den": "Denver Nuggets",
+    "det": "Detroit Pistons",
+    "gsw": "Golden State Warriors",
+    "hou": "Houston Rockets",
+    "ind": "Indiana Pacers",
+    "lac": "LA Clippers",
+    "lal": "Los Angeles Lakers",
+    "mem": "Memphis Grizzlies",
+    "mia": "Miami Heat",
+    "mil": "Milwaukee Bucks",
+    "min": "Minnesota Timberwolves",
+    "nop": "New Orleans Pelicans",
+    "nyk": "New York Knicks",
+    "okc": "Oklahoma City Thunder",
+    "orl": "Orlando Magic",
+    "phi": "Philadelphia 76ers",
+    "phx": "Phoenix Suns",
+    "por": "Portland Trail Blazers",
+    "sac": "Sacramento Kings",
+    "sas": "San Antonio Spurs",
+    "tor": "Toronto Raptors",
+    "uta": "Utah Jazz",
+    "was": "Washington Wizards",
+}
+
+
+def generate_polymarket_url(slug: str) -> str:
+    """Generate Polymarket URL from market slug.
+    
+    Args:
+        slug: Market slug (e.g., "nba-det-cha-2026-02-09")
+        
+    Returns:
+        Full Polymarket URL
+    """
+    return f"https://polymarket.com/event/{slug}"
+
+
 # 스포츠 개별 경기 slug 패턴: {sport_prefix}-{team1}-{team2}-{date}
 GAME_SLUG_PREFIXES = {
     "nba": MarketSource.NBA,
@@ -38,9 +85,10 @@ GAME_SLUG_PREFIXES = {
     "mls": MarketSource.SOCCER,   # MLS
 }
 
-# slug 패턴: prefix-team1-team2-YYYY-MM-DD
+# slug 패턴: prefix-{teams...}-YYYY-MM-DD
+# Flexible: team segments can contain multiple parts (e.g., "man-utd-chelsea")
 GAME_SLUG_RE = re.compile(
-    r"^(" + "|".join(GAME_SLUG_PREFIXES) + r")-\w+-\w+-\d{4}-\d{2}-\d{2}$"
+    r"^(" + "|".join(GAME_SLUG_PREFIXES) + r")-.+-(\d{4}-\d{2}-\d{2})$"
 )
 
 
@@ -305,3 +353,92 @@ class MarketScanner:
 
         logger.info("Sports [%s]: found %d individual game markets", sport, len(markets))
         return markets
+
+    # ------------------------------------------------------------------
+    # F-022: Direct market lookup with CLOB verification
+    # ------------------------------------------------------------------
+
+    async def discover_and_verify_market(
+        self, 
+        market_id: str,
+        min_liquidity: float = 10000.0,
+    ) -> Market | None:
+        """Direct market lookup with CLOB verification.
+        
+        F-022: Improved NBA market discovery process.
+        1. Lookup market by ID via Gamma API
+        2. Verify market is still active (not expired)
+        3. Verify CLOB orderbook has liquidity
+        4. Return verified Market or None
+        
+        Args:
+            market_id: Gamma market ID (e.g., "1326267")
+            min_liquidity: Minimum CLOB liquidity threshold
+            
+        Returns:
+            Verified Market object or None if invalid/expired/no liquidity
+        """
+        from poly24h.discovery.gamma_client import is_market_active
+        import json
+        
+        # Step 1: Direct market lookup
+        raw_market = await self.client.get_market_by_id(market_id)
+        if not raw_market:
+            logger.debug("Market %s not found in Gamma API", market_id)
+            return None
+        
+        # Step 2: Time validation - check if market is still active
+        end_date = raw_market.get("endDate") or raw_market.get("end_date")
+        if not is_market_active(end_date):
+            logger.debug("Market %s expired (end: %s)", market_id, end_date)
+            return None
+        
+        # Step 3: CLOB liquidity verification
+        clob_token_ids = raw_market.get("clobTokenIds", [])
+        if isinstance(clob_token_ids, str):
+            try:
+                clob_token_ids = json.loads(clob_token_ids)
+            except json.JSONDecodeError:
+                clob_token_ids = []
+        
+        if not clob_token_ids or len(clob_token_ids) < 2:
+            logger.debug("Market %s has no CLOB token IDs", market_id)
+            return None
+        
+        # Check YES side liquidity
+        yes_token = clob_token_ids[0]
+        has_liquidity = await self.client.verify_clob_liquidity(
+            yes_token, min_liquidity
+        )
+        
+        if not has_liquidity:
+            logger.debug("Market %s insufficient CLOB liquidity", market_id)
+            return None
+        
+        # Step 4: Build Market object
+        # Determine source from slug
+        slug = raw_market.get("slug", "")
+        source = MarketSource.UNKNOWN
+        for prefix, src in GAME_SLUG_PREFIXES.items():
+            if slug.startswith(prefix + "-"):
+                source = src
+                break
+        
+        # Create event dict for from_gamma_response
+        event = {
+            "id": raw_market.get("eventId", ""),
+            "title": raw_market.get("question", ""),
+            "slug": slug,
+        }
+        
+        market = Market.from_gamma_response(raw_market, event, source)
+        if market:
+            # Mark as verified
+            market.is_verified = True
+            market.polymarket_url = generate_polymarket_url(slug)
+            logger.info(
+                "Verified market %s: %s (liq: $%.0f)",
+                market_id, market.question, market.liquidity_usd
+            )
+        
+        return market
