@@ -1,0 +1,18 @@
+2026-02-10 03:07:31,328 [INFO] poly24h.position_manager: Loaded state: bankroll=$1000.00, total_invested=$0.00, 0 active positions
+2026-02-10 03:07:31,329 [INFO] poly24h.main: Resources initialized successfully
+2026-02-10 03:07:31,329 [INFO] poly24h.main: === Cycle 1 | Phase: idle | Next open in: 3149s ===
+2026-02-10 03:07:31,329 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 3118s
+2026-02-10 03:12:32,400 [INFO] poly24h.main: === Cycle 2 | Phase: idle | Next open in: 2848s ===
+2026-02-10 03:12:32,400 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 2817s
+2026-02-10 03:17:33,485 [INFO] poly24h.main: === Cycle 3 | Phase: idle | Next open in: 2547s ===
+2026-02-10 03:17:33,485 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 2516s
+2026-02-10 03:22:34,587 [INFO] poly24h.main: === Cycle 4 | Phase: idle | Next open in: 2245s ===
+2026-02-10 03:22:34,587 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 2215s
+2026-02-10 03:27:35,618 [INFO] poly24h.main: === Cycle 5 | Phase: idle | Next open in: 1944s ===
+2026-02-10 03:27:35,619 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1914s
+2026-02-10 03:32:36,720 [INFO] poly24h.main: === Cycle 6 | Phase: idle | Next open in: 1643s ===
+2026-02-10 03:32:36,720 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 1613s
+2026-02-10 05:16:26,656 [INFO] poly24h.position_manager: Loaded state: bankroll=$0.00, total_invested=$810.00, 28 active positions
+2026-02-10 05:16:26,657 [INFO] poly24h.main: Resources initialized successfully
+2026-02-10 05:16:26,657 [INFO] poly24h.main: === Cycle 1 | Phase: idle | Next open in: 2613s ===
+2026-02-10 05:16:26,657 [INFO] poly24h.scheduler.event_scheduler: IDLE: Running background scan, then sleeping 2583s
