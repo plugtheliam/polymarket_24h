@@ -26,6 +26,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from enum import Enum
+from pathlib import Path
 
 import aiohttp
 
@@ -215,6 +216,69 @@ class PreOpenPreparer:
             logger.warning("Failed to warm CLOB connection for %s: %s", token_id, exc)
             return False
 
+    # ------------------------------------------------------------------
+    # F-022: Direct market verification for NBA and specific markets
+    # ------------------------------------------------------------------
+
+    async def discover_and_verify_market_by_id(
+        self,
+        market_id: str,
+        min_liquidity: float = 10000.0,
+    ) -> Market | None:
+        """F-022: Direct market lookup with CLOB verification.
+
+        1. Lookup market by ID via Gamma API
+        2. Verify market is still active (not expired)
+        3. Verify CLOB orderbook has liquidity
+        4. Return verified Market or None
+
+        Args:
+            market_id: Gamma market ID (e.g., "1326267")
+            min_liquidity: Minimum CLOB liquidity threshold
+
+        Returns:
+            Verified Market object or None if invalid/expired/no liquidity
+        """
+        return await self.scanner.discover_and_verify_market(
+            market_id, min_liquidity
+        )
+
+    async def verify_markets_batch(
+        self,
+        market_ids: list[str],
+        min_liquidity: float = 10000.0,
+    ) -> list[Market]:
+        """F-022: Verify multiple markets in parallel.
+
+        Args:
+            market_ids: List of Gamma market IDs
+            min_liquidity: Minimum CLOB liquidity threshold
+
+        Returns:
+            List of verified Market objects
+        """
+        import asyncio
+
+        tasks = [
+            self.discover_and_verify_market_by_id(mid, min_liquidity)
+            for mid in market_ids
+        ]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        verified = []
+        for mid, result in zip(market_ids, results):
+            if isinstance(result, Exception):
+                logger.warning("Verification failed for %s: %s", mid, result)
+                continue
+            if result is not None:
+                verified.append(result)
+
+        logger.info(
+            "F-022: Verified %d/%d markets",
+            len(verified), len(market_ids)
+        )
+        return verified
+
 
 class RapidOrderbookPoller:
     """High-frequency orderbook polling during snipe window.
@@ -387,6 +451,9 @@ class EventDrivenLoop:
             bankroll=1000.0,  # Starting capital
             max_per_market=100.0,  # Max $100 per market
         )
+        # Load persisted state and sync from paper_trades
+        self._position_manager.load_state(Path("data/position_manager_state.json"))
+        self._position_manager.sync_from_paper_trades(Path("data/paper_trades"))
 
     async def run(self, config) -> None:
         """Async main loop that orchestrates the full cycle."""
@@ -406,12 +473,18 @@ class EventDrivenLoop:
             # Short sleep to prevent tight loop
             await asyncio.sleep(1)
 
+    # Settlement check interval during IDLE (seconds)
+    IDLE_SETTLEMENT_INTERVAL = 300  # Check every 5 minutes
+
     async def _handle_idle_phase(self, now: datetime, config) -> None:
         """Handle IDLE phase: sleep until pre_open window or run background scan.
 
         Phase 2: On transition to IDLE (from COOLDOWN/SNIPE), sends:
         1. Cycle end summary report
         2. Paper trade settlement check
+
+        Enhanced: Periodic settlement checks during IDLE to resolve
+        expired positions without waiting for next cycle transition.
         """
         # F-020: Flush any remaining batched alerts when entering IDLE
         await self._flush_batch_alerts(force=True)
@@ -426,8 +499,9 @@ class EventDrivenLoop:
         sleep_until_pre_open = seconds_until_open - config.pre_open_window_secs
 
         if sleep_until_pre_open > 300:  # More than 5 minutes
-            # Run background dutch book scan, then sleep
-            logger.info("IDLE: Running background scan, then sleeping %ds", sleep_until_pre_open)
+            # Run periodic settlement check + background scan
+            logger.info("IDLE: Running background scan + settlement check, then sleeping %ds", sleep_until_pre_open)
+            await self._run_settlement_check()
             await asyncio.sleep(300)  # Background scan every 5 minutes
         else:
             # Sleep until pre-open window
@@ -659,7 +733,7 @@ class EventDrivenLoop:
 
     async def _poll_all_pairs(
         self, threshold: float, phase_label: str = "SNIPE",
-    ) -> list[SniperOpportunity]:
+    ) -> list[tuple[SniperOpportunity, tuple[str, str]]]:
         """Poll all active token pairs with concurrency control.
 
         Phase 3: WS-cache-first approach. If WS cache has fresh prices,
@@ -667,26 +741,31 @@ class EventDrivenLoop:
         to HTTP polling.
 
         F-020: Semaphore limits concurrent HTTP requests to avoid CLOB 429.
+        
+        Returns:
+            List of (opportunity, (yes_token, no_token)) tuples.
+            This allows caller to identify which market the opportunity belongs to.
         """
         if not self._active_token_pairs:
             return []
 
         semaphore = asyncio.Semaphore(self.MAX_CONCURRENT_POLLS)
 
-        async def _poll_one(yes_token: str, no_token: str) -> SniperOpportunity | None:
+        async def _poll_one(yes_token: str, no_token: str) -> tuple[SniperOpportunity, tuple[str, str]] | None:
             try:
                 # Phase 3: Try WS cache first for lower latency (no semaphore needed)
                 snapshot = self._try_ws_cache(yes_token, no_token)
                 if snapshot is not None:
                     self._ws_cache_hits += 1
                     opp = self.poller.detect_opportunity(snapshot, threshold)
-                    return opp
+                    return (opp, (yes_token, no_token)) if opp else None
 
                 # Fallback to HTTP polling (rate-limited)
                 async with semaphore:
                     self._http_fallback_count += 1
                     snapshot = await self.poller.poll_once(yes_token, no_token)
-                    return self.poller.detect_opportunity(snapshot, threshold)
+                    opp = self.poller.detect_opportunity(snapshot, threshold)
+                    return (opp, (yes_token, no_token)) if opp else None
             except Exception as exc:
                 logger.error("[%s] Error polling %s/%s: %s", phase_label, yes_token, no_token, exc)
                 return None
@@ -695,7 +774,7 @@ class EventDrivenLoop:
             *[_poll_one(yt, nt) for yt, nt in self._active_token_pairs],
             return_exceptions=True,
         )
-        return [r for r in results if isinstance(r, SniperOpportunity)]
+        return [r for r in results if isinstance(r, tuple) and r[0] is not None]
 
     def _try_ws_cache(
         self, yes_token: str, no_token: str, max_age: float = 5.0,
@@ -850,33 +929,46 @@ class EventDrivenLoop:
 
         return paired_results
 
-    def _find_market_for_opp(self, opp: SniperOpportunity) -> Market | None:
-        """F-019: Try to find the Market object for a detected opportunity."""
-        # Check active markets based on token pairs index
-        for i, (yes_tok, no_tok) in enumerate(self._active_token_pairs):
-            if i < len(self._active_markets):
-                return self._active_markets[i]
+    def _find_market_for_tokens(self, yes_token: str, no_token: str) -> Market | None:
+        """F-019: Find the Market object for given token pair.
+
+        Uses token-to-market mapping for O(1) lookup.
+        Falls back to index-based lookup for backwards compatibility.
+        """
+        # Try token-to-market mapping first
+        if yes_token in self._token_to_market:
+            return self._token_to_market[yes_token]
+        if no_token in self._token_to_market:
+            return self._token_to_market[no_token]
+
+        # Fallback: index-based lookup (deprecated)
+        logger.warning("Token not found in mapping, falling back to index lookup")
+        for i, (yt, nt) in enumerate(self._active_token_pairs):
+            if yt == yes_token and nt == no_token:
+                if i < len(self._active_markets):
+                    return self._active_markets[i]
         return None
 
     def _record_paper_trade(
         self, opp: SniperOpportunity, market: Market | None,
     ) -> dict:
-        """F-019: Record a paper trade for P&L tracking.
-        
-        F-018 enhancement: Uses PositionManager for realistic position limits.
-        - Only one position per market allowed
+        """Record a paper trade for P&L tracking.
+
+        Consolidates: PositionManager entry + settlement tracker recording.
+        - Only one position per market allowed (PositionManager guard)
+        - Settlement tracker dedup (won't record same market_id twice)
         - Bankroll and max_per_market limits enforced
         """
         market_id = market.id if market else ""
-        
-        # F-018: Check if we can enter this market (one position per market)
+
+        # Check if we can enter this market (one position per market)
         if market_id and not self._position_manager.can_enter(market_id):
             logger.debug(
                 "SKIP: Already have position in %s",
                 market.question[:40] if market else "Unknown",
             )
             return {}  # Empty dict signals skipped trade
-        
+
         # Enter position via PositionManager
         if market_id and market:
             position = self._position_manager.enter_position(
@@ -895,7 +987,7 @@ class EventDrivenLoop:
             # Fallback for unknown markets (legacy behavior)
             paper_size = 10.0
             paper_shares = 10.0 / opp.trigger_price if opp.trigger_price > 0 else 0
-        
+
         trade = {
             "side": opp.trigger_side,
             "price": opp.trigger_price,
@@ -909,6 +1001,26 @@ class EventDrivenLoop:
             "status": "open",  # Will become "settled" when market resolves
         }
         self._paper_trades.append(trade)
+
+        # Record in settlement tracker (consolidated here for dedup safety)
+        if market:
+            self._settlement_tracker.record_trade(
+                PaperTrade(
+                    market_id=market.id,
+                    market_question=market.question,
+                    market_source=market.source.value,
+                    side=opp.trigger_side,
+                    price=opp.trigger_price,
+                    shares=paper_shares,
+                    cost=paper_size,
+                    timestamp=opp.timestamp.isoformat(),
+                    end_date=market.end_date.isoformat() if market.end_date else "",
+                )
+            )
+
+        # Persist position manager state
+        self._position_manager.save_state(Path("data/position_manager_state.json"))
+
         return trade
 
     async def _handle_snipe_phase(self, config) -> None:
@@ -945,9 +1057,9 @@ class EventDrivenLoop:
         # Phase 2: Track raw signals
         self._cycle_stats.raw_signals += len(opportunities)
 
-        for opp in opportunities:
-            # F-019: Find market info for enriched alert
-            market = self._find_market_for_opp(opp)
+        for opp, (yes_token, no_token) in opportunities:
+            # F-019: Find market using token mapping
+            market = self._find_market_for_tokens(yes_token, no_token)
 
             # Phase 6: In hybrid mode, Crypto uses Paired Entry, not Sniper
             if self._hybrid_mode_enabled and market and market.source == MarketSource.HOURLY_CRYPTO:
@@ -973,8 +1085,8 @@ class EventDrivenLoop:
                     continue
 
                 # Phase 5 (F-021): Additional fair value check
-                # Use dynamic_thresh as margin (higher liquidity = tighter margin)
-                fair_margin = 0.50 - dynamic_thresh  # 0.01 to 0.05 range
+                # F-022 FIX: Increased margin to allow more signals (was 0.50 - dynamic_thresh)
+                fair_margin = 0.05  # Fixed 5% margin for more lenient filtering
                 if not self._is_market_undervalued(
                     market, opp.trigger_side, opp.trigger_price, margin=fair_margin
                 ):
@@ -986,9 +1098,13 @@ class EventDrivenLoop:
                     )
                     continue
 
-            # F-019: Record paper trade
+            # F-019: Record paper trade (returns {} if position already exists)
             paper = self._record_paper_trade(opp, market)
-
+            
+            # Only process if we actually entered a position
+            if not paper:
+                continue
+                
             # Phase 2: Record as filtered signal in cycle stats + settlement tracker
             self._cycle_stats.record_filtered_signal(
                 market_question=market.question if market else "Unknown",
@@ -998,49 +1114,36 @@ class EventDrivenLoop:
                 paper_size_usd=paper.get("paper_size_usd", 10.0),
             )
 
-            # Phase 2: Record paper trade for settlement tracking
+            # Settlement tracking now consolidated in _record_paper_trade()
+
             if market:
-                self._settlement_tracker.record_trade(
-                    PaperTrade(
-                        market_id=market.id,
-                        market_question=market.question,
-                        market_source=market.source.value,
-                        side=opp.trigger_side,
-                        price=opp.trigger_price,
-                        shares=10.0 / opp.trigger_price if opp.trigger_price > 0 else 0,
-                        cost=10.0,
-                        timestamp=opp.timestamp.isoformat(),
-                        end_date=market.end_date.isoformat(),
-                    )
+                # Phase 5: Include fair value in log
+                fair_prob = self._market_fair_values.get(market.id, 0.50) if market else 0.50
+                logger.info(
+                    "🎯 OPPORTUNITY: %s side at $%.4f | fair=%.2f | spread=%.4f | %s",
+                    opp.trigger_side, opp.trigger_price, fair_prob, opp.spread,
+                    market.question[:60] if market else "unknown",
                 )
 
-            # Phase 5: Include fair value in log
-            fair_prob = self._market_fair_values.get(market.id, 0.50) if market else 0.50
-            logger.info(
-                "🎯 OPPORTUNITY: %s side at $%.4f | fair=%.2f | spread=%.4f | %s",
-                opp.trigger_side, opp.trigger_price, fair_prob, opp.spread,
-                market.question[:60] if market else "unknown",
-            )
-
-            # Phase 3: Log to market logger
-            self._market_logger.record(
-                market_id=market.id if market else "",
-                market_question=market.question if market else "Unknown",
-                market_source=market.source.value if market else "unknown",
-                trigger_side=opp.trigger_side,
-                trigger_price=opp.trigger_price,
-                spread=opp.spread,
-                seconds_since_open=seconds_since_open,
-                detection_source=(
-                    "ws_cache"
-                    if self._price_cache.get_best_ask(
-                        self._active_token_pairs[0][0]
-                        if self._active_token_pairs else ""
-                    ) is not None
-                    else "http_poll"
-                ),
-                is_paired=False,
-            )
+                # Phase 3: Log to market logger
+                self._market_logger.record(
+                    market_id=market.id if market else "",
+                    market_question=market.question if market else "Unknown",
+                    market_source=market.source.value if market else "unknown",
+                    trigger_side=opp.trigger_side,
+                    trigger_price=opp.trigger_price,
+                    spread=opp.spread,
+                    seconds_since_open=seconds_since_open,
+                    detection_source=(
+                        "ws_cache"
+                        if self._price_cache.get_best_ask(
+                            self._active_token_pairs[0][0]
+                            if self._active_token_pairs else ""
+                        ) is not None
+                        else "http_poll"
+                    ),
+                    is_paired=False,
+                )
 
             # F-020: Accumulate for batch alert instead of individual alert
             self._pending_opps.append((opp, market, paper))
@@ -1082,8 +1185,8 @@ class EventDrivenLoop:
         opportunities = await self._poll_all_pairs(config.sniper_threshold, "COOLDOWN")
         self._cycle_stats.raw_signals += len(opportunities)
 
-        for opp in opportunities:
-            market = self._find_market_for_opp(opp)
+        for opp, (yes_token, no_token) in opportunities:
+            market = self._find_market_for_tokens(yes_token, no_token)
 
             # Phase 2: Dynamic threshold check
             if market:
@@ -1094,14 +1197,19 @@ class EventDrivenLoop:
                     continue
 
                 # Phase 5 (F-021): Fair value check
-                fair_margin = 0.50 - dynamic_thresh
+                # F-022 FIX: Increased margin to allow more signals
+                fair_margin = 0.05  # Fixed 5% margin for more lenient filtering
                 if not self._is_market_undervalued(
                     market, opp.trigger_side, opp.trigger_price, margin=fair_margin
                 ):
                     continue
 
             paper = self._record_paper_trade(opp, market)
-
+            
+            # Only process if we actually entered a position
+            if not paper:
+                continue
+                
             # Phase 2: Record filtered signal + settlement trade
             self._cycle_stats.record_filtered_signal(
                 market_question=market.question if market else "Unknown",
@@ -1110,42 +1218,30 @@ class EventDrivenLoop:
                 trigger_side=opp.trigger_side,
             )
 
+            # Settlement tracking now consolidated in _record_paper_trade()
+
             if market:
-                self._settlement_tracker.record_trade(
-                    PaperTrade(
-                        market_id=market.id,
-                        market_question=market.question,
-                        market_source=market.source.value,
-                        side=opp.trigger_side,
-                        price=opp.trigger_price,
-                        shares=10.0 / opp.trigger_price if opp.trigger_price > 0 else 0,
-                        cost=10.0,
-                        timestamp=opp.timestamp.isoformat(),
-                        end_date=market.end_date.isoformat(),
-                    )
+                logger.info(
+                    "🎯 COOLDOWN OPP: %s side at $%.4f | %s",
+                    opp.trigger_side, opp.trigger_price,
+                    market.question[:60] if market else "unknown",
                 )
 
-            logger.info(
-                "🎯 COOLDOWN OPP: %s side at $%.4f | %s",
-                opp.trigger_side, opp.trigger_price,
-                market.question[:60] if market else "unknown",
-            )
-
-            # Phase 3: Log to market logger
-            now_cd = datetime.now(tz=timezone.utc)
-            open_cd = now_cd.replace(minute=0, second=0, microsecond=0)
-            secs_cd = (now_cd - open_cd).total_seconds()
-            self._market_logger.record(
-                market_id=market.id if market else "",
-                market_question=market.question if market else "Unknown",
-                market_source=market.source.value if market else "unknown",
-                trigger_side=opp.trigger_side,
-                trigger_price=opp.trigger_price,
-                spread=opp.spread,
-                seconds_since_open=secs_cd,
-                detection_source="http_poll",
-                is_paired=False,
-            )
+                # Phase 3: Log to market logger
+                now_cd = datetime.now(tz=timezone.utc)
+                open_cd = now_cd.replace(minute=0, second=0, microsecond=0)
+                secs_cd = (now_cd - open_cd).total_seconds()
+                self._market_logger.record(
+                    market_id=market.id if market else "",
+                    market_question=market.question if market else "Unknown",
+                    market_source=market.source.value if market else "unknown",
+                    trigger_side=opp.trigger_side,
+                    trigger_price=opp.trigger_price,
+                    spread=opp.spread,
+                    seconds_since_open=secs_cd,
+                    detection_source="http_poll",
+                    is_paired=False,
+                )
 
             # F-020: Accumulate for batch alert
             self._pending_opps.append((opp, market, paper))
@@ -1310,6 +1406,10 @@ class EventDrivenLoop:
                 self._paper_pnl = summary.cumulative_pnl
                 self._paper_wins = summary.wins
                 self._paper_losses = summary.losses
+                
+                # Also update position manager and save state
+                # Note: settlement_tracker handles actual settlement logic
+                self._position_manager.save_state(Path("data/position_manager_state.json"))
             else:
                 logger.info(
                     "SETTLEMENT: No new settlements (open=%d, expired=%d)",
@@ -1317,3 +1417,96 @@ class EventDrivenLoop:
                 )
         except Exception:
             logger.exception("Error during settlement check")
+
+    # ------------------------------------------------------------------
+    # F-022: NBA Market Discovery with Verification
+    # ------------------------------------------------------------------
+
+    async def discover_nba_markets_with_verification(
+        self,
+        market_ids: list[str] | None = None,
+        min_liquidity: float = 10000.0,
+    ) -> list[Market]:
+        """F-022: Discover and verify NBA markets using direct ID lookup.
+
+        Args:
+            market_ids: List of specific market IDs to verify.
+                If None, uses default NBA market list.
+            min_liquidity: Minimum CLOB liquidity threshold (default $10k)
+
+        Returns:
+            List of verified Market objects ready for trading
+        """
+        # Default NBA markets (example IDs - update with actual IDs)
+        if market_ids is None:
+            # These are example IDs - in production, load from config
+            market_ids = []
+
+        if not market_ids:
+            logger.info("F-022: No NBA market IDs provided")
+            return []
+
+        logger.info(
+            "F-022: Discovering %d NBA markets with verification",
+            len(market_ids)
+        )
+
+        # Use preparer to verify all markets
+        verified = await self.preparer.verify_markets_batch(
+            market_ids, min_liquidity
+        )
+
+        # Update active markets
+        for market in verified:
+            if market not in self._active_markets:
+                self._active_markets.append(market)
+                self._active_token_pairs.append(
+                    (market.yes_token_id, market.no_token_id)
+                )
+                self._token_to_market[market.yes_token_id] = market
+                self._token_to_market[market.no_token_id] = market
+
+        logger.info(
+            "F-022: Added %d verified NBA markets to active list",
+            len(verified)
+        )
+        return verified
+
+    async def verify_single_market(
+        self,
+        market_id: str,
+        min_liquidity: float = 10000.0,
+    ) -> Market | None:
+        """F-022: Verify a single market by ID.
+
+        Convenience method for quick verification of specific markets.
+
+        Args:
+            market_id: Gamma market ID
+            min_liquidity: Minimum CLOB liquidity threshold
+
+        Returns:
+            Verified Market object or None
+        """
+        market = await self.preparer.discover_and_verify_market_by_id(
+            market_id, min_liquidity
+        )
+
+        if market:
+            # Add to active markets if verified
+            if market not in self._active_markets:
+                self._active_markets.append(market)
+                self._active_token_pairs.append(
+                    (market.yes_token_id, market.no_token_id)
+                )
+                self._token_to_market[market.yes_token_id] = market
+                self._token_to_market[market.no_token_id] = market
+
+            logger.info(
+                "F-022: Verified market %s (%s)",
+                market_id, market.polymarket_url
+            )
+        else:
+            logger.warning("F-022: Market %s verification failed", market_id)
+
+        return market

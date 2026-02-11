@@ -121,8 +121,9 @@ class TestWSCacheFirstPolling:
 
         # Opportunity detected: YES at $0.42 < threshold $0.48
         assert len(opps) == 1
-        assert opps[0].trigger_side == "YES"
-        assert opps[0].trigger_price == 0.42
+        opp, (yes_tok, no_tok) = opps[0]
+        assert opp.trigger_side == "YES"
+        assert opp.trigger_price == 0.42
 
     @pytest.mark.asyncio
     async def test_poll_all_falls_back_to_http(self, loop_with_cache):
