@@ -254,6 +254,39 @@ class CryptoFairValueCalculator:
         
         return (lower, middle, upper)
     
+    def eth_decoupling_factor(
+        self,
+        eth_momentum: float,
+        btc_momentum: float,
+    ) -> float:
+        """Calculate decoupling penalty when ETH diverges from BTC.
+
+        When ETH and BTC move in opposite directions, ETH signals become
+        less reliable. Returns a factor (0-1) to scale primary signals.
+
+        Args:
+            eth_momentum: ETH 1h price change percentage
+            btc_momentum: BTC 1h price change percentage
+
+        Returns:
+            1.0 if aligned, <1.0 if diverging (penalty applied)
+        """
+        # Ignore near-zero momentum (noise)
+        if abs(eth_momentum) < 0.1 or abs(btc_momentum) < 0.1:
+            return 1.0
+
+        # Same direction -> no penalty
+        if (eth_momentum > 0 and btc_momentum > 0) or (
+            eth_momentum < 0 and btc_momentum < 0
+        ):
+            return 1.0
+
+        # Opposite direction -> penalty proportional to divergence
+        # Max penalty = 0.5 (halve the signal strength)
+        divergence = abs(eth_momentum - btc_momentum)
+        penalty = min(0.5, divergence / 4.0)  # 4% divergence -> max penalty
+        return 1.0 - penalty
+
     def calculate_fair_probability(
         self,
         rsi: float,
@@ -263,19 +296,22 @@ class CryptoFairValueCalculator:
         momentum: float = 0.0,
         volume_spike: float = 1.0,
         trend_direction: float = 0.0,
+        decoupling_factor: float = 1.0,
     ) -> float:
         """Calculate fair UP probability based on technical indicators.
-        
+
         PRIMARY SIGNALS (momentum + volume):
         - Momentum: Recent 1h price change predicts continuation
         - Volume Spike: High volume = trend likely continues
-        
+
         SECONDARY SIGNALS (RSI + BB):
-        - RSI < 30 (oversold) → expect bounce → UP prob increases
-        - RSI > 70 (overbought) → expect pullback → UP prob decreases
-        - Price near BB lower → mean reversion up likely
-        - Price near BB upper → mean reversion down likely
-        
+        - RSI < 30 (oversold) -> expect bounce -> UP prob increases
+        - RSI > 70 (overbought) -> expect pullback -> UP prob decreases
+        - Price near BB lower -> mean reversion up likely
+        - Price near BB upper -> mean reversion down likely
+
+        P1-1: decoupling_factor scales primary signals for ETH divergence.
+
         Args:
             rsi: RSI value (0-100)
             price: Current price
@@ -284,32 +320,35 @@ class CryptoFairValueCalculator:
             momentum: 1h price change percentage (positive = up)
             volume_spike: Current volume / average volume ratio
             trend_direction: +1 (up candle) or -1 (down candle)
-        
+            decoupling_factor: 0-1 scale for ETH divergence (1.0 = no penalty)
+
         Returns:
             Fair UP probability (0.0 to 1.0)
         """
         # Base probability: neutral
         prob = 0.50
-        
+
         # === PRIMARY: Momentum Component ===
         # Momentum contribution: -0.25 to +0.25
-        # Scale: ±2% price change → ±0.25 probability adjustment
+        # Scale: +/-2% price change -> +/-0.25 probability adjustment
         momentum_factor = max(-0.25, min(0.25, momentum / 2 * 0.25))
+        # P1-1: Apply decoupling factor to reduce momentum confidence
+        momentum_factor *= decoupling_factor
         prob += momentum_factor
-        
+
         # === PRIMARY: Volume Spike Component ===
         # Volume spike amplifies the trend direction signal
         # Spike > 2x average = strong continuation signal
         if volume_spike >= 2.0:
             # Strong volume spike: +/- 0.15 based on trend direction
-            volume_contribution = trend_direction * 0.15
+            volume_contribution = trend_direction * 0.15 * decoupling_factor
             prob += volume_contribution
         elif volume_spike >= 1.5:
             # Moderate spike: +/- 0.08
-            volume_contribution = trend_direction * 0.08
+            volume_contribution = trend_direction * 0.08 * decoupling_factor
             prob += volume_contribution
         # Below 1.5x: no significant volume signal
-        
+
         # === SECONDARY: RSI Component (reduced weight) ===
         # RSI contribution: -0.10 to +0.10 (reduced from 0.25)
         if rsi <= 30:
@@ -318,7 +357,7 @@ class CryptoFairValueCalculator:
         elif rsi >= 70:
             rsi_factor = (rsi - 70) / 30 * 0.10
             prob -= rsi_factor
-        
+
         # === SECONDARY: Bollinger Band Component (reduced weight) ===
         # BB contribution: -0.08 to +0.08 (reduced from 0.15)
         bb_range = bb_upper - bb_lower
@@ -332,7 +371,7 @@ class CryptoFairValueCalculator:
                 position = (price - bb_middle) / (bb_range / 2)
                 bb_factor = -position * 0.05
                 prob += bb_factor
-        
+
         # Clamp to valid range
         return max(0.0, min(1.0, prob))
     

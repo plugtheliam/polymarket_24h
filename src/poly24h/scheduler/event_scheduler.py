@@ -609,8 +609,9 @@ class EventDrivenLoop:
         """Calculate fair UP probability for crypto 1H market.
 
         Uses momentum + volume as primary signals, RSI/BB as secondary.
+        P1-1: ETH gets a decoupling penalty when diverging from BTC.
         """
-        # Extract asset from question (e.g., "Will BTC go up..." → "BTC")
+        # Extract asset from question (e.g., "Will BTC go up..." -> "BTC")
         question_lower = market.question.lower()
         asset = None
         for coin in ["btc", "eth", "sol", "xrp", "doge", "bnb"]:
@@ -648,6 +649,31 @@ class EventDrivenLoop:
 
         current_price = closes[-1]
 
+        # P1-1: ETH decoupling — compare ETH momentum to BTC momentum
+        decoupling_factor = 1.0
+        if asset == "ETH":
+            try:
+                btc_ohlcv = await self._crypto_fair_value.fetch_binance_ohlcv(
+                    "BTCUSDT", interval="1h", limit=3
+                )
+                if btc_ohlcv and len(btc_ohlcv) >= 2:
+                    btc_momentum = self._crypto_fair_value.calculate_1h_momentum(
+                        btc_ohlcv
+                    )
+                    decoupling_factor = self._crypto_fair_value.eth_decoupling_factor(
+                        eth_momentum=momentum, btc_momentum=btc_momentum,
+                    )
+                    if decoupling_factor < 1.0:
+                        logger.info(
+                            "P1-1: ETH decoupling detected: "
+                            "ETH_mom=%.2f%% BTC_mom=%.2f%% -> factor=%.2f",
+                            momentum, btc_momentum, decoupling_factor,
+                        )
+            except Exception as e:
+                logger.warning(
+                    "P1-1: Failed to fetch BTC for ETH decoupling: %s", e
+                )
+
         # Calculate fair UP probability with all signals
         fair_prob = self._crypto_fair_value.calculate_fair_probability(
             rsi=rsi,
@@ -657,11 +683,14 @@ class EventDrivenLoop:
             momentum=momentum,
             volume_spike=volume_spike,
             trend_direction=trend_direction,
+            decoupling_factor=decoupling_factor,
         )
 
         logger.debug(
-            "Crypto fair value: %s mom=%.2f%% vol=%.1fx trend=%+.0f RSI=%.1f → prob=%.2f",
-            symbol, momentum, volume_spike, trend_direction, rsi, fair_prob
+            "Crypto fair value: %s mom=%.2f%% vol=%.1fx trend=%+.0f "
+            "RSI=%.1f decouple=%.2f -> prob=%.2f",
+            symbol, momentum, volume_spike, trend_direction,
+            rsi, decoupling_factor, fair_prob,
         )
 
         return fair_prob
@@ -955,11 +984,19 @@ class EventDrivenLoop:
         """Record a paper trade for P&L tracking.
 
         Consolidates: PositionManager entry + settlement tracker recording.
+        - P0-1: Sports moneyline min price filter
+        - P0-2: O/U per-event dedup
         - Only one position per market allowed (PositionManager guard)
         - Settlement tracker dedup (won't record same market_id twice)
         - Bankroll and max_per_market limits enforced
         """
         market_id = market.id if market else ""
+
+        # P0-1/P0-2: Entry filters (moneyline min price, O/U per-event)
+        if market and self._position_manager.should_skip_entry(
+            market, opp.trigger_price, opp.trigger_side,
+        ):
+            return {}  # Skipped by filter
 
         # Check if we can enter this market (one position per market)
         if market_id and not self._position_manager.can_enter(market_id):
@@ -977,6 +1014,7 @@ class EventDrivenLoop:
                 side=opp.trigger_side,
                 price=opp.trigger_price,
                 end_date=market.end_date.isoformat() if market.end_date else "",
+                event_id=market.event_id,
             )
             if position:
                 paper_size = position.size_usd
