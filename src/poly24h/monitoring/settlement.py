@@ -14,7 +14,7 @@ from __future__ import annotations
 import json
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Literal
 
@@ -260,11 +260,24 @@ class PaperSettlementTracker:
                 Gives Polymarket time to resolve the market.
         """
         now = datetime.now(tz=timezone.utc)
-        trades = self.load_trades(date)
+        # F-023 #0: Load today + yesterday to handle midnight boundary
+        trades = self.load_trades(date or now)
+        yesterday = (date or now) - timedelta(days=1)
+        yesterday_trades = self.load_trades(yesterday)
+        # Merge with dedup by market_id
+        seen_ids = {t.market_id for t in trades}
+        for yt in yesterday_trades:
+            if yt.market_id not in seen_ids:
+                seen_ids.add(yt.market_id)
+                trades.append(yt)
         summary = SettlementSummary()
         newly_settled = 0
 
         for trade in trades:
+            # F-023 #4: Skip test market IDs (non-numeric)
+            if not trade.market_id.isdigit():
+                continue
+
             if trade.status == "settled":
                 summary.total_settled += 1
                 self._cumulative_pnl += trade.pnl
@@ -290,7 +303,6 @@ class PaperSettlementTracker:
                 continue
 
             # Grace period: wait a few minutes for market to resolve
-            from datetime import timedelta
             grace_dt = end_dt + timedelta(minutes=grace_minutes)
             if now < grace_dt:
                 summary.total_expired += 1
@@ -322,9 +334,23 @@ class PaperSettlementTracker:
             else:
                 summary.total_expired += 1
 
-        # Save updated trades
+        # Save updated trades (to both today + yesterday files if needed)
         if newly_settled > 0:
-            self._save_trades(trades, date)
+            today_trades = []
+            yesterday_trades_out = []
+            today_str = (date or now).strftime("%Y-%m-%d")
+            yesterday_str = yesterday.strftime("%Y-%m-%d")
+            for t in trades:
+                # Route trade back to its original file based on timestamp
+                ts_date = t.timestamp[:10] if len(t.timestamp) >= 10 else today_str
+                if ts_date == yesterday_str:
+                    yesterday_trades_out.append(t)
+                else:
+                    today_trades.append(t)
+            if today_trades:
+                self._save_trades(today_trades, date or now)
+            if yesterday_trades_out:
+                self._save_trades(yesterday_trades_out, yesterday)
 
         summary.newly_settled = newly_settled
         summary.cumulative_pnl = self._cumulative_pnl

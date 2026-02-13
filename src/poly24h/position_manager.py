@@ -8,6 +8,8 @@ Manages positions like a real trading system:
 - Thread-safe concurrent entry (F-022 fix)
 - P0-1: Sports moneyline minimum price filter ($0.35)
 - P0-2: Max 1 O/U entry per event
+- F-023 #1: Max 1 Spread entry per event
+- F-023 #2: Max entries per SNIPE cycle
 - P2-2: Max concurrent positions and exposure ratio limits
 """
 
@@ -73,6 +75,7 @@ class PositionManager:
         max_per_market: float,
         max_concurrent_positions: int = 0,
         max_exposure_ratio: float = 0.0,
+        max_entries_per_cycle: int = 10,
     ):
         """Initialize position manager.
 
@@ -81,6 +84,7 @@ class PositionManager:
             max_per_market: Maximum position size per market in USD
             max_concurrent_positions: Max open positions (0 = unlimited)
             max_exposure_ratio: Max total_invested / initial_bankroll (0 = unlimited)
+            max_entries_per_cycle: Max entries per SNIPE cycle (0 = unlimited)
         """
         self._initial_bankroll = bankroll  # F-022: track initial
         self.bankroll = bankroll
@@ -95,13 +99,83 @@ class PositionManager:
         # P2-2: Exposure limits
         self._max_concurrent_positions = max_concurrent_positions
         self._max_exposure_ratio = max_exposure_ratio
-        # P0-2: Track event_id + market_type for O/U dedup
-        self._event_ou_entries: dict[str, str] = {}  # event_id -> market_id
+        # F-023 #1: Track event_id + market_type for O/U and Spread dedup
+        self._event_type_entries: dict[str, dict[str, str]] = {}
+        # Backward compat alias
+        self._event_ou_entries = self._event_type_entries
+        # F-023 #2: Cycle entry cap
+        self._max_entries_per_cycle = max_entries_per_cycle
+        self._cycle_entries: int = 0
+        # F-024: Bankroll management
+        self._cycle_invested: float = 0.0  # Total invested this cycle
+        self._bankroll_reserve_ratio: float = 0.30  # Keep 30% in reserve
+        self._cycle_budget_ratio: float = 0.30  # Max 30% per cycle
+        self._single_position_ratio: float = 0.10  # Max 10% per position
 
     @property
     def active_position_count(self) -> int:
         """Number of currently open positions."""
         return len(self._positions)
+
+    def reset_cycle_entries(self) -> None:
+        """Reset per-cycle entry counter. Call at start of each SNIPE cycle."""
+        self._cycle_entries = 0
+        self._cycle_invested = 0.0
+
+    def calculate_kelly_size(
+        self,
+        edge: float,
+        market_price: float,
+        fraction: float = 0.25,
+    ) -> float:
+        """Calculate position size using Quarter-Kelly Criterion.
+
+        F-024: Dynamic position sizing based on edge magnitude.
+
+        kelly_fraction = edge / payout_odds
+        payout_odds = (1 - market_price) / market_price  [binary market]
+        size = bankroll * kelly_fraction * fraction
+
+        Constraints:
+          - Minimum $10 (below this, not worth trading)
+          - Maximum min(max_per_market, bankroll * 10%)
+          - Bankroll reserve: keep 30% of initial bankroll
+          - Cycle budget: max 30% of bankroll per cycle
+
+        Returns:
+            Position size in USD. Returns 0.0 if edge insufficient.
+        """
+        if edge <= 0 or market_price <= 0 or market_price >= 1.0:
+            return 0.0
+
+        # Bankroll reserve check
+        reserve = self._initial_bankroll * self._bankroll_reserve_ratio
+        available_bankroll = self.bankroll - reserve
+        if available_bankroll < 10.0:
+            return 0.0
+
+        # Cycle budget check
+        cycle_budget = self.bankroll * self._cycle_budget_ratio
+        remaining_cycle = cycle_budget - self._cycle_invested
+        if remaining_cycle < 10.0:
+            return 0.0
+
+        # Kelly calculation
+        payout_odds = (1.0 - market_price) / market_price
+        kelly_fraction = edge / payout_odds
+        size = self.bankroll * kelly_fraction * fraction
+
+        # Apply caps
+        max_single = min(self.max_per_market, self.bankroll * self._single_position_ratio)
+        size = min(size, max_single)
+        size = min(size, available_bankroll)
+        size = min(size, remaining_cycle)
+
+        # Floor: below $10 is not worth it
+        if size < 10.0:
+            return 0.0
+
+        return round(size, 2)
 
     @property
     def total_invested(self) -> float:
@@ -197,14 +271,16 @@ class PositionManager:
                     )
                     return True
 
-        # P0-2: O/U per-event limit
+        # F-023 #1: O/U and Spread per-event limit (1 each per event)
         market_type = self._detect_market_type(market.question)
-        if market_type == "ou" and market.event_id:
-            if market.event_id in self._event_ou_entries:
-                existing_mid = self._event_ou_entries[market.event_id]
+        if market_type in ("ou", "spread") and market.event_id:
+            event_types = self._event_type_entries.get(market.event_id, {})
+            if market_type in event_types:
+                existing_mid = event_types[market_type]
                 logger.info(
-                    "P0-2 SKIP: O/U already entered for event %s "
+                    "F-023 SKIP: %s already entered for event %s "
                     "(market %s) | %s",
+                    market_type.upper(),
                     market.event_id,
                     existing_mid,
                     market.question[:60],
@@ -242,11 +318,13 @@ class PositionManager:
         end_date: str,
         event_id: str = "",
         market_type: str = "",
+        size_override: float = 0.0,
     ) -> Optional[Position]:
         """Enter a new position (thread-safe).
 
         F-022: Added lock to prevent concurrent entry causing bankroll overrun.
         P0-2: Tracks event_id + market_type for O/U dedup.
+        F-024: Added size_override for Kelly-sized positions.
 
         Args:
             market_id: Unique market identifier
@@ -256,11 +334,25 @@ class PositionManager:
             end_date: Market end date (ISO format)
             event_id: Event identifier (for O/U dedup)
             market_type: "ou", "spread", or "moneyline"
+            size_override: F-024 Kelly-sized position (0 = use default)
 
         Returns:
             Position object if successful, None if cannot enter
         """
         with self._lock:  # F-022: Ensure thread safety
+            # F-023 #2: Cycle entry cap
+            if (
+                self._max_entries_per_cycle > 0
+                and self._cycle_entries >= self._max_entries_per_cycle
+            ):
+                logger.debug(
+                    "Cannot enter %s: cycle cap reached (%d/%d)",
+                    market_id,
+                    self._cycle_entries,
+                    self._max_entries_per_cycle,
+                )
+                return None
+
             # Re-check under lock to prevent race conditions
             if market_id in self._positions:
                 logger.debug(
@@ -284,8 +376,12 @@ class PositionManager:
                 )
                 return None
 
-            # Calculate position size (limited by bankroll and max_per_market)
-            size_usd = available_for_trade
+            # Calculate position size
+            # F-024: Use Kelly-sized override if provided
+            if size_override > 0:
+                size_usd = min(size_override, available_for_trade)
+            else:
+                size_usd = available_for_trade
             shares = size_usd / price if price > 0 else 0
 
             position = Position(
@@ -304,11 +400,18 @@ class PositionManager:
             self.bankroll -= size_usd
             self._total_invested += size_usd  # F-022: track total
 
-            # P0-2: Track O/U entries per event
+            # F-023 #1: Track O/U and Spread entries per event
             if not market_type:
                 market_type = self._detect_market_type(market_question)
-            if market_type == "ou" and event_id:
-                self._event_ou_entries[event_id] = market_id
+            if market_type in ("ou", "spread") and event_id:
+                if event_id not in self._event_type_entries:
+                    self._event_type_entries[event_id] = {}
+                self._event_type_entries[event_id][market_type] = market_id
+
+            # F-023 #2: Increment cycle counter
+            self._cycle_entries += 1
+            # F-024: Track cycle investment for budget enforcement
+            self._cycle_invested += size_usd
 
             logger.info(
                 "[POSITION ENTRY] %s | Side: %s @ %.2f | "
@@ -395,7 +498,8 @@ class PositionManager:
             "losses": self._losses,
             "max_concurrent_positions": self._max_concurrent_positions,
             "max_exposure_ratio": self._max_exposure_ratio,
-            "event_ou_entries": self._event_ou_entries,
+            "max_entries_per_cycle": self._max_entries_per_cycle,
+            "event_type_entries": self._event_type_entries,
             "positions": {
                 mid: pos.to_dict() for mid, pos in self._positions.items()
             },
@@ -450,7 +554,17 @@ class PositionManager:
                 "max_concurrent_positions", 0
             )
             self._max_exposure_ratio = state.get("max_exposure_ratio", 0.0)
-            self._event_ou_entries = state.get("event_ou_entries", {})
+            # F-023 #1: Load event_type_entries (backward compat with event_ou_entries)
+            raw_ete = state.get("event_type_entries", state.get("event_ou_entries", {}))
+            # Migrate old format: {event_id: market_id} → {event_id: {"ou": market_id}}
+            self._event_type_entries = {}
+            for k, v in raw_ete.items():
+                if isinstance(v, str):
+                    # Old format: event_id → market_id (O/U only)
+                    self._event_type_entries[k] = {"ou": v}
+                elif isinstance(v, dict):
+                    self._event_type_entries[k] = v
+            self._event_ou_entries = self._event_type_entries
             self._positions = {
                 mid: Position.from_dict(pos_data)
                 for mid, pos_data in state.get("positions", {}).items()

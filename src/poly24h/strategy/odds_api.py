@@ -1,0 +1,472 @@
+"""The Odds API client for real-time sportsbook odds (F-024).
+
+Fetches NBA odds from The Odds API, converts American odds to implied
+probabilities, removes bookmaker overround (devig), and matches sportsbook
+lines to Polymarket markets for edge detection.
+"""
+
+from __future__ import annotations
+
+import logging
+import os
+import re
+import time
+from dataclasses import dataclass
+from typing import Optional
+
+import aiohttp
+
+from poly24h.models.market import MarketSource
+
+logger = logging.getLogger(__name__)
+
+# NBA team name aliases for fuzzy matching
+NBA_TEAM_NAMES: dict[str, list[str]] = {
+    "lakers": ["los angeles lakers", "lakers", "la lakers"],
+    "celtics": ["boston celtics", "celtics", "boston"],
+    "warriors": ["golden state warriors", "warriors", "golden state"],
+    "bucks": ["milwaukee bucks", "bucks", "milwaukee"],
+    "heat": ["miami heat", "heat", "miami"],
+    "suns": ["phoenix suns", "suns", "phoenix"],
+    "nuggets": ["denver nuggets", "nuggets", "denver"],
+    "76ers": ["philadelphia 76ers", "76ers", "sixers", "philadelphia"],
+    "nets": ["brooklyn nets", "nets", "brooklyn"],
+    "bulls": ["chicago bulls", "bulls", "chicago"],
+    "knicks": ["new york knicks", "knicks", "new york"],
+    "clippers": ["los angeles clippers", "clippers", "la clippers"],
+    "mavericks": ["dallas mavericks", "mavericks", "dallas"],
+    "hawks": ["atlanta hawks", "hawks", "atlanta"],
+    "grizzlies": ["memphis grizzlies", "grizzlies", "memphis"],
+    "timberwolves": ["minnesota timberwolves", "timberwolves", "minnesota"],
+    "thunder": ["oklahoma city thunder", "thunder", "okc", "oklahoma city"],
+    "cavaliers": ["cleveland cavaliers", "cavaliers", "cleveland", "cavs"],
+    "pelicans": ["new orleans pelicans", "pelicans", "new orleans"],
+    "rockets": ["houston rockets", "rockets", "houston"],
+    "kings": ["sacramento kings", "kings", "sacramento"],
+    "raptors": ["toronto raptors", "raptors", "toronto"],
+    "pacers": ["indiana pacers", "pacers", "indiana"],
+    "magic": ["orlando magic", "magic", "orlando"],
+    "pistons": ["detroit pistons", "pistons", "detroit"],
+    "hornets": ["charlotte hornets", "hornets", "charlotte"],
+    "wizards": ["washington wizards", "wizards", "washington"],
+    "spurs": ["san antonio spurs", "spurs", "san antonio"],
+    "jazz": ["utah jazz", "jazz", "utah"],
+    "blazers": ["portland trail blazers", "trail blazers", "blazers", "portland"],
+}
+
+# Reverse lookup: full name → canonical short name
+_FULL_TO_CANONICAL: dict[str, str] = {}
+for canonical, aliases in NBA_TEAM_NAMES.items():
+    for alias in aliases:
+        _FULL_TO_CANONICAL[alias.lower()] = canonical
+
+
+def american_to_prob(odds: int) -> float:
+    """Convert American odds to implied probability.
+
+    +150 → 1/(1+1.5) = 0.40
+    -200 → 200/(200+100) = 0.6667
+    +100 → 0.50
+    """
+    if odds > 0:
+        return 100.0 / (odds + 100.0)
+    else:
+        return abs(odds) / (abs(odds) + 100.0)
+
+
+def devig(prob_a: float, prob_b: float) -> tuple[float, float]:
+    """Remove bookmaker overround (multiplicative devig).
+
+    Raw: 52% + 52% = 104%
+    Devigged: 50% + 50% = 100%
+    """
+    total = prob_a + prob_b
+    if total <= 0:
+        return (0.5, 0.5)
+    return (prob_a / total, prob_b / total)
+
+
+def calculate_edge(market_price: float, fair_prob: float) -> float:
+    """Calculate edge: fair_prob - market_price.
+
+    NBA has 0% fees so no fee adjustment needed.
+    Positive = undervalued (buy opportunity).
+    """
+    return fair_prob - market_price
+
+
+def should_skip_crypto_directional(source: MarketSource) -> bool:
+    """F-024 Phase 3: Skip crypto directional betting.
+
+    Crypto momentum indicators produce systematic YES bias.
+    Disable until market making strategy is implemented.
+    """
+    return source == MarketSource.HOURLY_CRYPTO
+
+
+def _normalize_team(name: str) -> Optional[str]:
+    """Normalize a team name to canonical short form."""
+    name_lower = name.lower().strip()
+    if name_lower in _FULL_TO_CANONICAL:
+        return _FULL_TO_CANONICAL[name_lower]
+    # Try substring match for partial names
+    for full_name, canonical in _FULL_TO_CANONICAL.items():
+        if full_name in name_lower or name_lower in full_name:
+            return canonical
+    return None
+
+
+def _find_teams_in_text(text: str) -> list[str]:
+    """Find all NBA team canonical names mentioned in text."""
+    text_lower = text.lower()
+    found = []
+    # Check full names first (longest first for proper matching)
+    entries = sorted(_FULL_TO_CANONICAL.items(), key=lambda x: len(x[0]), reverse=True)
+    for full_name, canonical in entries:
+        if full_name in text_lower and canonical not in found:
+            found.append(canonical)
+    return found
+
+
+@dataclass
+class MarketOdds:
+    """Odds for a single market type (h2h, spreads, or totals)."""
+    outcomes: list[dict]  # [{"name": str, "price": int, "point": float?}]
+
+
+@dataclass
+class GameOdds:
+    """Odds for a single NBA game across market types."""
+    game_id: str
+    home_team: str
+    away_team: str
+    commence_time: str
+    h2h: Optional[MarketOdds] = None
+    spreads: Optional[MarketOdds] = None
+    totals: Optional[MarketOdds] = None
+
+
+@dataclass
+class MatchedOdds:
+    """A matched sportsbook line ↔ Polymarket market."""
+    market_id: str
+    market_type: str  # "moneyline", "spread", "totals"
+    fair_prob: float  # Devigged probability for YES side
+    sportsbook_odds: dict  # Raw odds data
+
+
+class OddsAPIClient:
+    """Client for The Odds API (https://the-odds-api.com/)."""
+
+    BASE_URL = "https://api.the-odds-api.com/v4/sports"
+    SPORT_KEY = "basketball_nba"
+    # Preferred bookmakers (Pinnacle is sharpest)
+    PREFERRED_BOOKS = ["pinnacle", "draftkings", "fanduel"]
+
+    def __init__(
+        self,
+        api_key: str = "",
+        cache_ttl: int = 300,
+    ):
+        self._api_key = api_key or os.environ.get("ODDS_API_KEY", "")
+        self._cache_ttl = cache_ttl
+        self._cache: Optional[list[GameOdds]] = None
+        self._cache_time: float = 0.0
+
+    async def _fetch_json(self, url: str, params: dict) -> list[dict]:
+        """Fetch JSON from API endpoint."""
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(
+                    url, params=params,
+                    timeout=aiohttp.ClientTimeout(total=15),
+                ) as resp:
+                    if resp.status != 200:
+                        logger.warning(
+                            "Odds API error: %s %s",
+                            resp.status, await resp.text(),
+                        )
+                        return []
+                    data = await resp.json()
+                    remaining = resp.headers.get("x-requests-remaining", "?")
+                    logger.info("Odds API: %d games, requests remaining: %s", len(data), remaining)
+                    return data
+        except Exception as e:
+            logger.error("Odds API fetch failed: %s", e)
+            return []
+
+    async def fetch_nba_odds(
+        self,
+        markets: str = "h2h,spreads,totals",
+        bookmakers: str = "",
+    ) -> list[GameOdds]:
+        """Fetch NBA odds from The Odds API.
+
+        Returns cached data if within TTL.
+        """
+        now = time.time()
+        if self._cache is not None and (now - self._cache_time) < self._cache_ttl:
+            return self._cache
+
+        if not bookmakers:
+            bookmakers = ",".join(self.PREFERRED_BOOKS)
+
+        url = f"{self.BASE_URL}/{self.SPORT_KEY}/odds"
+        params = {
+            "apiKey": self._api_key,
+            "regions": "us",
+            "markets": markets,
+            "bookmakers": bookmakers,
+            "oddsFormat": "american",
+        }
+
+        try:
+            raw = await self._fetch_json(url, params)
+        except Exception:
+            return self._cache or []
+
+        games = []
+        for item in raw:
+            game = self._parse_game(item)
+            if game:
+                games.append(game)
+
+        self._cache = games
+        self._cache_time = now
+        return games
+
+    def _parse_game(self, item: dict) -> Optional[GameOdds]:
+        """Parse a single game from API response."""
+        bookmakers = item.get("bookmakers", [])
+        if not bookmakers:
+            return None
+
+        # Pick best available bookmaker (prefer Pinnacle)
+        book = None
+        for pref in self.PREFERRED_BOOKS:
+            for b in bookmakers:
+                if b.get("key") == pref:
+                    book = b
+                    break
+            if book:
+                break
+        if not book:
+            book = bookmakers[0]
+
+        h2h = None
+        spreads = None
+        totals = None
+
+        for mkt in book.get("markets", []):
+            key = mkt.get("key")
+            outcomes = mkt.get("outcomes", [])
+            if key == "h2h":
+                h2h = MarketOdds(outcomes=outcomes)
+            elif key == "spreads":
+                spreads = MarketOdds(outcomes=outcomes)
+            elif key == "totals":
+                totals = MarketOdds(outcomes=outcomes)
+
+        return GameOdds(
+            game_id=item.get("id", ""),
+            home_team=item.get("home_team", ""),
+            away_team=item.get("away_team", ""),
+            commence_time=item.get("commence_time", ""),
+            h2h=h2h,
+            spreads=spreads,
+            totals=totals,
+        )
+
+    def match_to_polymarket(
+        self,
+        game: GameOdds,
+        markets: list,
+    ) -> list[MatchedOdds]:
+        """Match sportsbook game odds to Polymarket markets.
+
+        Matching logic:
+        - Find teams in Polymarket question text
+        - Match market type (moneyline, spread, O/U)
+        - For spread/totals, match the line value
+        """
+        home_canonical = _normalize_team(game.home_team)
+        away_canonical = _normalize_team(game.away_team)
+
+        if not home_canonical or not away_canonical:
+            return []
+
+        matched = []
+        for market in markets:
+            q = market.question.lower()
+            teams_in_q = _find_teams_in_text(q)
+
+            # Must have at least one team from this game
+            if home_canonical not in teams_in_q and away_canonical not in teams_in_q:
+                continue
+
+            # Determine market type
+            market_type = self._detect_polymarket_type(q)
+
+            if market_type == "moneyline" and game.h2h:
+                fair_prob = self._calc_h2h_fair_prob(
+                    game.h2h, game.home_team, home_canonical, away_canonical, q,
+                )
+                if fair_prob is not None:
+                    matched.append(MatchedOdds(
+                        market_id=market.id,
+                        market_type="moneyline",
+                        fair_prob=fair_prob,
+                        sportsbook_odds={"h2h": game.h2h.outcomes},
+                    ))
+
+            elif market_type == "spread" and game.spreads:
+                fair_prob = self._calc_spread_fair_prob(
+                    game.spreads, game.home_team, home_canonical, away_canonical, q,
+                )
+                if fair_prob is not None:
+                    matched.append(MatchedOdds(
+                        market_id=market.id,
+                        market_type="spread",
+                        fair_prob=fair_prob,
+                        sportsbook_odds={"spreads": game.spreads.outcomes},
+                    ))
+
+            elif market_type == "totals" and game.totals:
+                fair_prob = self._calc_totals_fair_prob(game.totals, q)
+                if fair_prob is not None:
+                    matched.append(MatchedOdds(
+                        market_id=market.id,
+                        market_type="totals",
+                        fair_prob=fair_prob,
+                        sportsbook_odds={"totals": game.totals.outcomes},
+                    ))
+
+        return matched
+
+    @staticmethod
+    def _detect_polymarket_type(question_lower: str) -> str:
+        """Detect Polymarket market type from question text."""
+        if "o/u" in question_lower or "over/under" in question_lower or "total" in question_lower:
+            return "totals"
+        if "spread" in question_lower:
+            return "spread"
+        return "moneyline"
+
+    def _calc_h2h_fair_prob(
+        self,
+        h2h: MarketOdds,
+        home_full: str,
+        home_canonical: str,
+        away_canonical: str,
+        question_lower: str,
+    ) -> Optional[float]:
+        """Calculate devigged probability for moneyline market.
+
+        Returns the fair prob for the YES side of the Polymarket market.
+        The YES side is typically the first team mentioned.
+        """
+        if len(h2h.outcomes) < 2:
+            return None
+
+        # Get implied probs from American odds
+        prob_a = american_to_prob(h2h.outcomes[0]["price"])
+        prob_b = american_to_prob(h2h.outcomes[1]["price"])
+        fair_a, fair_b = devig(prob_a, prob_b)
+
+        # Determine which outcome maps to YES (first team in question)
+        teams_in_q = _find_teams_in_text(question_lower)
+        if not teams_in_q:
+            return None
+
+        first_team = teams_in_q[0]
+        home_name = _normalize_team(h2h.outcomes[0]["name"])
+        away_name = _normalize_team(h2h.outcomes[1]["name"])
+
+        if first_team == home_name:
+            return fair_a
+        elif first_team == away_name:
+            return fair_b
+        else:
+            # Fallback: first outcome = home team fair prob
+            return fair_a
+
+    def _calc_spread_fair_prob(
+        self,
+        spreads: MarketOdds,
+        home_full: str,
+        home_canonical: str,
+        away_canonical: str,
+        question_lower: str,
+    ) -> Optional[float]:
+        """Calculate devigged probability for spread market."""
+        if len(spreads.outcomes) < 2:
+            return None
+
+        # Extract line from question (e.g., "(-3.5)" or "(-7)")
+        line_match = re.search(r'\(([+-]?\d+\.?\d*)\)', question_lower)
+        if not line_match:
+            # Try without parens
+            line_match = re.search(r'[+-]\d+\.?\d*', question_lower)
+
+        prob_a = american_to_prob(spreads.outcomes[0]["price"])
+        prob_b = american_to_prob(spreads.outcomes[1]["price"])
+        fair_a, fair_b = devig(prob_a, prob_b)
+
+        # Find which team's spread is referenced
+        teams_in_q = _find_teams_in_text(question_lower)
+        if not teams_in_q:
+            return fair_a
+
+        first_team = teams_in_q[0]
+        spread_team_0 = _normalize_team(spreads.outcomes[0].get("name", ""))
+        spread_team_1 = _normalize_team(spreads.outcomes[1].get("name", ""))
+
+        if first_team == spread_team_0:
+            return fair_a
+        elif first_team == spread_team_1:
+            return fair_b
+        return fair_a
+
+    def _calc_totals_fair_prob(
+        self,
+        totals: MarketOdds,
+        question_lower: str,
+    ) -> Optional[float]:
+        """Calculate devigged probability for totals (O/U) market.
+
+        YES side = Over for Polymarket O/U markets.
+        """
+        if len(totals.outcomes) < 2:
+            return None
+
+        # Find Over/Under outcomes
+        over_prob = None
+        under_prob = None
+        for outcome in totals.outcomes:
+            if outcome["name"].lower() == "over":
+                over_prob = american_to_prob(outcome["price"])
+            elif outcome["name"].lower() == "under":
+                under_prob = american_to_prob(outcome["price"])
+
+        if over_prob is None or under_prob is None:
+            return None
+
+        fair_over, fair_under = devig(over_prob, under_prob)
+        # YES = Over in Polymarket
+        return fair_over
+
+    def get_fair_prob_for_market(
+        self,
+        market,
+        games: list[GameOdds],
+    ) -> Optional[float]:
+        """Get the fair probability for a Polymarket market.
+
+        Tries all available games to find a match.
+        Returns None if no match found.
+        """
+        for game in games:
+            matches = self.match_to_polymarket(game, [market])
+            if matches:
+                return matches[0].fair_prob
+        return None

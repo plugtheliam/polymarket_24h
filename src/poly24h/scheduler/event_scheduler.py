@@ -2,8 +2,8 @@
 
 Provides event-driven scheduling for crypto market opens that occur every hour.
 Switches between phases:
-- IDLE: >30s before open, low-frequency scan (5min interval)
-- PRE_OPEN: 30s before open, discover markets + warm connections
+- IDLE: >120s before open, low-frequency scan (5min interval)
+- PRE_OPEN: 120s before open, discover markets + warm connections
 - SNIPE: 0-60s after open, rapid orderbook polling (3s interval)
 - COOLDOWN: 60-120s after open, moderate polling (15s interval)
 
@@ -41,6 +41,11 @@ from poly24h.strategy.crypto_fair_value import CryptoFairValueCalculator
 from poly24h.strategy.dynamic_threshold import DynamicThreshold
 from poly24h.strategy.fee_calculator import is_profitable_after_fees
 from poly24h.strategy.nba_fair_value import NBAFairValueCalculator, NBATeamParser
+from poly24h.strategy.odds_api import (
+    OddsAPIClient,
+    calculate_edge,
+    should_skip_crypto_directional,
+)
 from poly24h.strategy.orderbook_scanner import ClobOrderbookFetcher
 from poly24h.strategy.paired_entry import (
     PairedEntryDetector,
@@ -127,7 +132,7 @@ class MarketOpenSchedule:
         delta = next_open - now
         return delta.total_seconds()
 
-    def is_pre_open_window(self, now: datetime, window_secs: int = 30) -> bool:
+    def is_pre_open_window(self, now: datetime, window_secs: int = 120) -> bool:
         """Returns True if within window_secs before market open."""
         seconds_until = self.seconds_until_open(now)
         return 0 < seconds_until <= window_secs
@@ -142,7 +147,7 @@ class MarketOpenSchedule:
 
     def current_phase(self, now: datetime) -> Phase:
         """Determine current phase based on time relative to market open."""
-        if self.is_pre_open_window(now, window_secs=30):
+        if self.is_pre_open_window(now, window_secs=120):
             return Phase.PRE_OPEN
         elif self.is_snipe_window(now, window_secs=60):
             return Phase.SNIPE
@@ -426,6 +431,11 @@ class EventDrivenLoop:
         self._nba_team_parser: NBATeamParser = NBATeamParser()
         self._crypto_fair_value: CryptoFairValueCalculator = CryptoFairValueCalculator()
         self._market_fair_values: dict[str, float] = {}  # market_id → fair_prob
+        self._market_edges: dict[str, float] = {}  # market_id → edge (F-024)
+        self._ohlcv_cache: dict[str, list[dict]] = {}  # symbol → ohlcv (per-cycle)
+        # F-024: The Odds API client for real-time sportsbook odds
+        self._odds_client: OddsAPIClient = OddsAPIClient()
+        self._odds_games: list = []  # Cached GameOdds from API
         
         # Phase 6: Hybrid Mode (Crypto Paired + NBA Sniper)
         self._hybrid_config: HybridConfig = HybridConfig(
@@ -447,9 +457,10 @@ class EventDrivenLoop:
         self._hybrid_mode_enabled: bool = True  # Toggle for hybrid mode
         
         # F-018: Position Manager for realistic dry-run (one position per market)
+        # F-024: $3,000 bankroll, $300 max per market (Kelly-sized)
         self._position_manager: PositionManager = PositionManager(
-            bankroll=1000.0,  # Starting capital
-            max_per_market=100.0,  # Max $100 per market
+            bankroll=3000.0,
+            max_per_market=300.0,
         )
         # Load persisted state and sync from paper_trades
         self._position_manager.load_state(Path("data/position_manager_state.json"))
@@ -549,10 +560,16 @@ class EventDrivenLoop:
         # Phase 5 (F-021): Calculate fair values for all markets
         await self._calculate_fair_values(markets)
 
-        # Wait for market open
+        # Wait for market open (skip if already past open)
         now = datetime.now(tz=timezone.utc)
+        if self.schedule.is_snipe_window(now) or self.schedule.is_snipe_window(now, window_secs=120):
+            logger.info(
+                "PRE_OPEN: Fair value calc finished after market open — proceeding to SNIPE"
+            )
+            return
         sleep_time = self.schedule.seconds_until_open(now)
         if sleep_time > 0:
+            logger.info("PRE_OPEN: Waiting %ds for market open", int(sleep_time))
             await asyncio.sleep(sleep_time)
 
     # Tiered polling intervals (seconds) — aligned with polymarket_trader
@@ -579,31 +596,89 @@ class EventDrivenLoop:
         - NBA: Team win rate comparison
         - Others: Default 0.50 (neutral)
 
-        Stores results in self._market_fair_values[market_id] = fair_prob.
+        Optimized: Pre-fetches OHLCV data per unique symbol, then calculates
+        fair values in parallel using asyncio.gather.
         """
         self._market_fair_values.clear()
+        self._market_edges.clear()
+        self._ohlcv_cache = {}
 
-        for market in markets:
-            fair_prob = 0.50  # Default neutral
-
+        # F-024: Pre-fetch NBA sportsbook odds
+        nba_markets = [m for m in markets if m.source == MarketSource.NBA]
+        if nba_markets:
             try:
-                if market.source == MarketSource.HOURLY_CRYPTO:
-                    fair_prob = await self._calculate_crypto_fair_value(market)
-                elif market.source == MarketSource.NBA:
-                    fair_prob = await self._calculate_nba_fair_value(market)
-                # Other sources: keep default 0.50
-            except Exception as e:
-                logger.warning(
-                    "Fair value calculation failed for %s: %s",
-                    market.question[:40], e
+                self._odds_games = await self._odds_client.fetch_nba_odds()
+                logger.info(
+                    "F-024: Fetched %d NBA games from sportsbook",
+                    len(self._odds_games),
                 )
+            except Exception as e:
+                logger.warning("F-024: Failed to fetch sportsbook odds: %s", e)
+                self._odds_games = []
 
-            self._market_fair_values[market.id] = fair_prob
+        # Phase 1: Pre-fetch unique crypto OHLCV data in parallel
+        crypto_markets = [m for m in markets if m.source == MarketSource.HOURLY_CRYPTO]
+        symbols_needed: set[str] = set()
+        for m in crypto_markets:
+            q = m.question.lower()
+            for coin in ["btc", "eth", "sol", "xrp", "doge", "bnb"]:
+                if coin in q:
+                    symbols_needed.add(f"{coin.upper()}USDT")
+                    break
+
+        if symbols_needed:
+            fetch_tasks = []
+            symbol_list = sorted(symbols_needed)
+            for symbol in symbol_list:
+                fetch_tasks.append(self._fetch_and_cache_ohlcv(symbol))
+            await asyncio.gather(*fetch_tasks, return_exceptions=True)
+            logger.info(
+                "PRE_OPEN: Pre-fetched OHLCV for %d symbols: %s",
+                len(self._ohlcv_cache), ", ".join(sorted(self._ohlcv_cache.keys())),
+            )
+
+        # Phase 2: Calculate fair values in parallel (all use cached OHLCV)
+        sem = asyncio.Semaphore(20)  # Limit concurrency
+
+        async def _calc_one(market: Market) -> tuple[str, float]:
+            async with sem:
+                fair_prob = 0.50
+                try:
+                    if market.source == MarketSource.HOURLY_CRYPTO:
+                        fair_prob = await self._calculate_crypto_fair_value(market)
+                    elif market.source == MarketSource.NBA:
+                        fair_prob = await self._calculate_nba_fair_value(market)
+                except Exception as e:
+                    logger.warning(
+                        "Fair value calculation failed for %s: %s",
+                        market.question[:40], e,
+                    )
+                return market.id, fair_prob
+
+        results = await asyncio.gather(
+            *[_calc_one(m) for m in markets], return_exceptions=True,
+        )
+        for r in results:
+            if isinstance(r, Exception):
+                continue
+            mid, fp = r
+            self._market_fair_values[mid] = fp
 
         logger.info(
             "PRE_OPEN: Calculated fair values for %d markets",
             len(self._market_fair_values),
         )
+
+    async def _fetch_and_cache_ohlcv(self, symbol: str) -> None:
+        """Fetch OHLCV data for a symbol and store in per-cycle cache."""
+        try:
+            ohlcv = await self._crypto_fair_value.fetch_binance_ohlcv(
+                symbol, interval="1h", limit=24,
+            )
+            if ohlcv:
+                self._ohlcv_cache[symbol] = ohlcv
+        except Exception as e:
+            logger.warning("Failed to pre-fetch OHLCV for %s: %s", symbol, e)
 
     async def _calculate_crypto_fair_value(self, market: Market) -> float:
         """Calculate fair UP probability for crypto 1H market.
@@ -624,10 +699,12 @@ class EventDrivenLoop:
 
         symbol = f"{asset}USDT"
 
-        # Fetch OHLCV data from Binance
-        ohlcv = await self._crypto_fair_value.fetch_binance_ohlcv(
-            symbol, interval="1h", limit=24
-        )
+        # Use cached OHLCV data (pre-fetched in _calculate_fair_values)
+        ohlcv = self._ohlcv_cache.get(symbol)
+        if ohlcv is None:
+            ohlcv = await self._crypto_fair_value.fetch_binance_ohlcv(
+                symbol, interval="1h", limit=24,
+            )
 
         if not ohlcv or len(ohlcv) < 15:
             logger.debug("Insufficient OHLCV data for %s", symbol)
@@ -653,9 +730,11 @@ class EventDrivenLoop:
         decoupling_factor = 1.0
         if asset == "ETH":
             try:
-                btc_ohlcv = await self._crypto_fair_value.fetch_binance_ohlcv(
-                    "BTCUSDT", interval="1h", limit=3
-                )
+                btc_ohlcv = self._ohlcv_cache.get("BTCUSDT")
+                if btc_ohlcv is None:
+                    btc_ohlcv = await self._crypto_fair_value.fetch_binance_ohlcv(
+                        "BTCUSDT", interval="1h", limit=3,
+                    )
                 if btc_ohlcv and len(btc_ohlcv) >= 2:
                     btc_momentum = self._crypto_fair_value.calculate_1h_momentum(
                         btc_ohlcv
@@ -698,25 +777,34 @@ class EventDrivenLoop:
     async def _calculate_nba_fair_value(self, market: Market) -> float:
         """Calculate fair probability for NBA market.
 
-        Uses NBATeamParser to extract team names from question text,
-        then calculates fair probability based on season win rates.
+        F-024: Uses sportsbook odds from The Odds API (Pinnacle preferred).
+        Falls back to static win rates if no sportsbook match found.
         """
-        # Parse team names using the new parser
+        # F-024: Try sportsbook odds first
+        if self._odds_games:
+            fair_prob = self._odds_client.get_fair_prob_for_market(
+                market, self._odds_games,
+            )
+            if fair_prob is not None:
+                logger.info(
+                    "F-024 NBA fair value (sportsbook): %s → prob=%.3f",
+                    market.question[:50], fair_prob,
+                )
+                return fair_prob
+
+        # Fallback: static win rates (F-021 original)
         team_a, team_b = self._nba_team_parser.parse_teams(market.question)
 
         if not team_a:
             logger.debug("NBA: No teams found in '%s'", market.question[:50])
-            return 0.50  # Can't extract teams, neutral
+            return 0.50
 
-        # Get win rates
         rate_a = await self._nba_fair_value.get_team_win_rate(team_a)
         rate_b = await self._nba_fair_value.get_team_win_rate(team_b) if team_b else 0.50
-
-        # Calculate fair probability
         fair_prob = self._nba_fair_value.calculate_fair_probability(rate_a, rate_b)
 
         logger.debug(
-            "NBA fair value: %s (%.2f) vs %s (%.2f) → prob=%.2f",
+            "NBA fair value (static fallback): %s (%.2f) vs %s (%.2f) → prob=%.2f",
             team_a, rate_a, team_b if team_b else "N/A", rate_b, fair_prob
         )
 
@@ -1006,6 +1094,20 @@ class EventDrivenLoop:
             )
             return {}  # Empty dict signals skipped trade
 
+        # F-024: Calculate Kelly-sized position
+        edge = self._market_edges.get(market_id, 0.0) if market_id else 0.0
+        kelly_size = 0.0
+        if edge > 0:
+            kelly_size = self._position_manager.calculate_kelly_size(
+                edge=edge, market_price=opp.trigger_price,
+            )
+            if kelly_size <= 0:
+                logger.debug(
+                    "F-024: Kelly size too small for %s (edge=%.3f)",
+                    market.question[:40] if market else "?", edge,
+                )
+                return {}
+
         # Enter position via PositionManager
         if market_id and market:
             position = self._position_manager.enter_position(
@@ -1015,12 +1117,13 @@ class EventDrivenLoop:
                 price=opp.trigger_price,
                 end_date=market.end_date.isoformat() if market.end_date else "",
                 event_id=market.event_id,
+                size_override=kelly_size if kelly_size > 0 else 0.0,
             )
             if position:
                 paper_size = position.size_usd
                 paper_shares = position.shares
             else:
-                return {}  # Failed to enter (shouldn't happen if can_enter passed)
+                return {}  # Failed to enter
         else:
             # Fallback for unknown markets (legacy behavior)
             paper_size = 10.0
@@ -1069,6 +1172,10 @@ class EventDrivenLoop:
 
         Phase 2: Dynamic threshold per market, cycle stats tracking.
         """
+        # F-023 #2: Reset cycle entry counter when first entering SNIPE phase
+        if self._previous_phase != Phase.SNIPE:
+            self._position_manager.reset_cycle_entries()
+            logger.info("SNIPE: Reset cycle entry counter")
         self._previous_phase = Phase.SNIPE
         if not self._active_token_pairs:
             logger.warning("SNIPE: No active token pairs to monitor")
@@ -1099,11 +1206,10 @@ class EventDrivenLoop:
             # F-019: Find market using token mapping
             market = self._find_market_for_tokens(yes_token, no_token)
 
-            # Phase 6: In hybrid mode, Crypto uses Paired Entry, not Sniper
-            if self._hybrid_mode_enabled and market and market.source == MarketSource.HOURLY_CRYPTO:
-                # Crypto markets are handled by _check_paired_entries
+            # F-024 Phase 3: Skip crypto directional betting entirely
+            if market and should_skip_crypto_directional(market.source):
                 logger.debug(
-                    "SNIPE: Skipped %s (Crypto uses Paired Entry in hybrid mode)",
+                    "F-024: Skipped crypto directional: %s",
                     market.question[:40],
                 )
                 continue
@@ -1122,19 +1228,28 @@ class EventDrivenLoop:
                     )
                     continue
 
-                # Phase 5 (F-021): Additional fair value check
-                # F-022 FIX: Increased margin to allow more signals (was 0.50 - dynamic_thresh)
-                fair_margin = 0.05  # Fixed 5% margin for more lenient filtering
-                if not self._is_market_undervalued(
-                    market, opp.trigger_side, opp.trigger_price, margin=fair_margin
-                ):
-                    fair_prob = self._market_fair_values.get(market.id, 0.50)
+                # F-024: Edge-based entry filter (replaces fixed 5% margin)
+                fair_prob = self._market_fair_values.get(market.id, 0.50)
+                # For NO side, flip the fair probability
+                side_fair_prob = fair_prob if opp.trigger_side == "YES" else (1.0 - fair_prob)
+                edge = calculate_edge(opp.trigger_price, side_fair_prob)
+                min_edge = 0.03  # 3% minimum edge (NBA 0% fees)
+                if edge < min_edge:
                     logger.debug(
-                        "SNIPE: Skipped %s (not undervalued: price=$%.4f, fair=%.2f, margin=%.2f)",
+                        "F-024: Skipped %s (edge=%.3f < %.3f: price=$%.4f, fair=%.3f) | %s",
+                        opp.trigger_side, edge, min_edge,
+                        opp.trigger_price, side_fair_prob,
                         market.question[:40],
-                        opp.trigger_price, fair_prob, fair_margin,
                     )
                     continue
+                # Store edge for Kelly sizing
+                self._market_edges[market.id] = edge
+                logger.info(
+                    "F-024: Edge detected: %s %.1f%% (price=$%.3f, fair=%.3f) | %s",
+                    opp.trigger_side, edge * 100,
+                    opp.trigger_price, side_fair_prob,
+                    market.question[:40],
+                )
 
             # F-019: Record paper trade (returns {} if position already exists)
             paper = self._record_paper_trade(opp, market)
@@ -1226,6 +1341,10 @@ class EventDrivenLoop:
         for opp, (yes_token, no_token) in opportunities:
             market = self._find_market_for_tokens(yes_token, no_token)
 
+            # F-024 Phase 3: Skip crypto directional
+            if market and should_skip_crypto_directional(market.source):
+                continue
+
             # Phase 2: Dynamic threshold check
             if market:
                 dynamic_thresh = self._dynamic_threshold.get_threshold(
@@ -1234,20 +1353,20 @@ class EventDrivenLoop:
                 if opp.trigger_price > dynamic_thresh:
                     continue
 
-                # Phase 5 (F-021): Fair value check
-                # F-022 FIX: Increased margin to allow more signals
-                fair_margin = 0.05  # Fixed 5% margin for more lenient filtering
-                if not self._is_market_undervalued(
-                    market, opp.trigger_side, opp.trigger_price, margin=fair_margin
-                ):
+                # F-024: Edge-based entry filter
+                fair_prob = self._market_fair_values.get(market.id, 0.50)
+                side_fair_prob = fair_prob if opp.trigger_side == "YES" else (1.0 - fair_prob)
+                edge = calculate_edge(opp.trigger_price, side_fair_prob)
+                if edge < 0.03:
                     continue
+                self._market_edges[market.id] = edge
 
             paper = self._record_paper_trade(opp, market)
-            
+
             # Only process if we actually entered a position
             if not paper:
                 continue
-                
+
             # Phase 2: Record filtered signal + settlement trade
             self._cycle_stats.record_filtered_signal(
                 market_question=market.question if market else "Unknown",
