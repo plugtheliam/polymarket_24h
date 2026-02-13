@@ -104,6 +104,13 @@ class SportsMonitor:
         # 3. Fetch sportsbook odds
         games = await self._odds_client.fetch_odds(self._config)
 
+        # Record the fetch with rate limiter
+        if self._rate_limiter:
+            # Get remaining from the latest API header (stored in _fetch_json log)
+            remaining = getattr(self._odds_client, '_last_remaining', None)
+            if remaining is not None:
+                self._rate_limiter.record_fetch(self._config.name, remaining)
+
         # 4. For each market, find fair value and check edge
         for market in markets:
             fair_prob = self._odds_client.get_fair_prob_for_market(

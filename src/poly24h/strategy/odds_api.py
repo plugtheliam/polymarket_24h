@@ -222,6 +222,8 @@ class OddsAPIClient:
         self._cache_time: float = 0.0
         # F-026: Per-sport cache
         self._sport_caches: dict[str, tuple[list[GameOdds], float]] = {}
+        # Track remaining requests from API response header
+        self._last_remaining: int | None = None
 
     async def _fetch_json(self, url: str, params: dict) -> list[dict]:
         """Fetch JSON from API endpoint."""
@@ -240,6 +242,10 @@ class OddsAPIClient:
                     data = await resp.json()
                     remaining = resp.headers.get("x-requests-remaining", "?")
                     logger.info("Odds API: %d games, requests remaining: %s", len(data), remaining)
+                    try:
+                        self._last_remaining = int(remaining)
+                    except (ValueError, TypeError):
+                        pass
                     return data
         except Exception as e:
             logger.error("Odds API fetch failed: %s", e)
