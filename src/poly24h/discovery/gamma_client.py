@@ -168,32 +168,35 @@ class GammaClient:
         return await self._get_list(url, params)
 
     # ------------------------------------------------------------------
-    # F-025: NBA game events via series_id
+    # F-026: Generic game events by series_id
     # ------------------------------------------------------------------
 
     NBA_SERIES_ID = "10345"   # nba-2026 series
     NBA_GAMES_TAG_ID = "100639"  # game bets (excludes futures)
 
-    async def fetch_nba_game_events(
+    async def fetch_game_events_by_series(
         self,
+        series_id: str,
+        tag_id: str | None = None,
         limit: int = 100,
         offset: int = 0,
         include_ended: bool = False,
     ) -> list[dict]:
-        """Fetch NBA individual game events using series_id.
+        """Fetch game events for any sport using series_id.
 
         Args:
+            series_id: Sport/league series identifier.
+            tag_id: Optional tag filter (e.g., games only, excludes futures).
             limit: Max results per page.
             offset: Pagination offset.
             include_ended: If True, include games that already ended.
 
         Returns:
-            List of NBA game event dicts with full sports metadata.
+            List of game event dicts with full sports metadata.
         """
         url = f"{self.base_url}/events"
         params = {
-            "series_id": self.NBA_SERIES_ID,
-            "tag_id": self.NBA_GAMES_TAG_ID,
+            "series_id": series_id,
             "active": "true",
             "closed": "false",
             "order": "startDate",
@@ -201,12 +204,33 @@ class GammaClient:
             "limit": str(limit),
             "offset": str(offset),
         }
+        if tag_id is not None:
+            params["tag_id"] = tag_id
+
         events = await self._get_list(url, params)
 
         if not include_ended:
             events = [e for e in events if not e.get("ended")]
 
         return events
+
+    async def fetch_nba_game_events(
+        self,
+        limit: int = 100,
+        offset: int = 0,
+        include_ended: bool = False,
+    ) -> list[dict]:
+        """Fetch NBA game events (backward-compatible wrapper).
+
+        Delegates to fetch_game_events_by_series with NBA series_id.
+        """
+        return await self.fetch_game_events_by_series(
+            series_id=self.NBA_SERIES_ID,
+            tag_id=self.NBA_GAMES_TAG_ID,
+            limit=limit,
+            offset=offset,
+            include_ended=include_ended,
+        )
 
     async def fetch_clob_orderbook(self, token_id: str) -> dict | None:
         """GET orderbook from CLOB API (not Gamma). 실패 시 None."""

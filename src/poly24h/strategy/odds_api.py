@@ -1,8 +1,11 @@
-"""The Odds API client for real-time sportsbook odds (F-024).
+"""The Odds API client for real-time sportsbook odds (F-024/F-026).
 
-Fetches NBA odds from The Odds API, converts American odds to implied
+Fetches sportsbook odds from The Odds API, converts American odds to implied
 probabilities, removes bookmaker overround (devig), and matches sportsbook
 lines to Polymarket markets for edge detection.
+
+F-026: Multi-sport support with per-sport caching, 3-way soccer devig,
+and parameterized team matching.
 """
 
 from __future__ import annotations
@@ -84,6 +87,50 @@ def devig(prob_a: float, prob_b: float) -> tuple[float, float]:
     if total <= 0:
         return (0.5, 0.5)
     return (prob_a / total, prob_b / total)
+
+
+def devig_three_way(
+    prob_home: float, prob_draw: float, prob_away: float,
+) -> tuple[float, float, float]:
+    """Remove bookmaker overround for 3-way markets (soccer).
+
+    Normalizes home/draw/away probabilities to sum to 1.0.
+    """
+    total = prob_home + prob_draw + prob_away
+    if total <= 0:
+        return (1 / 3, 1 / 3, 1 / 3)
+    return (prob_home / total, prob_draw / total, prob_away / total)
+
+
+def build_team_lookup(team_names: dict[str, list[str]]) -> dict[str, str]:
+    """Build reverse lookup: alias → canonical name."""
+    lookup: dict[str, str] = {}
+    for canonical, aliases in team_names.items():
+        for alias in aliases:
+            lookup[alias.lower()] = canonical
+    return lookup
+
+
+def normalize_team_generic(name: str, lookup: dict[str, str]) -> Optional[str]:
+    """Normalize a team name using a given lookup table."""
+    name_lower = name.lower().strip()
+    if name_lower in lookup:
+        return lookup[name_lower]
+    for full_name, canonical in lookup.items():
+        if full_name in name_lower or name_lower in full_name:
+            return canonical
+    return None
+
+
+def find_teams_in_text_generic(text: str, lookup: dict[str, str]) -> list[str]:
+    """Find all team canonical names in text using a given lookup."""
+    text_lower = text.lower()
+    found = []
+    entries = sorted(lookup.items(), key=lambda x: len(x[0]), reverse=True)
+    for full_name, canonical in entries:
+        if full_name in text_lower and canonical not in found:
+            found.append(canonical)
+    return found
 
 
 def calculate_edge(market_price: float, fair_prob: float) -> float:
@@ -170,8 +217,11 @@ class OddsAPIClient:
     ):
         self._api_key = api_key or os.environ.get("ODDS_API_KEY", "")
         self._cache_ttl = cache_ttl
+        # Legacy single cache (NBA backward compat)
         self._cache: Optional[list[GameOdds]] = None
         self._cache_time: float = 0.0
+        # F-026: Per-sport cache
+        self._sport_caches: dict[str, tuple[list[GameOdds], float]] = {}
 
     async def _fetch_json(self, url: str, params: dict) -> list[dict]:
         """Fetch JSON from API endpoint."""
@@ -233,6 +283,53 @@ class OddsAPIClient:
 
         self._cache = games
         self._cache_time = now
+        return games
+
+    async def fetch_odds(
+        self,
+        sport_config,
+        markets: str = "h2h,spreads,totals",
+        bookmakers: str = "",
+    ) -> list[GameOdds]:
+        """Fetch odds for any sport using SportConfig.
+
+        Uses per-sport cache for isolation between sports.
+        """
+        sport_key = sport_config.odds_api_sport_key
+        now = time.time()
+
+        # Check per-sport cache
+        if sport_key in self._sport_caches:
+            cached_games, cached_time = self._sport_caches[sport_key]
+            if (now - cached_time) < self._cache_ttl:
+                return cached_games
+
+        if not bookmakers:
+            bookmakers = ",".join(self.PREFERRED_BOOKS)
+
+        url = f"{self.BASE_URL}/{sport_key}/odds"
+        params = {
+            "apiKey": self._api_key,
+            "regions": "us,eu",
+            "markets": markets,
+            "bookmakers": bookmakers,
+            "oddsFormat": "american",
+        }
+
+        try:
+            raw = await self._fetch_json(url, params)
+        except Exception:
+            if sport_key in self._sport_caches:
+                return self._sport_caches[sport_key][0]
+            return []
+
+        games = []
+        for item in raw:
+            game = self._parse_game(item)
+            if game:
+                games.append(game)
+
+        self._sport_caches[sport_key] = (games, now)
         return games
 
     def _parse_game(self, item: dict) -> Optional[GameOdds]:
@@ -459,14 +556,91 @@ class OddsAPIClient:
         self,
         market,
         games: list[GameOdds],
+        sport_config=None,
     ) -> Optional[float]:
         """Get the fair probability for a Polymarket market.
 
         Tries all available games to find a match.
+        For 3-way soccer markets, uses sport_config to determine draw handling.
         Returns None if no match found.
         """
+        if sport_config is not None and sport_config.is_three_way:
+            return self._get_fair_prob_three_way(market, games, sport_config)
+
         for game in games:
             matches = self.match_to_polymarket(game, [market])
             if matches:
                 return matches[0].fair_prob
+        return None
+
+    def _get_fair_prob_three_way(
+        self,
+        market,
+        games: list[GameOdds],
+        sport_config,
+    ) -> Optional[float]:
+        """Get fair probability for 3-way soccer market.
+
+        Handles home win, draw, and away win Polymarket markets.
+        """
+        lookup = build_team_lookup(sport_config.team_names)
+        q = market.question.lower()
+        teams_in_q = find_teams_in_text_generic(q, lookup)
+
+        for game in games:
+            home_canonical = normalize_team_generic(game.home_team, lookup)
+            away_canonical = normalize_team_generic(game.away_team, lookup)
+
+            if not home_canonical or not away_canonical:
+                continue
+
+            # Check if this game matches the market question
+            if home_canonical not in teams_in_q and away_canonical not in teams_in_q:
+                continue
+
+            if not game.h2h or len(game.h2h.outcomes) < 2:
+                continue
+
+            # 3-way: outcomes are [Home, Draw, Away] or [Home, Away] for 2-way
+            outcomes = game.h2h.outcomes
+            is_three = len(outcomes) >= 3
+
+            if is_three:
+                # Get implied probs
+                prob_home = american_to_prob(outcomes[0]["price"])
+                prob_draw = american_to_prob(outcomes[1]["price"])
+                prob_away = american_to_prob(outcomes[2]["price"])
+                fair_home, fair_draw, fair_away = devig_three_way(
+                    prob_home, prob_draw, prob_away,
+                )
+
+                # Determine which outcome this market asks about
+                is_draw = "draw" in q
+
+                if is_draw:
+                    return fair_draw
+
+                # "Will X win?" — find which team
+                home_name = normalize_team_generic(outcomes[0]["name"], lookup)
+                away_name = normalize_team_generic(outcomes[2]["name"], lookup)
+
+                if teams_in_q:
+                    first_team = teams_in_q[0]
+                    if first_team == home_canonical or first_team == home_name:
+                        return fair_home
+                    elif first_team == away_canonical or first_team == away_name:
+                        return fair_away
+
+                return fair_home
+            else:
+                # 2-way fallback (same as NBA)
+                prob_a = american_to_prob(outcomes[0]["price"])
+                prob_b = american_to_prob(outcomes[1]["price"])
+                fair_a, fair_b = devig(prob_a, prob_b)
+
+                home_name = normalize_team_generic(outcomes[0]["name"], lookup)
+                if teams_in_q and teams_in_q[0] == away_canonical:
+                    return fair_b
+                return fair_a
+
         return None

@@ -361,18 +361,40 @@ async def sniper_loop(config: BotConfig, threshold: float = 0.48) -> None:
             poller = RapidOrderbookPoller(clob_fetcher)
             loop = EventDrivenLoop(schedule, preparer, poller, alerter)
 
-            # F-025: Launch NBAMonitor as parallel background task
-            from poly24h.strategy.nba_monitor import NBAMonitor
+            # F-026: Launch multi-sport monitors as parallel background tasks
             from poly24h.strategy.odds_api import OddsAPIClient
+            from poly24h.strategy.odds_rate_limiter import OddsAPIRateLimiter
+            from poly24h.strategy.sport_config import get_enabled_sport_configs
+            from poly24h.strategy.sports_monitor import SportsMonitor
 
-            nba_monitor = NBAMonitor(
-                odds_client=OddsAPIClient(),
-                market_scanner=scanner,
-                position_manager=loop._position_manager,
-                orderbook_fetcher=clob_fetcher,
-            )
-            nba_task = asyncio.create_task(nba_monitor.run_forever())
-            logger.info("F-025: NBA Monitor launched as background task")
+            odds_client = OddsAPIClient()
+            rate_limiter = OddsAPIRateLimiter(monthly_budget=500)
+            sport_configs = get_enabled_sport_configs()
+            sport_tasks: list[asyncio.Task] = []
+
+            for i, sport_cfg in enumerate(sport_configs):
+                monitor = SportsMonitor(
+                    sport_config=sport_cfg,
+                    odds_client=odds_client,
+                    market_scanner=scanner,
+                    position_manager=loop._position_manager,
+                    orderbook_fetcher=clob_fetcher,
+                    rate_limiter=rate_limiter,
+                )
+
+                async def delayed_start(m, delay):
+                    if delay > 0:
+                        await asyncio.sleep(delay)
+                    await m.run_forever()
+
+                task = asyncio.create_task(
+                    delayed_start(monitor, delay=i * 60),
+                )
+                sport_tasks.append(task)
+
+            sport_names = [c.display_name for c in sport_configs]
+            logger.info("F-026: %d sport monitors launched: %s",
+                        len(sport_tasks), ", ".join(sport_names))
 
             logger.info("Resources initialized successfully")
             consecutive_errors = 0  # Reset on successful init
@@ -403,7 +425,8 @@ async def sniper_loop(config: BotConfig, threshold: float = 0.48) -> None:
                     
                 except asyncio.CancelledError:
                     logger.info("Task cancelled, shutting down...")
-                    nba_task.cancel()
+                    for t in sport_tasks:
+                        t.cancel()
                     stop_event.set()
                     break
                 except Exception as e:
@@ -424,7 +447,8 @@ async def sniper_loop(config: BotConfig, threshold: float = 0.48) -> None:
                     # Exponential backoff on repeated failures
                     if consecutive_errors >= MAX_CONSECUTIVE_ERRORS:
                         logger.error("Too many consecutive errors, reinitializing resources...")
-                        nba_task.cancel()
+                        for t in sport_tasks:
+                            t.cancel()
                         break  # Break inner loop to reinit resources
                     
                     backoff = min(30, 2 ** consecutive_errors)

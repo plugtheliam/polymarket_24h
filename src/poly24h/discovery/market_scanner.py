@@ -281,6 +281,59 @@ class MarketScanner:
         return markets
 
     # ------------------------------------------------------------------
+    # F-026: Generic sport discovery by series_id
+    # ------------------------------------------------------------------
+
+    async def discover_sport_markets(
+        self, sport_config,
+    ) -> list[Market]:
+        """F-026: Generic sport market discovery using series_id.
+
+        Uses the sport's series_id endpoint to fetch game events,
+        then extracts active markets from each event.
+
+        Args:
+            sport_config: SportConfig with series_id, tag_id, source, slug_prefixes.
+
+        Returns:
+            List of Market objects for the given sport.
+        """
+        all_events: list[dict] = []
+        for offset in range(0, 600, 50):
+            batch = await self.client.fetch_game_events_by_series(
+                series_id=sport_config.series_id,
+                tag_id=sport_config.tag_id,
+                limit=50,
+                offset=offset,
+                include_ended=False,
+            )
+            all_events.extend(batch)
+            if len(batch) < 50:
+                break
+
+        markets: list[Market] = []
+
+        for event in all_events:
+            slug = event.get("slug", "")
+
+            # Verify slug matches expected prefixes
+            if sport_config.slug_prefixes:
+                if not any(slug.startswith(p + "-") or slug.startswith(p) for p in sport_config.slug_prefixes):
+                    continue
+
+            for raw_mkt in event.get("markets", []):
+                if not MarketFilter.is_active(raw_mkt):
+                    continue
+
+                market = Market.from_gamma_response(raw_mkt, event, sport_config.source)
+                if market:
+                    markets.append(market)
+
+        logger.info("%s discovery: found %d markets from %d game events",
+                     sport_config.display_name, len(markets), len(all_events))
+        return markets
+
+    # ------------------------------------------------------------------
     # F-025: NBA-specific discovery (with negRisk support)
     # ------------------------------------------------------------------
 
