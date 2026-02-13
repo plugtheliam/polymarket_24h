@@ -289,11 +289,12 @@ class OddsAPIClient:
         self,
         sport_config,
         markets: str = "h2h,spreads,totals",
-        bookmakers: str = "",
     ) -> list[GameOdds]:
         """Fetch odds for any sport using SportConfig.
 
         Uses per-sport cache for isolation between sports.
+        Does not filter by bookmaker at the API level — _parse_game
+        handles preferred bookmaker selection from all available.
         """
         sport_key = sport_config.odds_api_sport_key
         now = time.time()
@@ -304,15 +305,11 @@ class OddsAPIClient:
             if (now - cached_time) < self._cache_ttl:
                 return cached_games
 
-        if not bookmakers:
-            bookmakers = ",".join(self.PREFERRED_BOOKS)
-
         url = f"{self.BASE_URL}/{sport_key}/odds"
         params = {
             "apiKey": self._api_key,
             "regions": "us,eu",
             "markets": markets,
-            "bookmakers": bookmakers,
             "oddsFormat": "american",
         }
 
