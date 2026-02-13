@@ -68,7 +68,7 @@ NHL_TEAM_NAMES: dict[str, list[str]] = {
     "penguins": ["pittsburgh penguins", "penguins", "pittsburgh"],
     "capitals": ["washington capitals", "capitals", "washington"],
     # Central
-    "utah_hc": ["utah hockey club", "utah hc", "utah"],
+    "utah_hc": ["utah hockey club", "utah hc", "utah", "utah mammoth"],
     "blackhawks": ["chicago blackhawks", "blackhawks", "chicago"],
     "avalanche": ["colorado avalanche", "avalanche", "colorado"],
     "stars": ["dallas stars", "stars", "dallas"],

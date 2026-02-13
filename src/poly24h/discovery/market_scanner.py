@@ -77,9 +77,10 @@ GAME_SLUG_PREFIXES = {
     "wta": MarketSource.TENNIS,
     "epl": MarketSource.SOCCER,
     "lal": MarketSource.SOCCER,   # La Liga
-    "ser": MarketSource.SOCCER,   # Serie A
+    "sea": MarketSource.SOCCER,   # Serie A
     "bun": MarketSource.SOCCER,   # Bundesliga
     "ucl": MarketSource.SOCCER,   # Champions League
+    "fl1": MarketSource.SOCCER,   # Ligue 1
     "elc": MarketSource.SOCCER,   # EFL Championship
     "spl": MarketSource.SOCCER,   # Saudi Pro League
     "mls": MarketSource.SOCCER,   # MLS

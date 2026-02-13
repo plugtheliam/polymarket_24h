@@ -91,7 +91,7 @@ SERIE_A_CONFIG = SportConfig(
     series_id="10203",
     tag_id=None,
     team_names=SERIE_A_TEAM_NAMES,
-    slug_prefixes=["ser"],
+    slug_prefixes=["sea"],
     is_three_way=True,
     min_edge=0.05,
 )
@@ -104,7 +104,7 @@ LIGUE_1_CONFIG = SportConfig(
     series_id="10195",
     tag_id=None,
     team_names=LIGUE_1_TEAM_NAMES,
-    slug_prefixes=["lig"],
+    slug_prefixes=["fl1"],
     is_three_way=True,
     min_edge=0.05,
 )

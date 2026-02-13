@@ -604,6 +604,71 @@ class TestOddsAPIMultiSport:
         # Draw at +350 implied = 100/450 ≈ 0.222, devigged similar
         assert 0.1 < prob < 0.4
 
+    def test_totals_line_mismatch_returns_none(self):
+        """O/U market returns None when Polymarket line != Odds API line."""
+        from unittest.mock import MagicMock
+
+        from poly24h.strategy.odds_api import GameOdds, MarketOdds, OddsAPIClient
+        from poly24h.strategy.sport_config import BUNDESLIGA_CONFIG
+
+        game = GameOdds(
+            game_id="g1",
+            home_team="Bayern Munich",
+            away_team="Borussia Dortmund",
+            commence_time="2026-02-14T15:30:00Z",
+            h2h=MarketOdds(outcomes=[
+                {"name": "Bayern Munich", "price": -200},
+                {"name": "Draw", "price": 350},
+                {"name": "Borussia Dortmund", "price": 400},
+            ]),
+            totals=MarketOdds(outcomes=[
+                {"name": "Over", "price": -110, "point": 3.5},
+                {"name": "Under", "price": -110, "point": 3.5},
+            ]),
+        )
+
+        # Polymarket has O/U 1.5 but Odds API has O/U 3.5 → should return None
+        market = MagicMock()
+        market.question = "Bayern Munich vs Borussia Dortmund: O/U 1.5"
+        market.id = "m_ou_mismatch"
+
+        client = OddsAPIClient()
+        prob = client.get_fair_prob_for_market(market, [game], sport_config=BUNDESLIGA_CONFIG)
+        assert prob is None
+
+    def test_totals_line_match_returns_prob(self):
+        """O/U market returns fair prob when lines match."""
+        from unittest.mock import MagicMock
+
+        from poly24h.strategy.odds_api import GameOdds, MarketOdds, OddsAPIClient
+        from poly24h.strategy.sport_config import BUNDESLIGA_CONFIG
+
+        game = GameOdds(
+            game_id="g1",
+            home_team="Bayern Munich",
+            away_team="Borussia Dortmund",
+            commence_time="2026-02-14T15:30:00Z",
+            h2h=MarketOdds(outcomes=[
+                {"name": "Bayern Munich", "price": -200},
+                {"name": "Draw", "price": 350},
+                {"name": "Borussia Dortmund", "price": 400},
+            ]),
+            totals=MarketOdds(outcomes=[
+                {"name": "Over", "price": -110, "point": 2.5},
+                {"name": "Under", "price": -110, "point": 2.5},
+            ]),
+        )
+
+        # Lines match: both 2.5
+        market = MagicMock()
+        market.question = "Bayern Munich vs Borussia Dortmund: O/U 2.5"
+        market.id = "m_ou_match"
+
+        client = OddsAPIClient()
+        prob = client.get_fair_prob_for_market(market, [game], sport_config=BUNDESLIGA_CONFIG)
+        assert prob is not None
+        assert 0.3 < prob < 0.7  # -110/-110 devigs to ~0.5
+
 
 # =============================================================================
 # Phase 5: SportsMonitor

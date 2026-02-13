@@ -532,21 +532,41 @@ class OddsAPIClient:
         """Calculate devigged probability for totals (O/U) market.
 
         YES side = Over for Polymarket O/U markets.
+        Verifies the line (point value) matches between Polymarket and Odds API.
         """
         if len(totals.outcomes) < 2:
             return None
 
+        # Extract Polymarket line from question (e.g., "O/U 2.5" → 2.5)
+        line_match = re.search(r'o/u\s+(\d+\.?\d*)', question_lower)
+        if not line_match:
+            line_match = re.search(r'over/under\s+(\d+\.?\d*)', question_lower)
+        poly_line = float(line_match.group(1)) if line_match else None
+
         # Find Over/Under outcomes
         over_prob = None
         under_prob = None
+        odds_api_line = None
         for outcome in totals.outcomes:
             if outcome["name"].lower() == "over":
                 over_prob = american_to_prob(outcome["price"])
+                odds_api_line = outcome.get("point")
             elif outcome["name"].lower() == "under":
                 under_prob = american_to_prob(outcome["price"])
+                if odds_api_line is None:
+                    odds_api_line = outcome.get("point")
 
         if over_prob is None or under_prob is None:
             return None
+
+        # Verify lines match — reject if Polymarket and Odds API have different lines
+        if poly_line is not None and odds_api_line is not None:
+            if abs(poly_line - odds_api_line) > 0.01:
+                logger.debug(
+                    "O/U line mismatch: Polymarket=%.1f, OddsAPI=%.1f — skipping",
+                    poly_line, odds_api_line,
+                )
+                return None
 
         fair_over, fair_under = devig(over_prob, under_prob)
         # YES = Over in Polymarket
@@ -724,9 +744,26 @@ class OddsAPIClient:
         question_lower: str,
         lookup: dict[str, str],
     ) -> Optional[float]:
-        """Calculate spread fair prob using generic team lookup."""
+        """Calculate spread fair prob using generic team lookup.
+
+        Verifies the spread line matches between Polymarket and Odds API.
+        """
         if len(spreads.outcomes) < 2:
             return None
+
+        # Extract Polymarket spread line from question (e.g., "(-3.5)" or "(+7)")
+        line_match = re.search(r'\(([+-]?\d+\.?\d*)\)', question_lower)
+        poly_line = float(line_match.group(1)) if line_match else None
+
+        # Check Odds API spread line
+        odds_api_line = spreads.outcomes[0].get("point")
+        if poly_line is not None and odds_api_line is not None:
+            if abs(poly_line - odds_api_line) > 0.01:
+                logger.debug(
+                    "Spread line mismatch: Polymarket=%.1f, OddsAPI=%.1f — skipping",
+                    poly_line, odds_api_line,
+                )
+                return None
 
         prob_a = american_to_prob(spreads.outcomes[0]["price"])
         prob_b = american_to_prob(spreads.outcomes[1]["price"])
