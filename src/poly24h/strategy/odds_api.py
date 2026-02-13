@@ -315,7 +315,7 @@ class OddsAPIClient:
         params = {
             "apiKey": self._api_key,
             "regions": "us,eu",
-            "markets": markets,
+            "markets": "h2h",
             "oddsFormat": "american",
         }
 
