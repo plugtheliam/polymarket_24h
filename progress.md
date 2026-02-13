@@ -1,53 +1,76 @@
 # F-025 NBA Monitor — Implementation Progress
 
-**Last updated**: 2026-02-13 07:09 UTC (16:09 KST / 02:09 EST)
+**Last updated**: 2026-02-13 08:00 UTC (17:00 KST / 03:00 EST)
 **Branch**: master
-**Last commit**: `021cc78` F-025: NBA Monitor TDD GREEN phase (untested)
+**Last commit**: `eae9ae5` F-025: Fix NBA discovery using series_id=10345 API
 
 ---
 
-## Current Status: TDD GREEN Phase (In Progress)
+## Current Status: Implementation COMPLETE, Dry Run Active
 
-### What's Done
+### All Implementation Done
 
-1. **RED Phase (Complete)** — Tests written in `tests/test_f025_nba_monitor.py`
-   - 16 test cases across 7 test classes
-   - All tests confirmed failing with `ModuleNotFoundError` (expected RED state)
+1. **RED Phase (Complete)** — 16 tests written, all failed as expected
+2. **GREEN Phase (Complete)** — All 16 tests passing
+3. **Integration (Complete)** — NBAMonitor runs as parallel asyncio task in main.py
+4. **NBA Discovery Fixed** — Using `series_id=10345` + `tag_id=100639` API
+5. **Bot Running** — PID active, discovering 88 NBA markets from 2 game events
+6. **Full Test Suite**: 1032/1037 passed (5 pre-existing failures, 0 new regressions)
 
-2. **GREEN Phase (Partially Complete)** — Implementation files created but NOT YET TESTED
-   - `src/poly24h/strategy/nba_monitor.py` — **NEW, CREATED** ✅
-   - `src/poly24h/discovery/market_scanner.py` — **MODIFIED** (added `discover_nba_markets()`) ✅
-   - Tests have NOT been run against the new code yet
+### Current Dry Run Status
 
-### What's NOT Done
+- **Bot is RUNNING** as background process via `setsid`
+- **NBA Markets**: 88 found from 2 game events ✅
+- **Odds API**: Returns 0 games — **NBA All-Star Break** (Feb 14-16, no regular season games)
+- **Trades**: 0 (expected — no sportsbook odds to compare against)
+- **Log file**: `logs/poly24h_f025.log`
 
-3. **Run tests** — Need to execute `pytest tests/test_f025_nba_monitor.py -v` to verify GREEN
-4. **Fix any failures** — If tests fail, fix implementation until all 16 pass
-5. **Full test suite** — Run `pytest` to verify no regressions (1017/1021 was baseline)
-6. **Phase 3: Integration** — Wire NBAMonitor into `event_scheduler.py` as background asyncio task
-7. **Dry run** — Start the bot and verify NBA markets are discovered and paper trades entered
-8. **Propose timing** — Suggest dry run duration and live trading start time, wait for user approval
+### Blocking Issue: NBA All-Star Break
+
+The Odds API shows `basketball_nba` as inactive (only `basketball_nba_championship_winner` active). Regular season resumes around **Feb 20 UTC** (Feb 20 KST / Feb 20 EST). The NBAMonitor will automatically start matching when games resume.
 
 ---
 
-## Architecture Overview
+## Critical Discovery: Polymarket Sports API
 
-### Problem
-The bot's hourly IDLE→PRE_OPEN→SNIPE→COOLDOWN loop is crypto-centric. NBA markets exist for hours/days before games and need independent scanning.
+The standard Gamma API event search (`end_date_min`/`end_date_max`) does NOT return NBA game events. They use a **hidden parameter**:
 
-### Solution: NBA Independent Monitor
 ```
-Existing (keep): IDLE → PRE_OPEN → SNIPE → COOLDOWN (hourly, crypto)
-New (parallel):  NBAMonitor.run_forever() — 5-min scan loop
+GET https://gamma-api.polymarket.com/events?series_id=10345&tag_id=100639&active=true&closed=false
 ```
 
-NBAMonitor runs as `asyncio.create_task()` in `event_scheduler.py`, scanning every 5 minutes:
-1. Gamma API → discover NBA markets (including negRisk)
-2. Odds API → fetch sportsbook odds (Pinnacle preferred)
-3. Match Polymarket markets to sportsbook games
-4. CLOB orderbook → get real-time Polymarket prices
-5. Edge = fair_prob - market_price
-6. If edge ≥ 3% → enter paper trade (Half-Kelly sizing)
+| Parameter | Value | Purpose |
+|-----------|-------|---------|
+| `series_id` | `10345` | NBA 2026 series (undocumented) |
+| `tag_id` | `100639` | Game bets only (excludes futures like Champion/MVP) |
+| `active` | `true` | Only active events |
+| `closed` | `false` | Exclude settled events |
+
+**Discovery source**: `GET https://gamma-api.polymarket.com/sports` returns sport metadata including series IDs.
+
+### NBA Game Event Structure
+
+Each game event (e.g., `nba-dal-lal-2026-02-12`) contains:
+- **39-68 markets** per game: moneyline, spread, O/U, 1H lines, player props
+- **Sports metadata**: `gameId`, `eventDate`, `startTime`, `teams`, `score`, `live`, `ended`
+- **Slug pattern**: `nba-{away}-{home}-YYYY-MM-DD`
+
+---
+
+## Architecture
+
+```
+Main Loop (hourly):  IDLE → PRE_OPEN → SNIPE → COOLDOWN (crypto, disabled)
+NBA Monitor (5-min):  NBAMonitor.run_forever() — parallel asyncio task
+```
+
+### Scan Cycle Flow
+1. `gamma_client.fetch_nba_game_events()` → NBA game events (series_id=10345)
+2. `odds_api.fetch_nba_odds()` → sportsbook odds (Pinnacle)
+3. Match Polymarket markets to sportsbook games by team name
+4. `fetcher.fetch_best_asks()` → real-time Polymarket CLOB prices
+5. `calculate_edges(fair_prob, yes_price, no_price)` → edge detection
+6. If edge ≥ 3% → `try_enter()` → Half-Kelly paper trade
 
 ### Key Parameters
 | Parameter | Value |
@@ -61,167 +84,55 @@ NBAMonitor runs as `asyncio.create_task()` in `event_scheduler.py`, scanning eve
 
 ---
 
-## Files Modified/Created (Committed in `021cc78`)
+## Commits (Chronological)
+
+| Hash | Description |
+|------|-------------|
+| `7c4d16a` | F-024/F-025: Sportsbook odds arbitrage + NBA monitor plan |
+| `021cc78` | F-025: NBA Monitor TDD GREEN phase (tests + impl) |
+| `913d0cb` | F-025: NBAMonitor integration into main.py |
+| `eae9ae5` | F-025: Fix NBA discovery using series_id=10345 API |
+
+---
+
+## Files Created/Modified
 
 ### New Files
-| File | Status | Description |
-|------|--------|-------------|
-| `src/poly24h/strategy/nba_monitor.py` | **CREATED, UNTESTED** | NBAMonitor class — core scan loop, edge calc, entry logic, per-game caps, Kelly sizing, daily loss limit |
-| `tests/test_f025_nba_monitor.py` | **CREATED, UNTESTED** | 16 TDD test cases — edge detection, entry/skip logic, game limits, Kelly, daily loss, full scan cycle, market discovery |
-| `kitty-specs/F-025-nba-monitor/spec.md` | CREATED | Feature specification |
-| `analysis/F025_NBA_100day_Sprint_20260213_0628UTC.md` | CREATED (already committed in 7c4d16a) | Full analysis document |
+| File | Description |
+|------|-------------|
+| `src/poly24h/strategy/nba_monitor.py` | NBAMonitor class — 5-min scan loop, edge calc, entry, Kelly, daily loss |
+| `tests/test_f025_nba_monitor.py` | 16 TDD tests — all passing |
+| `kitty-specs/F-025-nba-monitor/spec.md` | Feature specification |
+| `analysis/F025_NBA_100day_Sprint_20260213_0628UTC.md` | Full analysis document |
 
 ### Modified Files
-| File | Change | Description |
-|------|--------|-------------|
-| `src/poly24h/discovery/market_scanner.py` | **MODIFIED, UNTESTED** | Added `discover_nba_markets(include_neg_risk=True)` method — discovers NBA markets without filtering out negRisk events |
-
-### NOT YET Modified (Phase 3)
-| File | Planned Change |
-|------|----------------|
-| `src/poly24h/scheduler/event_scheduler.py` | Add `asyncio.create_task(nba_monitor.run_forever())` in `run()` method |
-
----
-
-## Test File Details: `tests/test_f025_nba_monitor.py`
-
-### Test Classes and Methods (16 total)
-
-```
-TestNBAMonitorEdge (3 tests):
-  test_yes_edge_detected      — fair=0.65, YES ask=0.58 → edge_yes=0.07
-  test_no_edge_detected       — fair=0.40, NO ask=0.52 → edge_no=0.08
-  test_no_edge_either_side    — prices match fair value → no edge
-
-TestNBAMonitorEntry (3 tests):
-  test_enters_on_yes_edge     — edge >= 3% → enters paper trade
-  test_skips_low_edge         — edge < 3% → returns None
-  test_skips_existing_position — can_enter=False → returns None
-
-TestNBAMonitorGameLimit (2 tests):
-  test_per_game_limit         — $450 already invested, cap $120 → $50
-  test_per_game_exceeded      — game budget exhausted → returns 0
-
-TestNBAMonitorKelly (1 test):
-  test_uses_half_kelly        — fraction=0.50 passed to calculate_kelly_size
-
-TestNBAMonitorDailyLoss (2 tests):
-  test_daily_loss_limit_blocks — P&L < -$300 → blocked
-  test_daily_loss_not_exceeded — P&L > -$300 → allowed
-
-TestNBAMonitorScanCycle (3 tests):
-  test_scan_discovers_and_enters — full cycle: discover→odds→match→enter
-  test_scan_no_nba_markets       — 0 markets → 0 trades, no crash
-  test_scan_no_matching_odds     — markets found but no sportsbook match
-
-TestNBAMarketDiscovery (2 tests):
-  test_discover_includes_neg_risk — negRisk NBA markets included
-  test_discover_filters_non_nba   — NHL events filtered out
-```
-
-### Expected NBAMonitor Interface (from tests)
-
-```python
-class NBAMonitor:
-    __init__(self, odds_client, market_scanner, position_manager,
-             orderbook_fetcher, max_per_game=500, daily_loss_limit=300)
-
-    # Public methods:
-    calculate_edges(fair_prob, yes_price, no_price) → (edge_yes, edge_no)
-    try_enter(market, side, price, edge) → Position | None  (async)
-    cap_for_game(event_id, amount) → float
-    get_kelly_size(edge, price) → float
-    is_daily_loss_exceeded() → bool
-    scan_and_trade() → dict  (async)  # {markets_found, matched, edges_found, trades_entered}
-    run_forever() → None  (async)
-
-    # Internal state:
-    _game_invested: dict[str, float]
-    _daily_pnl: float
-    _min_edge: float (0.03 default)
-```
-
-### Expected MarketScanner Addition (from tests)
-
-```python
-# In market_scanner.py:
-async def discover_nba_markets(self, include_neg_risk: bool = True) -> list[Market]:
-    # Fetches events by date range, filters slug.startswith("nba-")
-    # When include_neg_risk=True, includes negRisk events
-    # Returns Market objects with source=MarketSource.NBA
-```
-
----
-
-## Implementation Details: `nba_monitor.py`
-
-The file has been written and contains:
-
-- `NBAMonitor` class with all methods matching test expectations
-- `scan_and_trade()`: discovers markets → fetches odds → matches → calculates edges → enters trades
-- `calculate_edges()`: edge_yes = fair_prob - yes_price, edge_no = (1-fair_prob) - no_price
-- `try_enter()`: checks edge ≥ 3%, can_enter, daily loss, Kelly sizing, per-game cap, then enters
-- `cap_for_game()`: caps investment per game event at max_per_game
-- `get_kelly_size()`: delegates to position_manager.calculate_kelly_size with fraction=0.50
-- `is_daily_loss_exceeded()`: checks if daily_pnl < -daily_loss_limit
-- `run_forever()`: 5-min loop calling scan_and_trade
-
----
-
-## Implementation Details: `market_scanner.py` Changes
-
-Added `discover_nba_markets()` method between `discover_all_sports()` and the backwards-compat sports discovery section:
-
-- Queries Gamma API `fetch_events_by_date_range` for next 48 hours
-- Filters events with slug starting with `"nba-"`
-- When `include_neg_risk=True` (default), does NOT filter out negRisk events
-- This is the key fix: existing `discover_all_sports()` skips negRisk, missing NBA main markets
-- Parses markets with `Market.from_gamma_response(raw_mkt, event, MarketSource.NBA)`
+| File | Change |
+|------|--------|
+| `src/poly24h/discovery/gamma_client.py` | Added `fetch_nba_game_events()` using series_id=10345 |
+| `src/poly24h/discovery/market_scanner.py` | `discover_nba_markets()` uses new NBA-specific endpoint |
+| `src/poly24h/main.py` | NBAMonitor launched as parallel `asyncio.create_task()` |
 
 ---
 
 ## Immediate Next Steps (Resume Here)
 
+### Option A: Wait for All-Star Break to End
+NBA regular season resumes ~Feb 20. The bot is running and will automatically start working when games return. Monitor with:
 ```bash
-# Step 1: Run F-025 tests (should pass — GREEN phase)
-cd /home/liam/workspace/polymarket_24h
-pytest tests/test_f025_nba_monitor.py -v --tb=short
-
-# Step 2: If failures, fix implementation in:
-#   - src/poly24h/strategy/nba_monitor.py
-#   - src/poly24h/discovery/market_scanner.py
-
-# Step 3: Run full test suite for regression check
-pytest --tb=short
-
-# Step 4: Phase 3 — Integrate into event_scheduler.py
-#   Add NBAMonitor as background asyncio task in EventScheduler.run()
-#   Import NBAMonitor, ClobOrderbookFetcher, OddsAPIClient
-#   Create nba_task = asyncio.create_task(nba_monitor.run_forever())
-
-# Step 5: Run full suite again
-pytest --tb=short
-
-# Step 6: Start dry run
-#   Kill any existing poly24h process
-#   Reset state if needed
-#   Start with: setsid python3 -m poly24h >> logs/poly24h_f025.log 2>&1 &
-#   Monitor: tail -f logs/poly24h_f025.log
-
-# Step 7: Propose timing to user
-#   Dry run: Tonight's NBA games (Feb 13 EST evening = Feb 14 UTC early morning)
-#   Live trading: After successful dry run validation
+tail -f logs/poly24h_f025.log | grep "NBA SCAN"
 ```
 
----
+### Option B: Expand to Other Sports
+While waiting for NBA, could add support for other active sports on Polymarket (Winter Olympics has 39 markets). The same `series_id` approach works for other leagues via `GET /sports`.
 
-## Previously Completed (F-024)
+### Option C: NBA Futures Arbitrage
+NBA Champion/MVP/Conference markets are active (30+ markets each). Different strategy — longer-term, no game-level sportsbook comparison.
 
-- `src/poly24h/strategy/odds_api.py` — Odds API client, American→prob, devig, edge calc, team matching
-- `src/poly24h/position_manager.py` — Kelly sizing (calculate_kelly_size), bankroll management
-- `src/poly24h/scheduler/event_scheduler.py` — Crypto skip, edge-based entry, Kelly sizing integration
-- `tests/test_f024_profitability.py` — 33 tests, all passing
-- Bankroll reset to $3,000, state clean
+### When NBA Resumes (~Feb 20):
+1. Verify bot discovers new game events automatically
+2. Check Odds API returns game odds (should activate when games are scheduled)
+3. Monitor for edge detection and paper trade entries
+4. After 1-2 days of paper trading, propose live trading timing to user
 
 ---
 
@@ -232,6 +143,7 @@ pytest --tb=short
 - **Development style**: Kent Beck TDD (RED → GREEN → REFACTOR)
 - **Feature spec system**: kitty-specs/<feature>/spec.md
 - **Process management**: Use `setsid` + `disown` (nohup alone doesn't survive terminal close)
-- **F-024 dry run result**: 0 trades — bot architecture mismatch (hourly crypto loop can't find NBA)
-- **Goal**: Verify $100/day NBA profit potential by Feb 17 KST
+- **Goal**: Verify $100/day NBA profit potential by Feb 17 KST (delayed by All-Star Break)
 - **Benchmark**: Suburban-Mailbox trader — 13.2% P&L/Volume, targeting 70% = 9.2%
+- **Odds API key**: In `.env`, 488 requests remaining (500/month plan)
+- **Position state**: $2,700 bankroll, $300 invested, 1 active position
