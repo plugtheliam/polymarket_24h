@@ -403,6 +403,8 @@ class OddsAPIClient:
 
             # Determine market type
             market_type = self._detect_polymarket_type(q)
+            if market_type is None:
+                continue  # Unsupported market type (e.g., BTTS)
 
             if market_type == "moneyline" and game.h2h:
                 fair_prob = self._calc_h2h_fair_prob(
@@ -441,12 +443,18 @@ class OddsAPIClient:
         return matched
 
     @staticmethod
-    def _detect_polymarket_type(question_lower: str) -> str:
-        """Detect Polymarket market type from question text."""
+    def _detect_polymarket_type(question_lower: str) -> str | None:
+        """Detect Polymarket market type from question text.
+
+        Returns None for market types we can't price (e.g., BTTS).
+        """
         if "o/u" in question_lower or "over/under" in question_lower or "total" in question_lower:
             return "totals"
         if "spread" in question_lower:
             return "spread"
+        # BTTS (Both Teams to Score) — Odds API doesn't return these in standard query
+        if "both teams" in question_lower or "btts" in question_lower:
+            return None
         return "moneyline"
 
     def _calc_h2h_fair_prob(
@@ -614,6 +622,8 @@ class OddsAPIClient:
         q = market.question.lower()
         teams_in_q = find_teams_in_text_generic(q, lookup)
         market_type = self._detect_polymarket_type(q)
+        if market_type is None:
+            return None  # Unsupported market type (e.g., BTTS)
 
         for game in games:
             home_canonical = normalize_team_generic(game.home_team, lookup)
@@ -672,6 +682,8 @@ class OddsAPIClient:
 
         # Detect market type first
         market_type = self._detect_polymarket_type(q)
+        if market_type is None:
+            return None  # Unsupported market type (e.g., BTTS)
 
         for game in games:
             home_canonical = normalize_team_generic(game.home_team, lookup)
