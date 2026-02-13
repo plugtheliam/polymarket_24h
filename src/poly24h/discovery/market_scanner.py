@@ -287,10 +287,10 @@ class MarketScanner:
     async def discover_nba_markets(
         self, include_neg_risk: bool = True,
     ) -> list[Market]:
-        """NBA-specific market discovery with negRisk support.
+        """F-025: NBA game event discovery using series_id.
 
-        Unlike discover_all_sports() which filters OUT negRisk events,
-        this method can include them (NBA main markets may be negRisk).
+        Uses the dedicated NBA series_id endpoint to fetch individual game
+        events (moneyline, spread, O/U) — NOT futures/awards.
 
         Args:
             include_neg_risk: If True, include negRisk NBA events.
@@ -298,17 +298,12 @@ class MarketScanner:
         Returns:
             List of NBA Market objects.
         """
-        now = datetime.now(tz=timezone.utc)
-        end_min = now.isoformat()
-        end_max = (now + timedelta(hours=48)).isoformat()
-
         all_events: list[dict] = []
         for offset in range(0, 600, 50):
-            batch = await self.client.fetch_events_by_date_range(
-                end_date_min=end_min,
-                end_date_max=end_max,
+            batch = await self.client.fetch_nba_game_events(
                 limit=50,
                 offset=offset,
+                include_ended=False,
             )
             all_events.extend(batch)
             if len(batch) < 50:
@@ -319,7 +314,7 @@ class MarketScanner:
         for event in all_events:
             slug = event.get("slug", "")
 
-            # Only NBA events (slug starts with "nba-")
+            # Safety: skip non-NBA events (API should only return NBA, but guard)
             if not slug.startswith("nba-"):
                 continue
 
@@ -329,10 +324,6 @@ class MarketScanner:
                     continue
 
             for raw_mkt in event.get("markets", []):
-                end_date_str = raw_mkt.get("endDate") or event.get("endDate", "")
-                if not MarketFilter.is_within_24h(end_date_str, max_hours=48):
-                    continue
-
                 if not MarketFilter.is_active(raw_mkt):
                     continue
 
@@ -340,8 +331,8 @@ class MarketScanner:
                 if market:
                     markets.append(market)
 
-        logger.info("NBA discovery: found %d markets from %d events (negRisk=%s)",
-                     len(markets), len(all_events), include_neg_risk)
+        logger.info("NBA discovery: found %d markets from %d game events",
+                     len(markets), len(all_events))
         return markets
 
     # ------------------------------------------------------------------

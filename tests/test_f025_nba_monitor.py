@@ -336,6 +336,8 @@ class TestNBAMonitorScanCycle:
         # Mock scanner
         scanner = MagicMock()
         scanner.discover_nba_markets = AsyncMock(return_value=[market])
+        scanner.client = MagicMock()
+        scanner.client.open = AsyncMock()
 
         # Mock odds client
         odds_client = MagicMock()
@@ -373,6 +375,8 @@ class TestNBAMonitorScanCycle:
 
         scanner = MagicMock()
         scanner.discover_nba_markets = AsyncMock(return_value=[])
+        scanner.client = MagicMock()
+        scanner.client.open = AsyncMock()
 
         odds_client = MagicMock()
         odds_client.fetch_nba_odds = AsyncMock(return_value=[])
@@ -397,6 +401,8 @@ class TestNBAMonitorScanCycle:
 
         scanner = MagicMock()
         scanner.discover_nba_markets = AsyncMock(return_value=[market])
+        scanner.client = MagicMock()
+        scanner.client.open = AsyncMock()
 
         odds_client = MagicMock()
         odds_client.fetch_nba_odds = AsyncMock(return_value=[])
@@ -450,7 +456,7 @@ class TestNBAMarketDiscovery:
                 },
             ],
         }
-        gamma.fetch_events_by_date_range = AsyncMock(return_value=[neg_risk_event])
+        gamma.fetch_nba_game_events = AsyncMock(return_value=[neg_risk_event])
 
         scanner = MarketScanner(gamma)
         markets = await scanner.discover_nba_markets(include_neg_risk=True)
@@ -481,7 +487,7 @@ class TestNBAMarketDiscovery:
                 },
             ],
         }
-        gamma.fetch_events_by_date_range = AsyncMock(return_value=[nhl_event])
+        gamma.fetch_nba_game_events = AsyncMock(return_value=[nhl_event])
 
         scanner = MarketScanner(gamma)
         markets = await scanner.discover_nba_markets(include_neg_risk=True)

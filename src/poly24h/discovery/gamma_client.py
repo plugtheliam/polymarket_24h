@@ -167,6 +167,47 @@ class GammaClient:
         }
         return await self._get_list(url, params)
 
+    # ------------------------------------------------------------------
+    # F-025: NBA game events via series_id
+    # ------------------------------------------------------------------
+
+    NBA_SERIES_ID = "10345"   # nba-2026 series
+    NBA_GAMES_TAG_ID = "100639"  # game bets (excludes futures)
+
+    async def fetch_nba_game_events(
+        self,
+        limit: int = 100,
+        offset: int = 0,
+        include_ended: bool = False,
+    ) -> list[dict]:
+        """Fetch NBA individual game events using series_id.
+
+        Args:
+            limit: Max results per page.
+            offset: Pagination offset.
+            include_ended: If True, include games that already ended.
+
+        Returns:
+            List of NBA game event dicts with full sports metadata.
+        """
+        url = f"{self.base_url}/events"
+        params = {
+            "series_id": self.NBA_SERIES_ID,
+            "tag_id": self.NBA_GAMES_TAG_ID,
+            "active": "true",
+            "closed": "false",
+            "order": "startDate",
+            "ascending": "true",
+            "limit": str(limit),
+            "offset": str(offset),
+        }
+        events = await self._get_list(url, params)
+
+        if not include_ended:
+            events = [e for e in events if not e.get("ended")]
+
+        return events
+
     async def fetch_clob_orderbook(self, token_id: str) -> dict | None:
         """GET orderbook from CLOB API (not Gamma). 실패 시 None."""
         url = "https://clob.polymarket.com/book"

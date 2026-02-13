@@ -88,6 +88,10 @@ class NBAMonitor:
             "trades_entered": 0,
         }
 
+        # 0. Ensure GammaClient session is open
+        if hasattr(self._scanner, 'client'):
+            await self._scanner.client.open()
+
         # 1. Discover NBA markets
         markets = await self._scanner.discover_nba_markets()
         stats["markets_found"] = len(markets)
