@@ -281,6 +281,70 @@ class MarketScanner:
         return markets
 
     # ------------------------------------------------------------------
+    # F-025: NBA-specific discovery (with negRisk support)
+    # ------------------------------------------------------------------
+
+    async def discover_nba_markets(
+        self, include_neg_risk: bool = True,
+    ) -> list[Market]:
+        """NBA-specific market discovery with negRisk support.
+
+        Unlike discover_all_sports() which filters OUT negRisk events,
+        this method can include them (NBA main markets may be negRisk).
+
+        Args:
+            include_neg_risk: If True, include negRisk NBA events.
+
+        Returns:
+            List of NBA Market objects.
+        """
+        now = datetime.now(tz=timezone.utc)
+        end_min = now.isoformat()
+        end_max = (now + timedelta(hours=48)).isoformat()
+
+        all_events: list[dict] = []
+        for offset in range(0, 600, 50):
+            batch = await self.client.fetch_events_by_date_range(
+                end_date_min=end_min,
+                end_date_max=end_max,
+                limit=50,
+                offset=offset,
+            )
+            all_events.extend(batch)
+            if len(batch) < 50:
+                break
+
+        markets: list[Market] = []
+
+        for event in all_events:
+            slug = event.get("slug", "")
+
+            # Only NBA events (slug starts with "nba-")
+            if not slug.startswith("nba-"):
+                continue
+
+            # NegRisk filter: skip if not including negRisk
+            if not include_neg_risk:
+                if event.get("enableNegRisk") or event.get("negRiskAugmented"):
+                    continue
+
+            for raw_mkt in event.get("markets", []):
+                end_date_str = raw_mkt.get("endDate") or event.get("endDate", "")
+                if not MarketFilter.is_within_24h(end_date_str, max_hours=48):
+                    continue
+
+                if not MarketFilter.is_active(raw_mkt):
+                    continue
+
+                market = Market.from_gamma_response(raw_mkt, event, MarketSource.NBA)
+                if market:
+                    markets.append(market)
+
+        logger.info("NBA discovery: found %d markets from %d events (negRisk=%s)",
+                     len(markets), len(all_events), include_neg_risk)
+        return markets
+
+    # ------------------------------------------------------------------
     # Sports discovery (backwards compat — delegates to unified)
     # ------------------------------------------------------------------
 
