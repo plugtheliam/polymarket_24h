@@ -632,15 +632,19 @@ class OddsAPIClient:
             if home_canonical not in teams_in_q and away_canonical not in teams_in_q:
                 continue
 
-            if market_type == "spread" and game.spreads:
-                return self._calc_spread_fair_prob_generic(
-                    game.spreads, home_canonical, away_canonical, q, lookup,
-                )
+            if market_type == "spread":
+                if game.spreads:
+                    return self._calc_spread_fair_prob_generic(
+                        game.spreads, home_canonical, away_canonical, q, lookup,
+                    )
+                continue  # Don't fall through to moneyline for spread markets
 
-            if market_type == "totals" and game.totals:
-                return self._calc_totals_fair_prob(game.totals, q)
+            if market_type == "totals":
+                if game.totals:
+                    return self._calc_totals_fair_prob(game.totals, q)
+                continue  # Don't fall through to moneyline for O/U markets
 
-            # Moneyline (2-way)
+            # Moneyline (2-way) — only reached when market_type == "moneyline"
             if not game.h2h or len(game.h2h.outcomes) < 2:
                 continue
 
@@ -694,16 +698,20 @@ class OddsAPIClient:
                 continue
 
             # Spread markets → use standard 2-way devig
-            if market_type == "spread" and game.spreads:
-                return self._calc_spread_fair_prob_generic(
-                    game.spreads, home_canonical, away_canonical, q, lookup,
-                )
+            if market_type == "spread":
+                if game.spreads:
+                    return self._calc_spread_fair_prob_generic(
+                        game.spreads, home_canonical, away_canonical, q, lookup,
+                    )
+                continue  # Don't fall through to moneyline for spread markets
 
             # Totals (O/U) markets → use standard 2-way devig
-            if market_type == "totals" and game.totals:
-                return self._calc_totals_fair_prob(game.totals, q)
+            if market_type == "totals":
+                if game.totals:
+                    return self._calc_totals_fair_prob(game.totals, q)
+                continue  # Don't fall through to moneyline for O/U markets
 
-            # Moneyline → 3-way devig
+            # Moneyline / Draw → 3-way devig (only reached when market_type == "moneyline")
             if not game.h2h or len(game.h2h.outcomes) < 2:
                 continue
 
