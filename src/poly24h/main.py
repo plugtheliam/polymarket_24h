@@ -368,7 +368,10 @@ async def sniper_loop(config: BotConfig, threshold: float = 0.48) -> None:
             from poly24h.strategy.sports_monitor import SportsMonitor
 
             odds_client = OddsAPIClient()
-            rate_limiter = OddsAPIRateLimiter(monthly_budget=500)
+            rate_limiter = OddsAPIRateLimiter(
+                monthly_budget=500,
+                min_interval=600,  # 10min between fetches per sport (budget conservation)
+            )
             sport_configs = get_enabled_sport_configs()
             sport_tasks: list[asyncio.Task] = []
 

@@ -561,16 +561,78 @@ class OddsAPIClient:
         """Get the fair probability for a Polymarket market.
 
         Tries all available games to find a match.
-        For 3-way soccer markets, uses sport_config to determine draw handling.
+        When sport_config is provided, uses its team_names for matching.
+        For 3-way sports (soccer), handles draw markets.
         Returns None if no match found.
         """
-        if sport_config is not None and sport_config.is_three_way:
-            return self._get_fair_prob_three_way(market, games, sport_config)
+        if sport_config is not None:
+            # Use generic matching with sport-specific team names
+            return self._get_fair_prob_generic(market, games, sport_config)
 
+        # Legacy NBA path (no sport_config)
         for game in games:
             matches = self.match_to_polymarket(game, [market])
             if matches:
                 return matches[0].fair_prob
+        return None
+
+    def _get_fair_prob_generic(
+        self,
+        market,
+        games: list[GameOdds],
+        sport_config,
+    ) -> Optional[float]:
+        """Get fair probability using sport-specific team lookup.
+
+        Routes to appropriate handler based on market type and sport type.
+        """
+        if sport_config.is_three_way:
+            return self._get_fair_prob_three_way(market, games, sport_config)
+
+        # 2-way sport (NHL, NBA with sport_config)
+        lookup = build_team_lookup(sport_config.team_names)
+        q = market.question.lower()
+        teams_in_q = find_teams_in_text_generic(q, lookup)
+        market_type = self._detect_polymarket_type(q)
+
+        for game in games:
+            home_canonical = normalize_team_generic(game.home_team, lookup)
+            away_canonical = normalize_team_generic(game.away_team, lookup)
+
+            if not home_canonical or not away_canonical:
+                continue
+
+            if home_canonical not in teams_in_q and away_canonical not in teams_in_q:
+                continue
+
+            if market_type == "spread" and game.spreads:
+                return self._calc_spread_fair_prob_generic(
+                    game.spreads, home_canonical, away_canonical, q, lookup,
+                )
+
+            if market_type == "totals" and game.totals:
+                return self._calc_totals_fair_prob(game.totals, q)
+
+            # Moneyline (2-way)
+            if not game.h2h or len(game.h2h.outcomes) < 2:
+                continue
+
+            prob_a = american_to_prob(game.h2h.outcomes[0]["price"])
+            prob_b = american_to_prob(game.h2h.outcomes[1]["price"])
+            fair_a, fair_b = devig(prob_a, prob_b)
+
+            home_name = normalize_team_generic(game.h2h.outcomes[0]["name"], lookup)
+            away_name = normalize_team_generic(game.h2h.outcomes[1]["name"], lookup)
+
+            if teams_in_q:
+                first_team = teams_in_q[0]
+                if first_team == home_name or first_team == home_canonical:
+                    return fair_a
+                elif first_team == away_name or first_team == away_canonical:
+                    return fair_b
+
+            return fair_a
+
         return None
 
     def _get_fair_prob_three_way(
@@ -581,11 +643,15 @@ class OddsAPIClient:
     ) -> Optional[float]:
         """Get fair probability for 3-way soccer market.
 
-        Handles home win, draw, and away win Polymarket markets.
+        Handles moneyline (3-way devig), spread, and totals.
+        Only moneyline uses 3-way devig; spread/totals use standard 2-way.
         """
         lookup = build_team_lookup(sport_config.team_names)
         q = market.question.lower()
         teams_in_q = find_teams_in_text_generic(q, lookup)
+
+        # Detect market type first
+        market_type = self._detect_polymarket_type(q)
 
         for game in games:
             home_canonical = normalize_team_generic(game.home_team, lookup)
@@ -598,15 +664,24 @@ class OddsAPIClient:
             if home_canonical not in teams_in_q and away_canonical not in teams_in_q:
                 continue
 
+            # Spread markets → use standard 2-way devig
+            if market_type == "spread" and game.spreads:
+                return self._calc_spread_fair_prob_generic(
+                    game.spreads, home_canonical, away_canonical, q, lookup,
+                )
+
+            # Totals (O/U) markets → use standard 2-way devig
+            if market_type == "totals" and game.totals:
+                return self._calc_totals_fair_prob(game.totals, q)
+
+            # Moneyline → 3-way devig
             if not game.h2h or len(game.h2h.outcomes) < 2:
                 continue
 
-            # 3-way: outcomes are [Home, Draw, Away] or [Home, Away] for 2-way
             outcomes = game.h2h.outcomes
             is_three = len(outcomes) >= 3
 
             if is_three:
-                # Get implied probs
                 prob_home = american_to_prob(outcomes[0]["price"])
                 prob_draw = american_to_prob(outcomes[1]["price"])
                 prob_away = american_to_prob(outcomes[2]["price"])
@@ -614,13 +689,10 @@ class OddsAPIClient:
                     prob_home, prob_draw, prob_away,
                 )
 
-                # Determine which outcome this market asks about
                 is_draw = "draw" in q
-
                 if is_draw:
                     return fair_draw
 
-                # "Will X win?" — find which team
                 home_name = normalize_team_generic(outcomes[0]["name"], lookup)
                 away_name = normalize_team_generic(outcomes[2]["name"], lookup)
 
@@ -633,7 +705,6 @@ class OddsAPIClient:
 
                 return fair_home
             else:
-                # 2-way fallback (same as NBA)
                 prob_a = american_to_prob(outcomes[0]["price"])
                 prob_b = american_to_prob(outcomes[1]["price"])
                 fair_a, fair_b = devig(prob_a, prob_b)
@@ -644,3 +715,33 @@ class OddsAPIClient:
                 return fair_a
 
         return None
+
+    def _calc_spread_fair_prob_generic(
+        self,
+        spreads: MarketOdds,
+        home_canonical: str,
+        away_canonical: str,
+        question_lower: str,
+        lookup: dict[str, str],
+    ) -> Optional[float]:
+        """Calculate spread fair prob using generic team lookup."""
+        if len(spreads.outcomes) < 2:
+            return None
+
+        prob_a = american_to_prob(spreads.outcomes[0]["price"])
+        prob_b = american_to_prob(spreads.outcomes[1]["price"])
+        fair_a, fair_b = devig(prob_a, prob_b)
+
+        teams_in_q = find_teams_in_text_generic(question_lower, lookup)
+        if not teams_in_q:
+            return fair_a
+
+        first_team = teams_in_q[0]
+        spread_team_0 = normalize_team_generic(spreads.outcomes[0].get("name", ""), lookup)
+        spread_team_1 = normalize_team_generic(spreads.outcomes[1].get("name", ""), lookup)
+
+        if first_team == spread_team_0:
+            return fair_a
+        elif first_team == spread_team_1:
+            return fair_b
+        return fair_a

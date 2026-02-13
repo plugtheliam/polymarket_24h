@@ -27,7 +27,7 @@ class TestSportConfig:
             name="test_sport",
             display_name="Test Sport",
             source=MarketSource.NHL,
-            odds_api_sport_key="ice_hockey_nhl",
+            odds_api_sport_key="icehockey_nhl",
             series_id="10346",
             tag_id="100639",
             team_names={"bruins": ["boston bruins"]},
@@ -78,7 +78,7 @@ class TestSportConfig:
 
         assert NHL_CONFIG.source == MarketSource.NHL
         assert NHL_CONFIG.series_id == "10346"
-        assert NHL_CONFIG.odds_api_sport_key == "ice_hockey_nhl"
+        assert NHL_CONFIG.odds_api_sport_key == "icehockey_nhl"
         assert "nhl" in NHL_CONFIG.slug_prefixes
 
     def test_bundesliga_config(self):
