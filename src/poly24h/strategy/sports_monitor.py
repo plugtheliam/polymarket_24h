@@ -10,6 +10,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from collections import defaultdict
+from pathlib import Path
 
 from poly24h.strategy.sport_config import SportConfig
 
@@ -77,6 +78,9 @@ class SportsMonitor:
 
     async def scan_and_trade(self) -> dict:
         """One cycle: discover → odds compare → enter."""
+        # Reset cycle budget so each sport scan has fresh allocation
+        self._pm.reset_cycle_entries()
+
         stats = {
             "markets_found": 0,
             "matched": 0,
@@ -213,6 +217,7 @@ class SportsMonitor:
                 side, market.question[:50], price, edge * 100,
                 position.size_usd,
             )
+            self._pm.save_state(Path("data/position_manager_state.json"))
 
         return position
 
