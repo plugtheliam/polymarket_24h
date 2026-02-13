@@ -323,7 +323,7 @@ async def sniper_loop(config: BotConfig, threshold: float = 0.48) -> None:
 
     # Create a simple config-like namespace for the loop
     class SniperConfig:
-        pre_open_window_secs = 30.0
+        pre_open_window_secs = 120.0
         sniper_threshold = threshold
 
     # Graceful shutdown
@@ -360,7 +360,20 @@ async def sniper_loop(config: BotConfig, threshold: float = 0.48) -> None:
             clob_fetcher = ClobOrderbookFetcher(timeout=8)
             poller = RapidOrderbookPoller(clob_fetcher)
             loop = EventDrivenLoop(schedule, preparer, poller, alerter)
-            
+
+            # F-025: Launch NBAMonitor as parallel background task
+            from poly24h.strategy.nba_monitor import NBAMonitor
+            from poly24h.strategy.odds_api import OddsAPIClient
+
+            nba_monitor = NBAMonitor(
+                odds_client=OddsAPIClient(),
+                market_scanner=scanner,
+                position_manager=loop._position_manager,
+                orderbook_fetcher=clob_fetcher,
+            )
+            nba_task = asyncio.create_task(nba_monitor.run_forever())
+            logger.info("F-025: NBA Monitor launched as background task")
+
             logger.info("Resources initialized successfully")
             consecutive_errors = 0  # Reset on successful init
             
@@ -390,6 +403,7 @@ async def sniper_loop(config: BotConfig, threshold: float = 0.48) -> None:
                     
                 except asyncio.CancelledError:
                     logger.info("Task cancelled, shutting down...")
+                    nba_task.cancel()
                     stop_event.set()
                     break
                 except Exception as e:
@@ -410,6 +424,7 @@ async def sniper_loop(config: BotConfig, threshold: float = 0.48) -> None:
                     # Exponential backoff on repeated failures
                     if consecutive_errors >= MAX_CONSECUTIVE_ERRORS:
                         logger.error("Too many consecutive errors, reinitializing resources...")
+                        nba_task.cancel()
                         break  # Break inner loop to reinit resources
                     
                     backoff = min(30, 2 ** consecutive_errors)
