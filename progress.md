@@ -1,8 +1,8 @@
 # F-025 NBA Monitor — Implementation Progress
 
-**Last updated**: 2026-02-13 06:39 UTC (15:39 KST / 01:39 EST)
+**Last updated**: 2026-02-13 07:09 UTC (16:09 KST / 02:09 EST)
 **Branch**: master
-**Last commit**: `7c4d16a` F-024/F-025: Sportsbook odds arbitrage + NBA monitor plan
+**Last commit**: `021cc78` F-025: NBA Monitor TDD GREEN phase (untested)
 
 ---
 
@@ -61,7 +61,7 @@ NBAMonitor runs as `asyncio.create_task()` in `event_scheduler.py`, scanning eve
 
 ---
 
-## Files Modified/Created (Uncommitted)
+## Files Modified/Created (Committed in `021cc78`)
 
 ### New Files
 | File | Status | Description |
