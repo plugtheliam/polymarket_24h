@@ -33,6 +33,20 @@ ruff check src/ tests/            # Lint
 2. **Green**: Write minimal code to pass
 3. **Refactor**: Clean up while keeping tests green
 
+## 최우선 참고사항 (Trading Context)
+
+트레이딩 전략, 히스토리, 마일스톤, 리스크 관리 문서를 **반드시** 먼저 확인:
+
+- **TRADING_STRATEGY.md** — 검증된 전략 벤치마크 (계정/지갑 정보, Odds API 예산)
+- **TRADING_HISTORY.md** — 실험했던 전략과 설정 히스토리 (시간순 로그)
+- **TRADING_MILESTONE.md** — 현재 검증 단계, 가설, 로드맵 (living document)
+- **TRADING_RISK_MITIGATION.md** — 역사적 실패 패턴 및 방지 전략
+
+**업데이트 규칙:**
+- 새 feature 구현 시: 4개 파일 모두 업데이트
+- Dry run 결과 시: HISTORY + MILESTONE + RISK 업데이트
+- 전략 변경 시: STRATEGY 업데이트
+
 ## Key Conventions
 - All async functions use `async def` + `await`
 - Data models use `@dataclass` (not Pydantic)
