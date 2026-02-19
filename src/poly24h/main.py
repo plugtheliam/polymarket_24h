@@ -362,6 +362,7 @@ async def sniper_loop(config: BotConfig, threshold: float = 0.48) -> None:
             loop = EventDrivenLoop(schedule, preparer, poller, alerter)
 
             # F-026: Launch multi-sport monitors as parallel background tasks
+            from poly24h.execution.sport_executor import SportExecutor
             from poly24h.strategy.odds_api import OddsAPIClient
             from poly24h.strategy.odds_rate_limiter import OddsAPIRateLimiter
             from poly24h.strategy.sport_config import get_enabled_sport_configs
@@ -372,6 +373,8 @@ async def sniper_loop(config: BotConfig, threshold: float = 0.48) -> None:
                 monthly_budget=500,
                 min_interval=2400,  # 40min between fetches per sport (budget: ~216/day)
             )
+            # F-030: Create sport executor (live or dry_run based on config)
+            sport_executor = SportExecutor.from_env(dry_run=config.dry_run)
             sport_configs = get_enabled_sport_configs()
             sport_tasks: list[asyncio.Task] = []
 
@@ -383,6 +386,7 @@ async def sniper_loop(config: BotConfig, threshold: float = 0.48) -> None:
                     position_manager=loop._position_manager,
                     orderbook_fetcher=clob_fetcher,
                     rate_limiter=rate_limiter,
+                    sport_executor=sport_executor,
                 )
 
                 async def delayed_start(m, delay):

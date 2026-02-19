@@ -31,6 +31,7 @@ class SportsMonitor:
         daily_loss_limit: float = 300.0,
         kelly_fraction: float = 0.50,
         enable_settlement_sniper: bool = False,
+        sport_executor=None,
     ):
         self._config = sport_config
         self._odds_client = odds_client
@@ -38,6 +39,7 @@ class SportsMonitor:
         self._pm = position_manager
         self._fetcher = orderbook_fetcher
         self._rate_limiter = rate_limiter
+        self._executor = sport_executor  # F-030: live order execution
 
         # Use config values
         self._scan_interval = sport_config.scan_interval
@@ -250,6 +252,23 @@ class SportsMonitor:
         )
 
         if position is not None:
+            # F-030: Submit live order if executor is set
+            if self._executor and not self._executor.dry_run:
+                token_id = market.yes_token_id if side == "YES" else market.no_token_id
+                order_result = self._executor.submit_order(
+                    token_id=token_id,
+                    side="BUY",
+                    price=price,
+                    size=position.shares,
+                )
+                if not order_result.get("success"):
+                    logger.warning(
+                        "%s LIVE ORDER FAILED: %s | %s",
+                        self._config.display_name,
+                        market.question[:40],
+                        order_result.get("error", "unknown"),
+                    )
+
             if event_id:
                 self._game_invested[event_id] += position.size_usd
 
