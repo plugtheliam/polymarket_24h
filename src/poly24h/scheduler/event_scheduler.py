@@ -462,10 +462,13 @@ class EventDrivenLoop:
         _bankroll = float(os.environ.get("POLY24H_BANKROLL", "3000"))
         _max_per_market = float(os.environ.get("POLY24H_MAX_POSITION_USD", "300"))
         _max_daily = float(os.environ.get("POLY24H_MAX_DAILY_DEPLOYMENT_USD", "0"))
+        # F-029: max_entries_per_cycle env var override (default 10)
+        _max_entries = int(os.environ.get("POLY24H_MAX_ENTRIES_PER_CYCLE", "10"))
         self._position_manager: PositionManager = PositionManager(
             bankroll=_bankroll,
             max_per_market=_max_per_market,
             max_daily_deployment_usd=_max_daily,
+            max_entries_per_cycle=_max_entries,
         )
         # Load persisted state and sync from paper_trades
         self._position_manager.load_state(Path("data/position_manager_state.json"))
