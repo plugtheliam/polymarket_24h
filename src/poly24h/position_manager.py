@@ -76,6 +76,7 @@ class PositionManager:
         max_concurrent_positions: int = 0,
         max_exposure_ratio: float = 0.0,
         max_entries_per_cycle: int = 10,
+        max_daily_deployment_usd: float = 0.0,
     ):
         """Initialize position manager.
 
@@ -85,6 +86,7 @@ class PositionManager:
             max_concurrent_positions: Max open positions (0 = unlimited)
             max_exposure_ratio: Max total_invested / initial_bankroll (0 = unlimited)
             max_entries_per_cycle: Max entries per SNIPE cycle (0 = unlimited)
+            max_daily_deployment_usd: F-027 daily deployment cap (0 = unlimited)
         """
         self._initial_bankroll = bankroll  # F-022: track initial
         self.bankroll = bankroll
@@ -111,11 +113,34 @@ class PositionManager:
         self._bankroll_reserve_ratio: float = 0.30  # Keep 30% in reserve
         self._cycle_budget_ratio: float = 0.30  # Max 30% per cycle
         self._single_position_ratio: float = 0.10  # Max 10% per position
+        # F-027: Daily deployment cap
+        self._max_daily_deployment_usd = max_daily_deployment_usd
+        self._daily_deployed: float = 0.0
+        self._daily_reset_date: str = ""
 
     @property
     def active_position_count(self) -> int:
         """Number of currently open positions."""
         return len(self._positions)
+
+    def _apply_daily_cap(self, size_usd: float) -> float:
+        """F-027: 일일 배치 상한 적용. 자정 UTC 자동 리셋.
+
+        Returns:
+            허용된 size_usd (축소 가능). 0 이면 진입 불가.
+        """
+        if self._max_daily_deployment_usd <= 0:
+            return size_usd  # 무제한
+
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        if today != self._daily_reset_date:
+            self._daily_deployed = 0.0
+            self._daily_reset_date = today
+
+        remaining = self._max_daily_deployment_usd - self._daily_deployed
+        if remaining <= 0:
+            return 0.0
+        return min(size_usd, remaining)
 
     def reset_cycle_entries(self) -> None:
         """Reset per-cycle entry counter. Call at start of each SNIPE cycle."""
@@ -382,6 +407,16 @@ class PositionManager:
                 size_usd = min(size_override, available_for_trade)
             else:
                 size_usd = available_for_trade
+
+            # F-027: Daily deployment cap
+            size_usd = self._apply_daily_cap(size_usd)
+            if size_usd < self.MIN_POSITION_SIZE:
+                logger.debug(
+                    "Cannot enter %s: daily cap reached ($%.2f deployed today)",
+                    market_id, self._daily_deployed,
+                )
+                return None
+
             shares = size_usd / price if price > 0 else 0
 
             position = Position(
@@ -412,6 +447,8 @@ class PositionManager:
             self._cycle_entries += 1
             # F-024: Track cycle investment for budget enforcement
             self._cycle_invested += size_usd
+            # F-027: Track daily deployment
+            self._daily_deployed += size_usd
 
             logger.info(
                 "[POSITION ENTRY] %s | Side: %s @ %.2f | "
@@ -499,6 +536,9 @@ class PositionManager:
             "max_concurrent_positions": self._max_concurrent_positions,
             "max_exposure_ratio": self._max_exposure_ratio,
             "max_entries_per_cycle": self._max_entries_per_cycle,
+            "max_daily_deployment_usd": self._max_daily_deployment_usd,
+            "daily_deployed": self._daily_deployed,
+            "daily_reset_date": self._daily_reset_date,
             "event_type_entries": self._event_type_entries,
             "positions": {
                 mid: pos.to_dict() for mid, pos in self._positions.items()
@@ -554,6 +594,9 @@ class PositionManager:
                 "max_concurrent_positions", 0
             )
             self._max_exposure_ratio = state.get("max_exposure_ratio", 0.0)
+            # F-027: Restore daily cap tracking
+            self._daily_deployed = state.get("daily_deployed", 0.0)
+            self._daily_reset_date = state.get("daily_reset_date", "")
             # F-023 #1: Load event_type_entries (backward compat with event_ou_entries)
             raw_ete = state.get("event_type_entries", state.get("event_ou_entries", {}))
             # Migrate old format: {event_id: market_id} → {event_id: {"ou": market_id}}

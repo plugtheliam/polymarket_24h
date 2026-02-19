@@ -30,6 +30,7 @@ class SportsMonitor:
         rate_limiter=None,
         daily_loss_limit: float = 300.0,
         kelly_fraction: float = 0.50,
+        enable_settlement_sniper: bool = False,
     ):
         self._config = sport_config
         self._odds_client = odds_client
@@ -49,6 +50,16 @@ class SportsMonitor:
         self._game_invested: dict[str, float] = defaultdict(float)
         # Daily P&L tracking
         self._daily_pnl: float = 0.0
+
+        # Settlement sniper strategy (optional)
+        self._settlement_sniper = None
+        if enable_settlement_sniper:
+            from poly24h.strategy.settlement_sniper import SettlementSniper
+            self._settlement_sniper = SettlementSniper(
+                odds_client=odds_client,
+                position_manager=position_manager,
+                orderbook_fetcher=orderbook_fetcher,
+            )
 
     # ------------------------------------------------------------------
     # Main loop
@@ -96,8 +107,25 @@ class SportsMonitor:
         markets = await self._scanner.discover_sport_markets(self._config)
         stats["markets_found"] = len(markets)
 
+        # 1.5. Filter stale markets (end_date < now + 1H)
+        from poly24h.discovery.gamma_client import filter_stale_markets
+        markets = filter_stale_markets(markets, buffer_hours=1.0)
+
+        # F-028: Sort by end_date ascending — 24H settlement markets get capital first
+        markets.sort(key=lambda m: m.end_date)
+
         if not markets:
             return stats
+
+        # 1.6. Filter by orderbook liquidity (optional, can be disabled)
+        # from poly24h.strategy.orderbook_scanner import filter_by_liquidity_async
+        # markets = await filter_by_liquidity_async(
+        #     markets, self._fetcher,
+        #     max_spread=0.03, min_depth=200.0, max_impact=0.02
+        # )
+
+        # if not markets:
+        #     return stats
 
         # 2. Rate limiter check
         if self._rate_limiter and not self._rate_limiter.can_fetch(self._config.name):
@@ -115,8 +143,22 @@ class SportsMonitor:
             if remaining is not None:
                 self._rate_limiter.record_fetch(self._config.name, remaining)
 
+        # 3.5. Settlement sniper check (if enabled)
+        if self._settlement_sniper:
+            sniper_opportunities = await self._settlement_sniper.scan_settling_markets(
+                markets, self._config
+            )
+            for market, side, price, edge in sniper_opportunities:
+                result = await self._settlement_sniper.try_enter(market, side, price, edge)
+                if result is not None:
+                    stats["trades_entered"] += 1
+
         # 4. For each market, find fair value and check edge
         for market in markets:
+            # Skip if already entered via settlement sniper
+            if market.id in self._pm._positions:
+                continue
+
             fair_prob = self._odds_client.get_fair_prob_for_market(
                 market, games, sport_config=self._config,
             )

@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
@@ -457,10 +458,14 @@ class EventDrivenLoop:
         self._hybrid_mode_enabled: bool = True  # Toggle for hybrid mode
         
         # F-018: Position Manager for realistic dry-run (one position per market)
-        # F-024: $3,000 bankroll, $300 max per market (Kelly-sized)
+        # F-027: Read sizing from env vars (validation: $100/day, $20/market)
+        _bankroll = float(os.environ.get("POLY24H_BANKROLL", "3000"))
+        _max_per_market = float(os.environ.get("POLY24H_MAX_POSITION_USD", "300"))
+        _max_daily = float(os.environ.get("POLY24H_MAX_DAILY_DEPLOYMENT_USD", "0"))
         self._position_manager: PositionManager = PositionManager(
-            bankroll=3000.0,
-            max_per_market=300.0,
+            bankroll=_bankroll,
+            max_per_market=_max_per_market,
+            max_daily_deployment_usd=_max_daily,
         )
         # Load persisted state and sync from paper_trades
         self._position_manager.load_state(Path("data/position_manager_state.json"))
