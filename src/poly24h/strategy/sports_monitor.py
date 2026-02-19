@@ -241,41 +241,48 @@ class SportsMonitor:
         if hasattr(market, "end_date"):
             end_date = market.end_date.isoformat() if hasattr(market.end_date, "isoformat") else str(market.end_date)
 
+        # F-031: Live mode — submit order BEFORE recording position
+        actual_price = price
+        if self._executor and not self._executor.dry_run:
+            token_id = market.yes_token_id if side == "YES" else market.no_token_id
+            shares_estimate = size / price if price > 0 else 0
+            order_result = self._executor.submit_order(
+                token_id=token_id,
+                side="BUY",
+                price=price,
+                size=shares_estimate,
+            )
+            if not order_result.get("success"):
+                logger.warning(
+                    "%s LIVE ORDER FAILED: %s | %s",
+                    self._config.display_name,
+                    market.question[:40],
+                    order_result.get("error", "unknown"),
+                )
+                return None  # Order failed → no phantom position
+
+            # Use actual fill price if available
+            if order_result.get("fill_price"):
+                actual_price = order_result["fill_price"]
+
         position = self._pm.enter_position(
             market_id=market.id,
             market_question=market.question,
             side=side,
-            price=price,
+            price=actual_price,
             end_date=end_date,
             event_id=event_id,
             size_override=size,
         )
 
         if position is not None:
-            # F-030: Submit live order if executor is set
-            if self._executor and not self._executor.dry_run:
-                token_id = market.yes_token_id if side == "YES" else market.no_token_id
-                order_result = self._executor.submit_order(
-                    token_id=token_id,
-                    side="BUY",
-                    price=price,
-                    size=position.shares,
-                )
-                if not order_result.get("success"):
-                    logger.warning(
-                        "%s LIVE ORDER FAILED: %s | %s",
-                        self._config.display_name,
-                        market.question[:40],
-                        order_result.get("error", "unknown"),
-                    )
-
             if event_id:
                 self._game_invested[event_id] += position.size_usd
 
             logger.info(
                 "%s ENTRY: %s %s @ $%.3f | edge=%.1f%% | size=$%.2f",
                 self._config.display_name,
-                side, market.question[:50], price, edge * 100,
+                side, market.question[:50], actual_price, edge * 100,
                 position.size_usd,
             )
             self._pm.save_state(Path("data/position_manager_state.json"))
