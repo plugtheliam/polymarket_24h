@@ -32,6 +32,7 @@ class SportsMonitor:
         kelly_fraction: float = 0.50,
         enable_settlement_sniper: bool = False,
         sport_executor=None,
+        moneyline_gate=None,
     ):
         self._config = sport_config
         self._odds_client = odds_client
@@ -40,6 +41,7 @@ class SportsMonitor:
         self._fetcher = orderbook_fetcher
         self._rate_limiter = rate_limiter
         self._executor = sport_executor  # F-030: live order execution
+        self._moneyline_gate = moneyline_gate  # F-032c: validation gate
 
         # Use config values
         self._scan_interval = sport_config.scan_interval
@@ -166,6 +168,18 @@ class SportsMonitor:
             )
             if fair_prob is None:
                 continue
+
+            # F-032c: Moneyline gate — block unvalidated moneyline entries
+            q = market.question.lower()
+            market_type = self._odds_client._detect_polymarket_type(q)
+            if market_type == "moneyline" and self._moneyline_gate:
+                if not self._moneyline_gate.is_validated():
+                    logger.debug(
+                        "F-032c: Moneyline gate blocked: %s (need %d more trades)",
+                        q[:40], self._moneyline_gate.stats.get("remaining", "?"),
+                    )
+                    continue
+
             stats["matched"] += 1
 
             # 5. Get CLOB prices

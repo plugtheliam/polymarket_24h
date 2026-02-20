@@ -89,17 +89,144 @@ def devig(prob_a: float, prob_b: float) -> tuple[float, float]:
     return (prob_a / total, prob_b / total)
 
 
+def validate_three_way_probs(home: float, draw: float, away: float) -> bool:
+    """Validate 3-way probabilities are realistic.
+
+    Prevents unrealistic edges like 30.7% draw prob that led to -100% ROI.
+
+    Args:
+        home: Home win probability
+        draw: Draw probability
+        away: Away win probability
+
+    Returns:
+        True if probabilities pass sanity checks
+
+    Raises:
+        ValueError: If probabilities are unrealistic
+    """
+    total = home + draw + away
+
+    # Check sum is close to 1.0 (allow ±1% tolerance for rounding)
+    if not (0.99 <= total <= 1.01):
+        raise ValueError(
+            f"Probabilities don't sum to 1.0: {home:.3f} + {draw:.3f} + {away:.3f} = {total:.3f}"
+        )
+
+    # Draw probability realistic range: 5-45%
+    # Typical soccer: 15-30%, extremes: 5-45%
+    if not (0.05 <= draw <= 0.45):
+        raise ValueError(
+            f"Unrealistic draw probability: {draw:.3f} (expected 0.05-0.45)"
+        )
+
+    # Home/Away probabilities realistic range: 10-90%
+    # Extreme underdogs exist, but <10% is rare in 3-way markets
+    if not (0.10 <= home <= 0.90):
+        raise ValueError(
+            f"Unrealistic home win probability: {home:.3f} (expected 0.10-0.90)"
+        )
+
+    if not (0.10 <= away <= 0.90):
+        raise ValueError(
+            f"Unrealistic away win probability: {away:.3f} (expected 0.10-0.90)"
+        )
+
+    return True
+
+
+def devig_three_way_power(
+    prob_home: float,
+    prob_draw: float,
+    prob_away: float,
+    k: float = 1.15,
+) -> tuple[float, float, float]:
+    """Remove bookmaker overround using Power Method (Clarke et al. 2017).
+
+    The Power Method applies a power transformation to implied probabilities
+    before normalizing, which better accounts for non-uniform overround
+    across outcomes (e.g., home/away ~2% vig, draws ~5% vig).
+
+    Academic source: Clarke, Kovalchik & Ingram (2017)
+    "Adjusting Bookmaker's Odds to Allow for Overround"
+
+    Args:
+        prob_home: Raw home win probability from bookmaker odds
+        prob_draw: Raw draw probability from bookmaker odds
+        prob_away: Raw away win probability from bookmaker odds
+        k: Power parameter (1.0 = multiplicative, 1.1-1.3 = power method)
+           Default 1.15 is empirically optimal per Clarke et al.
+
+    Returns:
+        Tuple of (devigged_home, devigged_draw, devigged_away)
+
+    Raises:
+        ValueError: If devigged probabilities fail sanity checks
+    """
+    if prob_home <= 0 or prob_draw <= 0 or prob_away <= 0:
+        return (1 / 3, 1 / 3, 1 / 3)
+
+    # Power transformation
+    powered = [prob_home ** k, prob_draw ** k, prob_away ** k]
+    total_powered = sum(powered)
+
+    if total_powered <= 0:
+        return (1 / 3, 1 / 3, 1 / 3)
+
+    # Normalize
+    devigged = tuple(p / total_powered for p in powered)
+
+    # Validate devigged probabilities
+    try:
+        validate_three_way_probs(devigged[0], devigged[1], devigged[2])
+    except ValueError as e:
+        logger.warning("Power devig validation failed (k=%.2f): %s", k, e)
+        # Fallback to equal probabilities
+        return (1 / 3, 1 / 3, 1 / 3)
+
+    return devigged
+
+
 def devig_three_way(
     prob_home: float, prob_draw: float, prob_away: float,
+    method: str = "power",
+    k: float = 1.15,
 ) -> tuple[float, float, float]:
     """Remove bookmaker overround for 3-way markets (soccer).
 
-    Normalizes home/draw/away probabilities to sum to 1.0.
+    Args:
+        prob_home: Raw home win probability
+        prob_draw: Raw draw probability
+        prob_away: Raw away win probability
+        method: "power" (default) or "multiplicative"
+        k: Power parameter for power method (default 1.15)
+
+    Returns:
+        Tuple of (devigged_home, devigged_draw, devigged_away)
+
+    Raises:
+        ValueError: If devigged probabilities fail sanity checks
     """
+    if method == "power":
+        return devig_three_way_power(prob_home, prob_draw, prob_away, k=k)
+
+    # Multiplicative method (legacy)
     total = prob_home + prob_draw + prob_away
     if total <= 0:
         return (1 / 3, 1 / 3, 1 / 3)
-    return (prob_home / total, prob_draw / total, prob_away / total)
+
+    # Devig using simple normalization
+    devigged = (prob_home / total, prob_draw / total, prob_away / total)
+
+    # Validate devigged probabilities
+    try:
+        validate_three_way_probs(devigged[0], devigged[1], devigged[2])
+    except ValueError as e:
+        logger.warning("3-way devig validation failed: %s", e)
+        # Return equal probabilities as fallback
+        return (1 / 3, 1 / 3, 1 / 3)
+
+    return devigged
 
 
 def build_team_lookup(team_names: dict[str, list[str]]) -> dict[str, str]:
@@ -209,6 +336,8 @@ class OddsAPIClient:
     SPORT_KEY = "basketball_nba"
     # Preferred bookmakers (Pinnacle is sharpest)
     PREFERRED_BOOKS = ["pinnacle", "draftkings", "fanduel"]
+    # Sharp bookmaker only for 3-way markets (soccer)
+    SHARP_BOOKS_3WAY = ["pinnacle"]
 
     def __init__(
         self,
@@ -299,8 +428,7 @@ class OddsAPIClient:
         """Fetch odds for any sport using SportConfig.
 
         Uses per-sport cache for isolation between sports.
-        Does not filter by bookmaker at the API level — _parse_game
-        handles preferred bookmaker selection from all available.
+        For 3-way markets (soccer), uses Pinnacle-only for sharp odds.
         """
         sport_key = sport_config.odds_api_sport_key
         now = time.time()
@@ -328,30 +456,52 @@ class OddsAPIClient:
 
         games = []
         for item in raw:
-            game = self._parse_game(item)
+            # Use Pinnacle-only for 3-way markets
+            use_sharp_only = sport_config.is_three_way
+            game = self._parse_game(item, pinnacle_only=use_sharp_only)
             if game:
                 games.append(game)
 
         self._sport_caches[sport_key] = (games, now)
         return games
 
-    def _parse_game(self, item: dict) -> Optional[GameOdds]:
-        """Parse a single game from API response."""
+    def _parse_game(self, item: dict, pinnacle_only: bool = False) -> Optional[GameOdds]:
+        """Parse a single game from API response.
+
+        Args:
+            item: Raw game data from Odds API
+            pinnacle_only: If True, only use Pinnacle bookmaker (for 3-way soccer)
+
+        Returns:
+            GameOdds object or None if no suitable bookmaker found
+        """
         bookmakers = item.get("bookmakers", [])
         if not bookmakers:
             return None
 
-        # Pick best available bookmaker (prefer Pinnacle)
+        # Pick best available bookmaker
         book = None
-        for pref in self.PREFERRED_BOOKS:
+
+        if pinnacle_only:
+            # 3-way markets: Pinnacle only (sharpest, ~2% vig)
             for b in bookmakers:
-                if b.get("key") == pref:
+                if b.get("key") == "pinnacle":
                     book = b
                     break
-            if book:
-                break
-        if not book:
-            book = bookmakers[0]
+            if not book:
+                # No Pinnacle data available, skip this game
+                return None
+        else:
+            # 2-way markets: prefer Pinnacle, fallback to other sharp books
+            for pref in self.PREFERRED_BOOKS:
+                for b in bookmakers:
+                    if b.get("key") == pref:
+                        book = b
+                        break
+                if book:
+                    break
+            if not book:
+                book = bookmakers[0]
 
         h2h = None
         spreads = None
@@ -616,6 +766,8 @@ class OddsAPIClient:
         """Get fair probability using sport-specific team lookup.
 
         Routes to appropriate handler based on market type and sport type.
+        F-032a: Returns None for spread/totals — devig odds have no correlation
+        to Polymarket prices for these market types.
         """
         if sport_config.is_three_way:
             return self._get_fair_prob_three_way(market, games, sport_config)
@@ -627,6 +779,11 @@ class OddsAPIClient:
         market_type = self._detect_polymarket_type(q)
         if market_type is None:
             return None  # Unsupported market type (e.g., BTTS)
+
+        # F-032a: Block spread/totals — sportsbook devig odds don't translate
+        if market_type in ("spread", "totals"):
+            logger.debug("F-032a: Blocking %s market fair value: %s", market_type, q[:60])
+            return None
 
         for game in games:
             home_canonical = normalize_team_generic(game.home_team, lookup)
@@ -682,6 +839,7 @@ class OddsAPIClient:
 
         Handles moneyline (3-way devig), spread, and totals.
         Only moneyline uses 3-way devig; spread/totals use standard 2-way.
+        F-032a: Returns None for spread/totals.
         """
         lookup = build_team_lookup(sport_config.team_names)
         q = market.question.lower()
@@ -691,6 +849,11 @@ class OddsAPIClient:
         market_type = self._detect_polymarket_type(q)
         if market_type is None:
             return None  # Unsupported market type (e.g., BTTS)
+
+        # F-032a: Block spread/totals — sportsbook devig odds don't translate
+        if market_type in ("spread", "totals"):
+            logger.debug("F-032a: Blocking %s market fair value (3-way): %s", market_type, q[:60])
+            return None
 
         for game in games:
             home_canonical = normalize_team_generic(game.home_team, lookup)

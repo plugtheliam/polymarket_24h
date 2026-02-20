@@ -636,8 +636,8 @@ class TestOddsAPIMultiSport:
         prob = client.get_fair_prob_for_market(market, [game], sport_config=BUNDESLIGA_CONFIG)
         assert prob is None
 
-    def test_totals_line_match_returns_prob(self):
-        """O/U market returns fair prob when lines match."""
+    def test_totals_line_match_returns_none_f032a(self):
+        """F-032a: O/U market returns None — spread/totals blocked."""
         from unittest.mock import MagicMock
 
         from poly24h.strategy.odds_api import GameOdds, MarketOdds, OddsAPIClient
@@ -666,8 +666,8 @@ class TestOddsAPIMultiSport:
 
         client = OddsAPIClient()
         prob = client.get_fair_prob_for_market(market, [game], sport_config=BUNDESLIGA_CONFIG)
-        assert prob is not None
-        assert 0.3 < prob < 0.7  # -110/-110 devigs to ~0.5
+        # F-032a: totals blocked, returns None
+        assert prob is None
 
 
 # =============================================================================

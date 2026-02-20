@@ -383,6 +383,12 @@ async def sniper_loop(config: BotConfig, threshold: float = 0.48) -> None:
             sport_configs = get_enabled_sport_configs()
             sport_tasks: list[asyncio.Task] = []
 
+            # F-032c: Moneyline validation gate
+            from poly24h.strategy.moneyline_gate import MoneylineValidationGate
+            moneyline_gate = MoneylineValidationGate()
+            logger.info("F-032c: MoneylineValidationGate initialized (validated=%s)",
+                        moneyline_gate.is_validated())
+
             for i, sport_cfg in enumerate(sport_configs):
                 monitor = SportsMonitor(
                     sport_config=sport_cfg,
@@ -392,6 +398,7 @@ async def sniper_loop(config: BotConfig, threshold: float = 0.48) -> None:
                     orderbook_fetcher=clob_fetcher,
                     rate_limiter=rate_limiter,
                     sport_executor=sport_executor,
+                    moneyline_gate=moneyline_gate,
                 )
 
                 async def delayed_start(m, delay):
@@ -403,6 +410,17 @@ async def sniper_loop(config: BotConfig, threshold: float = 0.48) -> None:
                     delayed_start(monitor, delay=i * 60),
                 )
                 sport_tasks.append(task)
+
+            # F-032b: Sports Paired Scanner — CPP arbitrage alongside directional
+            from poly24h.strategy.sports_paired_scanner import SportsPairedScanner
+            cpp_threshold = float(os.environ.get("POLY24H_CPP_THRESHOLD", "0.96"))
+            sports_paired_scanner = SportsPairedScanner(
+                orderbook_fetcher=clob_fetcher,
+                position_manager=loop._position_manager,
+                cpp_threshold=cpp_threshold,
+            )
+            logger.info("F-032b: SportsPairedScanner initialized (CPP threshold=%.2f)",
+                        cpp_threshold)
 
             sport_names = [c.display_name for c in sport_configs]
             logger.info("F-026: %d sport monitors launched: %s",

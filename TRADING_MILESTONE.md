@@ -1,20 +1,28 @@
 # Trading Milestones
 
 ## Current Position
-**Phase:** 3 (Multi-Sport Expansion)
-**Status:** 🔴 BLOCKED — F-026 3-way devig failure
-**Date:** 2026-02-15
-**Bankroll:** $900 (초기 $3,000 대비 -70%)
-**Odds API Budget:** 488/500 remaining
+**Phase:** 5 (Strategy Overhaul — Paired Entry Focus)
+**Status:** 🟡 REBUILDING — F-032 전략 재편 완료, 드라이런 대기
+**Date:** 2026-02-20
+**Bankroll:** ~$4,690 (paper), $900 (real, 초기 $3,000 대비 -70%)
+**Odds API Budget:** ~480/500 remaining
 
-**차단 요인:**
-1. F-026 Soccer 3-way: -$241.99 (-100% ROI) → 전략 중단
-2. F-025 NBA 2-way: All-Star Break (Feb 14-17) → 경기 없음
+**F-032 전략 재편 완료 (2026-02-20):**
+1. ✅ F-032a: Spread/O-U 완전 차단 (fair value returns None)
+2. ✅ F-032b: Sports Paired Scanner (CPP < 0.96 아비트라지)
+3. ✅ F-032c: Moneyline Validation Gate (20건 dry-run 필수)
+4. ✅ Crypto Paired Entry 파이프라인 활성 확인
+5. ✅ F-031: Production-Ready Live Executor (polling, retry, kill switch)
 
-**다음 액션 (Feb 18):**
-- NBA monitor 재개 (All-Star Break 종료)
-- NHL 2-way 정산 결과 분석
-- Soccer 3-way 완전 중단, 2-way 검증 우선
+**2/19 드라이런 교훈:**
+- 1W-10L, -$165, ROI -42~-73%
+- Spread/O-U에서 sportsbook devig ≠ Polymarket 가격
+- Paired entry (시장 중립)만이 개인 트레이더의 현실적 에지
+
+**다음 액션:**
+- Day 1-3: 드라이런 재시작 (paired entry only)
+- Day 3: GO/NO-GO 판단 (크립토 페어드 10+건 ROI > 3%)
+- Day 5: 라이브 승인 판단 (15+건 ROI > 2%)
 
 ---
 
@@ -45,36 +53,36 @@ Paired entry (CPP < $0.94)가 crypto 1H markets에서 안정적 수익 제공
 
 ---
 
-### Stage 2: 2-Way Sports Arbitrage ⚠️ IN PROGRESS
+### Stage 2: Sports Directional (Sportsbook Devig) ❌ FAILED
 **가설:**
 Sportsbook arbitrage (Odds API vs Polymarket)가 sports 2-way markets에서 edge 제공
 
+**검증 결과 (2026-02-19, F-029 드라이런):**
+- **NBA:** 13 positions, 1W-10L, -$164.84 (-42~-73% ROI)
+- ❌ **가설 거부** — sportsbook devig odds ≠ Polymarket prices for spread/O-U
+
+**실패 근본 원인:**
+1. Devig 확률(~0.50)은 Polymarket 가격(0.41-0.47)과 무관
+2. "edge 7%"는 환상 (실제 에지 없음)
+3. 리서치: 지갑의 7.6%만 수익, 캘리브레이션 > 정확도
+
+**교정 조치 (F-032):**
+- Spread/O-U 완전 차단
+- Moneyline 검증 게이트 추가 (20건 dry-run 필수)
+- Paired entry로 전환 (시장 중립 아비트라지)
+
+---
+
+### Stage 2b: Sports Paired Entry 🆕 IN PROGRESS
+**가설:**
+YES+NO CPP < 0.96인 스포츠 마켓에서 시장 중립 아비트라지 가능
+
 **검증 조건:**
-- [ ] NBA: 30+ trades, 40%+ win rate
-- [ ] NHL: 20+ trades, 40%+ win rate
-- [ ] Combined positive ROI
+- [ ] 10+ trades 실행
+- [ ] 평균 ROI > 2%
+- [ ] 단일 거래 손실 < 뱅크롤 5%
 
-**현재 상태:**
-
-#### NBA (F-025)
-- **Status:** 구현 완료, 미검증
-- **Trades:** 62 positions 진입
-- **차단:** All-Star Break (Feb 14-17)
-- **다음 검증:** Feb 18 (경기 재개)
-
-#### NHL (F-026)
-- **Status:** 일부 진입, 미정산
-- **Trades:** 10 positions (2-way)
-- **정산 대기:** 아직 결과 없음
-
-**Next Actions (Feb 18):**
-1. NBA monitor 재개
-2. NHL 정산 결과 분석
-3. 30+ trades 달성 시 Stage 2 검증 완료
-
-**예상 타임라인:**
-- Feb 18-25: NBA/NHL trades 누적
-- Feb 26: Stage 2 검증 결과 판단
+**현재 상태:** 구현 완료, 드라이런 대기
 
 ---
 
@@ -137,13 +145,33 @@ Sportsbook arbitrage (Odds API vs Polymarket)가 sports 2-way markets에서 edge
 - 🔴 Soccer 3-way failure (-$241.99)
 - ⏸️ NBA All-Star Break
 
-**Week 3 (Feb 19-25):**
-- 🎯 NBA/NHL 2-way validation
-- 목표: 30+ NBA trades, 20+ NHL trades
+**Week 3 (Feb 15-21): NBA Validation + Quick Wins** 🆕
+- ✅ Stale market filter (prevent Jan 13 market entry)
+- ✅ Probability bounds validation (30.7% draw → rejected)
+- ✅ Adaptive edge threshold (auto-calibration)
+- 🎯 NBA validation analysis (82 positions after Feb 18)
+- 🎯 NHL monitoring (10+ trades)
+- Expected: $900 → $1,100 (+$200)
 
-**Week 4 (Feb 26 - Mar 4):**
-- 🎯 Stage 2 검증 완료
-- 🎯 Bankroll 복구 ($900 → $2,000)
+**Week 4 (Feb 22-28): Settlement Sniper + Orderbook Filtering** 🆕
+- ✅ Settlement sniper implemented (90-120 min window, 8%+ edge)
+- ✅ Orderbook depth metrics (spread, depth, price impact)
+- 🎯 Paper trade settlement sniper (3 days)
+- 🎯 Enable live if paper profitable
+- Expected: $1,100 → $1,400 (+$300)
+
+**Week 5 (Mar 1-7): Power 3-Way + Tennis** 🆕
+- ✅ Power Method devig (k=1.15, Pinnacle-only)
+- ✅ Tennis configs (ATP/WTA, min_edge=4%)
+- 🎯 PREREQUISITE: 50+ 2-way trades, 55%+ win rate
+- 🎯 Enable 3-way soccer + tennis live
+- Expected: $1,400 → $1,800 (+$400)
+
+**Week 6 (Mar 8-14): Multi-Sport Scaling** 🆕
+- ✅ Esports configs (LoL/CS2, min_edge=6%)
+- 🎯 Scale to 30+ trades/day
+- 🎯 Performance review + optimization
+- Expected: $1,800 → $2,200 (+$400)
 
 ### Q2 2026 Goals (Conditional)
 - [ ] 3-way devig 재설계 (Stage 2 성공 시)
