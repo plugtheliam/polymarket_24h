@@ -411,24 +411,45 @@ async def sniper_loop(config: BotConfig, threshold: float = 0.48) -> None:
                 )
                 sport_tasks.append(task)
 
-            # F-032b: Sports Paired Scanner — CPP arbitrage alongside directional
+            # F-032b/d: Sports Paired Scanner — CPP arbitrage (market-neutral)
             from poly24h.strategy.sports_paired_scanner import SportsPairedScanner
             cpp_threshold = float(os.environ.get("POLY24H_CPP_THRESHOLD", "0.96"))
+            paired_scan_interval = float(os.environ.get("POLY24H_PAIRED_SCAN_INTERVAL", "300"))
+            paired_max_hours = float(os.environ.get("POLY24H_PAIRED_MAX_HOURS", "24"))
+            paired_min_hours = float(os.environ.get("POLY24H_PAIRED_MIN_HOURS", "1"))
+            paired_size_usd = float(os.environ.get("POLY24H_PAIRED_SIZE_USD", "20"))
             sports_paired_scanner = SportsPairedScanner(
                 orderbook_fetcher=clob_fetcher,
                 position_manager=loop._position_manager,
                 cpp_threshold=cpp_threshold,
+                max_hours_to_settle=paired_max_hours,
+                min_hours_to_settle=paired_min_hours,
+                market_scanner=scanner,
+                sport_configs=sport_configs,
+                scan_interval=paired_scan_interval,
+                paper_size_usd=paired_size_usd,
             )
-            logger.info("F-032b: SportsPairedScanner initialized (CPP threshold=%.2f)",
-                        cpp_threshold)
+            paired_task = asyncio.create_task(sports_paired_scanner.run_forever())
+            sport_tasks.append(paired_task)
+            logger.info(
+                "F-032d: SportsPairedScanner launched (CPP<%.2f, %d-%dH, interval=%ds)",
+                cpp_threshold, paired_min_hours, paired_max_hours, paired_scan_interval,
+            )
 
             sport_names = [c.display_name for c in sport_configs]
             logger.info("F-026: %d sport monitors launched: %s",
                         len(sport_tasks), ", ".join(sport_names))
 
+            # F-032d: Sports paired only mode — skip crypto EventDrivenLoop phases
+            sports_paired_only = os.environ.get(
+                "POLY24H_SPORTS_PAIRED_ONLY", ""
+            ).lower() in ("1", "true", "yes")
+            if sports_paired_only:
+                logger.info("F-032d: SPORTS_PAIRED_ONLY mode — crypto pipeline disabled")
+
             logger.info("Resources initialized successfully")
             consecutive_errors = 0  # Reset on successful init
-            
+
             # Inner loop: main event loop
             while not stop_event.is_set():
                 cycle += 1
@@ -442,7 +463,11 @@ async def sniper_loop(config: BotConfig, threshold: float = 0.48) -> None:
                 )
 
                 try:
-                    if phase.value == "idle":
+                    # F-032d: In sports-paired-only mode, skip crypto phases
+                    # and just sleep — sport monitors + paired scanner run as tasks
+                    if sports_paired_only:
+                        pass  # All work done by background tasks
+                    elif phase.value == "idle":
                         await loop._handle_idle_phase(now, sniper_cfg)
                     elif phase.value == "pre_open":
                         await loop._handle_pre_open_phase(sniper_cfg)
